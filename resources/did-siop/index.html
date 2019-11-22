@@ -243,7 +243,7 @@
     </figure>
 
     <section>
-        <h2>Generate &lt;SIOP Request&gt;</h2>
+        <h2>Generate SIOP Request</h2>
         <h3>Redirect Request</h3>
         <p>
             The request contains scope, <code>response_type</code> and <code>client_id</code> as query string parameters for backward compatibility with the OAuth2 specification. <code>response_type</code> MUST be <code>id_token</code> and <code>client_id</code> MUST specify the callback URL of the RP (as per SIOP). All other OIDC request parameters MUST be provided in an Request Object which is encoded as a JWT. This enables the RP to authenticate against the SIOP using the RP's DID. The
@@ -347,7 +347,7 @@
     </section>
 
     <section>
-        <h2>&lt;SIOP Request&gt; Validation</h2>
+        <h2>SIOP Request Validation</h2>
         <p>
             The SIOP MUST validate the &lt;SIOP Request&gt; by following the Self-Issued ID Token Validation rules.
         </p>
@@ -371,7 +371,7 @@
             If the key pair that signed the &lt;SIOP Request&gt; refers to the same key as indicated by the verification method, then no additional verification has to be done as the SIOP validation will verify the signature of the JWS.
         </p>
 
-        <h2>Generate &lt;SIOP Response&gt;</h2>
+        <h2>Generate SIOP Response</h2>
 
         <p>
             The SIOP MUST generate and send the &lt;SIOP Response&gt; to the RP as described in the Self-Issued OpenID Provider Response section. The <code>id_token</code> represents the &lt;SIOP Response&gt; encoded as a JWS, or nested JWS/JWE.
@@ -424,7 +424,7 @@
     </section>
 
     <section>
-        <h2>&lt;SIOP Response&gt; Validation</h2>
+        <h2>SIOP Response Validation</h2>
 
         <p>
             The RP MUST validate the &lt;SIOP Response&gt; as described in the Self-Issued ID Token Validation section. This includes:
