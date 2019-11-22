@@ -12,6 +12,20 @@ var siop = {
       status: "Draft Community Group Report",
       publisher: "Credentials Community Group"
     },
+    "DID": {
+        title: "https://www.w3.org/TR/did-core/",
+        href: "https://www.w3.org/TR/did-core/",
+        authors: [
+            "Drummond Reed",
+            "Manu Sporny",
+            "Dave Longley",
+            "Christopher Allen",
+            "Ryan Grant",
+            "Markus Sabadello"
+        ],
+        status: "Working Draft",
+        publisher: "Decentralized Identifier Working Group"
+    },
     "OIDC.Core": {
       title: "OpenID Connect Core 1.0 incorporating errata set 1",
       date: "2014",
