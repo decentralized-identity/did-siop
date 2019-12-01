@@ -312,7 +312,7 @@
         </p>
 
         <p>
-            In addition to <code>RS256</code>, an <a href="#siop">SIOP</a> according to this specification MUST support <code>Ed25519</code> and <code>secp256k1</code> [[!draft-ietf-cose-webauthn-algorithms-02]] for <code>request_object_signing_alg</code> and <code>request_object_signing_alg</code> can be omitted. <a href="#rp">RPs</a> implementing the <a href="#did-authn">DID AuthN</a> profile MUST not use <code>none</code> for <code>request_object_signing_alg</code>.
+            In addition to <code>RS256</code>, an <a href="#siop">SIOP</a> according to this specification MUST support <code>Ed25519</code> and <code>ES256K</code> [[!draft-ietf-cose-webauthn-algorithms-02]] for <code>request_object_signing_alg</code> and <code>request_object_signing_alg</code> can be omitted. <a href="#rp">RPs</a> implementing the <a href="#did-authn">DID AuthN</a> profile MUST not use <code>none</code> for <code>request_object_signing_alg</code>.
         </p>
 
         <p>
@@ -354,7 +354,7 @@
         </p>
         <pre class="example nohighlight">
             {
-               "alg": "secp256k1",
+               "alg": "ES256K",
                "typ": "JWT",
                "kid": "did:example:0xab#veri-key1"
             }
@@ -374,7 +374,7 @@
                 "response_mode" : "form_post",
                 "registration" : {
                     "jwks_uri" : "https://uniresolver.io/1.0/identifiers/did:example:0xab;transform-keys=jwks",
-                    "id_token_signed_response_alg" : [ "secp256k1", "Ed25519", "RS256" ],
+                    "id_token_signed_response_alg" : [ "ES256K", "Ed25519", "RS256" ],
                 }
             }
         </pre>
@@ -431,7 +431,7 @@
 
         <pre class="example nohighlight">
             {
-                "alg": "secp256k1",
+                "alg": "ES256K",
                 "typ": "JWT",
                 "kid": "did:example:0xab#key-1"
             }
@@ -499,9 +499,9 @@
             The <a href="#did-authn">DID AuthN</a> profile assumes the following OP discovery meta-data:
         </p>
         <pre class="nohighlight">
-            "id_token_signing_alg_values_supported": ["RS256", "secp256k1", "Ed25519"],
+            "id_token_signing_alg_values_supported": ["RS256", "ES256K", "Ed25519"],
             "request_object_signing_alg_values_supported":
-               ["none", "RS256", "secp256k1", "Ed25519"]
+               ["none", "RS256", "ES256K", "Ed25519"]
         </pre>
 
         <p>
