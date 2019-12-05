@@ -1,12 +1,12 @@
 // App packages
 const UniversalResolver = require('daf-resolver-universal')
-const didKeyDriver = require('did-method-key').driver()
 const jose = require('jose')
 const base64url = require('base64url')
 const multibase = require('multibase')
 const multicodec = require('multicodec')
 const crypto = require('crypto')
 const url = require('url')
+var qrcode = require('qrcode-terminal')
 
 const {
     JWE,   // JSON Web Encryption (JWE) 
@@ -21,7 +21,7 @@ const {
 const UNIVERSAL_RESOLVER_URL = 'https://uniresolver.io/1.0/identifiers/'
 
 // DAF Configuration
-const resolver = new UniversalResolver.DafUniversalResolver({url: UNIVERSAL_RESOLVER_URL})
+const uniResolver = new UniversalResolver.DafUniversalResolver({url: UNIVERSAL_RESOLVER_URL})
 
 class IdentityController {
 
@@ -41,7 +41,7 @@ class IdentityController {
 
     getJwks() {
         const keyStore = new jose.JWKS.KeyStore([ this.key ])
-        return keyStore.toJWKS()
+        return keyStore.toJWKS(false)
     }
 
     getJwksUri() {
@@ -59,36 +59,41 @@ class IdentityController {
 }
 
 class SiopHelper {
-    static filterValue(obj, key, value) {
-        return obj.find(function(v){ return v[key] === value});
-    }
 
     static findAuthnMethod(didDoc, id) {
         if (typeof didDoc.authentication === 'undefined') {
             return null
         }
-    
-        return didDoc.authentication.find( (v) => {
-            if (v === id) {                
-                // FIXME: TODO: this only looks at the `publicKey` section
-                // Note: `id` values of public keys can be the same as the 
-                // subject `id` of the DID Doc. 
-                if (typeof didDoc.publicKey === 'undefined') {
-                    return null
-                }
-                return SiopHelper.filterValue(didDoc.publicKey, 'id', id)
-            } else if (typeof v.id !== 'undefined' && v.id === id) {
-                return v
+        if (typeof didDoc.publicKey === 'undefined') {
+            return null
+        }
+
+        var found = null
+        for (const authnMethod of didDoc.authentication) {
+            if (authnMethod === id) {
+                found = didDoc.publicKey.find(element => {
+                    return element.id === id
+                })
+            } else if (typeof authnMethod.id !== 'undefined' && authnMethod.id === id) {
+                found = authnMethod    
             }
-        })
-    }    
+    
+            if (found !== null)
+                break
+        }
+
+        return found
+    }
 
     static authnMethodAsJwk(authnMethod) {
         if (typeof authnMethod !== 'undefined') {
             if (typeof authnMethod.publicKeyJwk !== 'undefined') {
                 return jose.JWK.asKey(authnMethod.publicKeyJwk)
             } else {
-                console.error('Conversion from verification method ' + authnMethod.id + ' to JWK not implemented yet')               
+                // FIXME: TODO: implement this conversion!
+                console.warn('Conversion from verification method ' + authnMethod.id + ' to JWK not implemented yet')
+                return idControllerRp.getSigningKey()
+                //                
             }
         }
         return null         
@@ -203,13 +208,14 @@ class SiopRequest {
         return true
     }
 
-    static async _verifyDidAuthnSiopRequest(requestToken) {
+    static async _verifyDidAuthnSiopRequest(encodedRequestToken, uniResolver) {
+        const requestToken = jose.JWT.decode(encodedRequestToken, { complete: true })
+
         if (!requestToken.payload.scope.split(' ').includes('did_authn')) {
             console.error('Cannot read `did_authn` scope from request token')
             return false
         }
     
-        // FIXME: TODO: `kid` might be changed to something else
         if (typeof requestToken.header.did_auth_id === 'undefined') {
             console.error('Cannot read `did_auth_id` from request token')
             return false
@@ -223,7 +229,7 @@ class SiopRequest {
         const did = requestToken.payload.iss
     
         // Resolve DID Document from SIOP
-        const didDoc = await resolver.resolve(did)
+        const didDoc = await uniResolver.resolve(did)
         if (typeof didDoc === 'undefined') {
             console.error('Could not resolve DID: ' + did)
             return false
@@ -256,32 +262,38 @@ class SiopRequest {
             return false
         }
     
-        return jose.JWT.verify(requestToken, authJwk)
+        // FIXME: TODO: this should only check whether the `kid` matches, i.e., according to 
+        return jose.JWT.verify(encodedRequestToken, authJwk)
     }
 
-    static async verify(siopRequestUri, uniResolver) {
+    static async verifyRequest(siopRequestUri) {
 
         const siopRequest = url.parse(siopRequestUri, true)
         if (typeof siopRequest.query === 'undefined') {
             throw 'Invalid SIOP request'
         }
 
-        var requestToken
+        var encodedRequestToken = null
         if (typeof siopRequest.query.request_uri !== 'undefined') {
             // FIXME: TODO: if request_uri is present, fetch request token from URI
-            throw 'request_uri not supported yet'
+            console.error('request_uri not supported yet')
         } else if (typeof siopRequest.query.request !== 'undefined') {
-            requestToken = jose.JWT.decode(siopRequest.query.request, { complete: true })
+            encodedRequestToken = siopRequest.query.request
         } else {
-            throw 'Cannot find request token in SIOP request'
+            console.error('Cannot find request token in SIOP request')
         }
-        
-        if (!SiopRequest._verifyPlainSiopRequest(requestToken)) {
+
+        return encodedRequestToken
+    }
+
+    static async verifyRequestToken(encodedRequestToken, uniResolver) {
+           
+        if (!await SiopRequest._verifyPlainSiopRequest(encodedRequestToken)) {
             console.error("Couldn't verify OIDC SIOP request")
             return false
         }
     
-        if (!SiopRequest._verifyDidAuthnSiopRequest(requestToken)) {
+        if (!await SiopRequest._verifyDidAuthnSiopRequest(encodedRequestToken, uniResolver)) {
             console.error("Couldn't verify DID Authn SIOP request")
             return false
         }
@@ -296,68 +308,139 @@ class SiopResponse {
 
     }
 
-    setIdentityController() {
-
+    setIdentityController(idController) {
+        this.idController = idController
     }
 
-    setSiopRequest() {
-
+    _encryptResponseToken(idToken) {
+        // FIXME: TODO: implement encryption here
+        console.log('Encrypting `id_token`: ' + idToken)
+        return null
     }
 
-    asJwt() {
+    generateResponseToken(encodedRequestToken, encrypt = false) {
+        if (typeof this.idController === 'undefined') {
+            throw 'undefined this.idController'
+        }
+        if (typeof encodedRequestToken === 'undefined') {
+            throw 'undefined encodedRequestToken'
+        }
 
+        const requestToken = jose.JWT.decode(encodedRequestToken, { complete: true })
+
+        let responseToken = {
+            "iss": "https://self-issued.me",
+            "exp": Math.ceil(new Date().getTime() / 1000 + 1000),
+            "iat": Math.ceil(new Date().getTime() / 1000),
+            "sub_jwk" : this.idController.getSigningKey().toJWK(false),
+            // sub is the base64url encoded representation of the thumbprint of the key in the sub_jwk
+            "sub": this.idController.getSigningKey().thumbprint,
+            "did": this.idController.did
+         }
+
+         if (requestToken.payload.nonce !== 'undefined') {
+            responseToken['nonce'] = requestToken.payload.nonce
+         }
+         if (requestToken.payload.state !== 'undefined') {
+             responseToken['state'] = requestToken.payload.state
+         }
+    
+        const idToken = jose.JWT.sign(
+            responseToken,
+            this.idController.getSigningKey(),
+            {
+                header: {
+                    typ: 'JWT',
+                    did_auth_id: this.idController.getSigningKeyId()
+                }
+            }
+        )
+
+        return (encrypt) ? (this._encryptResponseToken(idToken)) : (idToken)
     }
 
-    verify() {
+    static async verifyResponseToken(encodedResponseToken, uniResolver) {
 
+        if (!SiopResponse._verifyPlainSiopResponse(encodedResponseToken)) {
+            console.error("Couldn't verify OIDC SIOP response")
+            return false
+        }
+    
+        if (!SiopResponse._verifyDidAuthnSiopResponse(encodedResponseToken, uniResolver)) {
+            console.error("Couldn't verify DID Authn SIOP response")
+            return false
+        }
+    
+        return true        
+    }
+
+    static async _verifyPlainSiopResponse(requestToken) {
+        // FIXME: TODO: implement JWS verification based on `kid` and provided jwks/jwks_uri
+        // check if jwks_uri contains a did and verify that did matches iss
+        return true
+    }
+
+    static async _verifyDidAuthnSiopResponse(encodedRequestToken, uniResolver) {
+        //const requestToken = jose.JWT.decode(encodedRequestToken, { complete: true })
+        return true
     }
 }
 
+const idControllerRp = new IdentityController()
+const idControllerSiop = new IdentityController()
 
-// function verifySiopResponse(encodedIdToken) {
-//     const idToken = jose.JWT.decode(encodedIdToken, { complete: true })
-    
-//     // SIOP validation
-
-//     if (typeof idToken.header.kid !== 'undefined') {
-//         console.error('Cannot read `kid` from `id_token`')
-//         return
-//     }
-//     const kid = idToken.header.kid
-
-//     if (typeof idToken.payload.iss !== 'undefined') {
-//         console.error('Cannot read `iss` from `id_token`')
-//         return
-//     }
-//     const did = idToken.payload.iss;
-
-//     // Resolve DID Document from SIOP
-//     resolver
-//         .resolve(did)
-//         .then((didDoc, kid) => {
-//             const verificationMethod = filterValue(didDoc, 'id', kid)
-
-//             // Get `kid` from `id_token`
-//             console.log(didDoc)
-//          })
-//         .catch(() => {
-//             console.log('Error in resolutation process')
-//         });
-//     // find
-// }
-
-function main() {
-
-    const idControllerRp = new IdentityController()
+async function main() {
     const siopRequest = new SiopRequest()
     siopRequest.setIdentityController(idControllerRp)
     siopRequest.setCallbackUrl('https://localhost:8888/cb')
+
+    console.log('##########################################')
+    console.log('##########################################')
     console.log('### Generating SIOP request...')
     const siopRequestUri = siopRequest.generateSiopRequest()
-    console.log('### Redirect the user to this URI: \n' + siopRequestUri)
+    console.log('### Now, redirect the user to this URI: ' + siopRequestUri)
+
+    console.log('### Or, let the user scan this QR Code')
+    qrcode.generate(siopRequestUri, { small: true });
+
+    console.log('##########################################')
+    console.log('##########################################')
 
     console.log('### Verifying SIOP request...')
-    SiopRequest.verify(siopRequestUri, resolver)
+    const encodedRequestToken = await SiopRequest.verifyRequest(siopRequestUri)
+    if (encodeURI === null) {
+        console.log('### Failed!')
+        return
+    }
+    if (!await SiopRequest.verifyRequestToken(encodedRequestToken, uniResolver)) {
+        console.log('### Failed!')
+        return
+    }
+    console.log('### Successful!')
+
+    console.log('##########################################')
+    console.log('##########################################')
+    console.log('### Generating SIOP response...')
+
+    const siopResponse = new SiopResponse()
+    siopResponse.setIdentityController(idControllerSiop)
+    const encodedResponseToken = siopResponse.generateResponseToken(encodedRequestToken)
+    if (encodedRequestToken === null) {
+        console.log('### Failed!')
+        return
+    }
+    console.log('### ' + encodedResponseToken)
+    console.log('### Successful!')
+
+    console.log('##########################################')
+    console.log('##########################################')
+    console.log('### Verifying SIOP response...')
+
+    if (!await SiopResponse.verifyResponseToken(encodedResponseToken, uniResolver)) {
+        console.log('### Failed!')
+        return
+    }
+    console.log('### Succeeded!')
 }
 
 main()

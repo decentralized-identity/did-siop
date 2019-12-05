@@ -13,13 +13,11 @@
   "license": "ISC",
   "dependencies": {
     "base64url": "^3.0.1",
-    "daf-core": "^0.7.0",
-    "daf-ethr-did-fs": "^0.7.0",
     "daf-resolver-universal": "^0.7.0",
-    "did-method-key": "^0.2.0",
     "jose": "^1.15.1",
     "multibase": "^0.6.0",
     "multicodec": "^0.5.5",
+    "qrcode-terminal": "^0.12.0",
     "uuid": "^3.3.3"
   }
 }
