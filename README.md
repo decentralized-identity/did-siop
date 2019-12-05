@@ -1,5 +1,3 @@
-# did-siop
+# DID AuthN Profile for OpenID Connect
 
-DID AuthN profile for OpenID Connect can be found <a href="https://github.com/decentralized-identity/papers/blob/master/did-authn/siop/did-authn-siop-profile.md">here</a>
-
-The specification will be moved to this repository as soon as the spec is final.
+The spec is based on the SIOP specification that is part of the OIDC core specification. The current working draft can be found here: https://identity.foundation/did-siop
