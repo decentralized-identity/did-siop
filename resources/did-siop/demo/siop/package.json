@@ -1,0 +1,25 @@
+{
+  "name": "did-siop-cli",
+  "version": "1.0.0",
+  "description": "Demo Identity Wallet implementing the DID AuthN profile for OpenID Connect",
+  "main": "./bin/index.js",
+  "bin": {
+    "hello": "./bin/index.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "base64url": "^3.0.1",
+    "daf-core": "^0.7.0",
+    "daf-ethr-did-fs": "^0.7.0",
+    "daf-resolver-universal": "^0.7.0",
+    "did-method-key": "^0.2.0",
+    "jose": "^1.15.1",
+    "multibase": "^0.6.0",
+    "multicodec": "^0.5.5",
+    "uuid": "^3.3.3"
+  }
+}
