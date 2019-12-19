@@ -37,7 +37,49 @@ var siop = {
  	    "B. de Medeiros",
  	    "C. Mortimore"
       ]
-    }
+    },
+    "OIDC.CIBA": {
+      title: "OpenID Connect Client Initiated Backchannel Authentication Flow - Core 1.0 draft-02",
+      date: "2019",
+      href: "https://openid.net/specs/openid-client-initiated-backchannel-authentication-core-1_0-ID1.html",
+      authors: [
+        "G. Fernandez",
+ 	    "F. Walter",
+ 	    "A. Nennker",
+ 	    "D. Tonge",
+ 	    "B. Campbell"
+      ]
+     },
+     "OIDC.Registration": {
+        title: "",
+        date: "2014",
+        href: "https://openid.net/specs/openid-connect-registration-1_0.html",
+        authors: [
+         "N. Sakimura",
+         "J. Bradley",
+         "M. Jones"
+        ]
+     },
+     "OAuth2.FormPost": {
+       title: "OAuth 2.0 Form Post Response Mode",
+       date: "2015",
+       href: "https://openid.net/specs/oauth-v2-form-post-response-mode-1_0.html",
+       authors: [
+         "M. Jones",
+         "B. Campbell"
+       ]
+     },
+     "OAuth2.ResponseTypes": {
+       title: "OAuth 2.0 Multiple Response Type Encoding Practices",
+       date: "2014",
+       href: "https://openid.net/specs/oauth-v2-multiple-response-types-1_0.html",
+       authors: [
+         "B. de Medeiros, Ed.",
+         "M. Scurtescu",
+         "P. Tarjan",
+         "M. Jones"
+       ]
+     }
   }
 };
 
