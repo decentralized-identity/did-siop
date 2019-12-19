@@ -155,6 +155,11 @@
             <td>OpenID Connect as per [[?OIDC.Core]]</td>
         </tr>
         <tr>
+            <td id="oidc-client">OIDC client</td>
+            <td>Used synonymously with Relying Party (see <a href="#rp">RP</a>)</td>
+        </tr>
+
+        <tr>
             <td id="op">OP</td>
             <td>OpenID Provider as per [[?OIDC.Core]]</td>
         </tr>
@@ -218,9 +223,9 @@
 
         <p class="note">
             The <a href="#siop">SIOP</a> flow is conducted peer-to-peer between the <a href="#rp">RP</a> and the <a href="#siop">SIOP</a>. This could be used to authenticate
-            holders based on their <a href="#did">DID</a>, to setup/ bootstrap a DID Comm connection with any <a href="#did">DID</a> routing that you
+            holders based on their <a href="#did">DID</a>, to setup/ bootstrap a DIDComm connection with any <a href="#did">DID</a> routing that you
             may need, or to provide the <code>login_hint</code> to an OpenID Connect service in the <a href="#did-document">DID Document</a>
-            supporting the Client-Initiated Backend Channel (CIBA) flow.
+            supporting the Client-Initiated Backend Channel (CIBA) as per [[?OIDC.CIBA]].
         </p>
 
     </section>
@@ -234,9 +239,9 @@
             The main goals of this specification are:
         </p>
         <ul>
-            <li>Staying backward compatible with existing OIDC clients (<a href="#rp">RPs</a>) and OPs that implement the <a href="#siop">SIOP</a> specification which is part of the OIDC core specification to reach a broader community.</li>
-            <li>Adding validation rules for OIDC clients (<a href="#rp">RPs</a>) that have <a href="#did-authn">DID AuthN</a> support to make full use of <a href="#did">DIDs</a>.</li>
-            <li>Not relying on any intermediary such as a traditional centralized public or private OP while still being <a href="#oidc">OIDC</a>-compliant.</li>
+            <li>Staying backward compatible with existing <a href="#oidc-client">OIDC clients</a> and <a href="#op">OPs</a> that implement the <a href="#siop">SIOP</a> specification which is part of the OIDC core specification as per [[?OIDC.Core]] to reach a broader community.</li>
+            <li>Adding validation rules for <a href="#oidc-client">OIDC clients</a> that have <a href="#did-authn">DID AuthN</a> support to make full use of <a href="#did">DIDs</a>.</li>
+            <li>Not relying on any intermediary such as a traditional centralized public or private <a href="#op">OP</a> while still being <a href="#oidc">OIDC</a>-compliant.</li>
         </ul>
 
     </section>
@@ -265,7 +270,7 @@
     </p>
 
     <p>
-        Unlike the Authorization Code Flow, the <a href="#siop">SIOP</a> will not return an access token to the <a href="#rp">RP</a>. If this is desired, this could be achieved by following the aforementioned CIBA flow in addition. <a href="#siop">SIOP</a> also differs from Authorization Code Flow by not relying on a centralized and known OP. The <a href="#siop">SIOP</a> can be unknown to the <a href="#rp">RP</a> until the user starts to interact with the <a href="#rp">RP</a> using its <a href="#identity-wallet">Identity Wallet</a> app. Authorization Code Flow is still a useful approach and should be used whenever the OP is known, and OP discovery is possible, e.g., exchanged or pre-populated <a href="#did-document">DID Document</a> containing an openid element in the service section. The <a href="#siop">SIOP</a> flow allows to integrate <a href="#identity-wallet">Identity Wallets</a> with plain OIDC clients if they implemented the <a href="#siop">SIOP</a> specification. In contrast, using <a href="#did-authn">DID AuthN</a> as the authentication means in the OIDC Authorization Code Flow would require integration with the OP vendor itself.
+        Unlike the <a href="#oidc">OIDC</a> Authorization Code Flow as per [[?OIDC.Core]], the <a href="#siop">SIOP</a> will not return an access token to the <a href="#rp">RP</a>. If this is desired, this could be achieved by following the aforementioned CIBA flow as per [[?OIDC.CIBA]] in addition. <a href="#siop">SIOP</a> also differs from Authorization Code Flow as per [[?OIDC.Core]] by not relying on a centralized and known <a href="#op">OP</a>. The <a href="#siop">SIOP</a> can be unknown to the <a href="#rp">RP</a> until the user starts to interact with the <a href="#rp">RP</a> using its <a href="#identity-wallet">Identity Wallet</a> app. <a href="#oidc">OIDC</a> Authorization Code Flow as per [[?OIDC.Core]] is still a useful approach and should be used whenever the OP is known, and <a href="#op">OP</a> discovery is possible, e.g., exchanged or pre-populated <a href="#did-document">DID Document</a> containing an openid element in the service section. The <a href="#siop">SIOP</a> flow allows to integrate <a href="#identity-wallet">Identity Wallets</a> with plain OIDC clients if they implemented the <a href="#siop">SIOP</a> specification. In contrast, using <a href="#did-authn">DID AuthN</a> as the authentication means in the OIDC Authorization Code Flow would require integration with the OP vendor itself.
     </p>
 
     <figure id="protocol-flow">
@@ -280,7 +285,7 @@
         <h2>Generate SIOP Request</h2>
         <h3>Redirect Request</h3>
         <p>
-            The request contains scope, <code>response_type</code> and <code>client_id</code> as query string parameters for backward compatibility with the OAuth2 specification. <code>response_type</code> MUST be <code>id_token</code> and <code>client_id</code> MUST specify the callback URL of the <a href="#rp">RP</a> (as per [[OIDC.Core]]). All other OIDC request parameters MUST be provided in an Request Object which is encoded as a JWT. This enables the <a href="#rp">RP</a> to authenticate against the <a href="#siop">SIOP</a> using the <a href="#rp">RP's</a> <a href="#did">DID</a>. The
+            The request contains <code>scope</code>, <code>response_type</code> and <code>client_id</code> as query string parameters for backward compatibility with the OAuth2 specification [[?RFC6749]]. <code>response_type</code> MUST be <code>id_token</code> and <code>client_id</code> MUST specify the callback URL of the <a href="#rp">RP</a> (as per [[OIDC.Core]]). All other <a href="#oidc">OIDC</a> request parameters MUST be provided in an Request Object as per [[?OIDC.Core]] which is encoded as a JWT. This enables the <a href="#rp">RP</a> to authenticate against the <a href="#siop">SIOP</a> using the <a href="#rp">RP's</a> <a href="#did">DID</a>. The
             Request Object can be passed by value in the request request parameter, or by reference using the <code>request_uri</code> parameter.
         </p>
 
@@ -320,12 +325,12 @@
         </p>
 
         <p>
-            <a href="#rp">RPs</a> can decide to receive the &lt;SIOP Response&gt; encrypted. To enable encryption, the registration parameter MUST use <code>id_token_encrypted_response_alg</code> and <code>id_token_encrypted_response_enc</code> according to OIDC Client Metadata.
+            <a href="#rp">RPs</a> can decide to receive the <code>SIOP Response</code> encrypted. To enable encryption, the registration parameter MUST use <code>id_token_encrypted_response_alg</code> and <code>id_token_encrypted_response_enc</code> according to OIDC Client Metadata [[?OIDC.Registration]].
         </p>
 
         <h3>Request Object</h3>
         <p>
-            The Request Object follows the OIDC specification, e.g., adding <code>nonce</code>, <code>state</code>, <code>response_type</code>, and <code>client_id</code> parameters.
+            The Request Object follows the <a href="#oidc">OIDC</a> specification, e.g., adding <code>nonce</code>, <code>state</code>, <code>response_type</code>, and <code>client_id</code> parameters.
         </p>
 
         <p>
@@ -335,16 +340,16 @@
         <ul>
             <li>REQUIRED. <code>iss</code> MUST contain the <a href="#did">DID</a> of the <a href="#rp">RP</a> that can be resolved to a <a href="#did-document">DID Document</a>. The <a href="#did-document">DID Document</a> MUST contain a verification method in the authentication section, e.g., public key, that allows the <a href="#siop">SIOP</a> to verify the Request Object.</li>
             <p class="note">
-                By default, the <code>iss</code> claim refers to the <code>client_id</code> but <a href="#siop">SIOP</a> assumes that <code>client_id</code> is the callback URL of the <a href="#rp">RP</a>. That is the reason why the <a href="#did">DID</a> is not encoded in the <code>client_id</code>. It is compliant with the OIDC specification to use different values for <code>iss</code> and <code>client_id</code>.
+                By default, the <code>iss</code> claim refers to the <code>client_id</code> but <a href="#siop">SIOP</a> assumes that <code>client_id</code> is the callback URL of the <a href="#rp">RP</a>. That is the reason why the <a href="#did">DID</a> is not encoded in the <code>client_id</code>. It is compliant with the <a href="#oidc">OIDC</a> specification to use different values for <code>iss</code> and <code>client_id</code>.
             </p>
 
             <li>REQUIRED. <code>kid</code> MUST be a DID URL referring to a verification method in the authentication section in the <a href="#rp">RP's</a> <a href="#did-document">DID Document</a>, e.g., <code>did:example:0xab#key1</code>. The <a href="#siop">SIOP</a> MUST be able to use that verification method to verify the Request Object directly or indirectly. Additionally, the referred JWKS in the <code>registration</code> parameter MUST contain an entry with the same <code>kid</code>.</li>
-            <li>OPTIONAL. <code>did_doc</code> MUST contain the <a href="#did-document">DID Document</a> that corresponds to the <a href="#did">DID</a> in the <code>iss</code> claim.</li>
             <li>REQUIRED. <code>scope</code> MUST include <code>did_authn</code> to indicate the <a href="#did-authn">DID AuthN</a> profile is used.</li>
             <li>REQUIRED. <code>registration</code> MUST be included in the Request Object</li>
+            <li>OPTIONAL. <code>did_doc</code> MUST contain the <a href="#did-document">DID Document</a> that corresponds to the <a href="#did">DID</a> in the <code>iss</code> claim.</li>
             <li>OPTIONAL. <code>response_mode</code> specifies how the response is returned to the callback URL by the <a href="#siop">SIOP</a>. <a href="#siop">SIOP</a> implementing the <a href="#did-authn">DID AuthN</a> specification MAY set the <code>response_mode</code> to <code>form_post</code>. <code>fragment</code> is the default Response Mode. <a href="#rp">RPs</a> MUST take into consideration the platform of the User-Agent when specifying this request parameter.</li>
             <p class="note">
-                See OAuth 2.0 Form Post Response Mode and OAuth 2.0 Multiple Response Type Encoding Practices for more information about <code>response_mode</code>.
+                See OAuth 2.0 Form Post Response Mode [[?OAuth2.FormPost]] and OAuth 2.0 Multiple Response Type Encoding Practices [[OAuth2.ResponseTypes]] for more information about <code>response_mode</code>.
             </p>
 
         </ul>
@@ -383,32 +388,32 @@
     <section>
         <h2>SIOP Request Validation</h2>
         <p>
-            The <a href="#siop">SIOP</a> MUST validate the &lt;SIOP Request&gt; by following the Self-Issued ID Token Validation rules.
+            The <a href="#siop">SIOP</a> MUST validate the <code>SIOP Request</code> by following the Self-Issued ID Token Validation rules as per [[?OIDC.Core]].
         </p>
         <p class="note">
-            The step described above ensures that the Request Object is verified according to the OIDC specification. This includes basic JWS verification.
+            The step described above ensures that the Request Object is verified according to the <a href="#oidc">OIDC</a> specification. This includes basic JWS verification.
         </p>
 
         <p>
-            If scope contains the <code>did_authn</code> scope, the receiving <a href="#siop">SIOP</a> MUST further validate the &lt;SIOP Request&gt; as follows in no particular order:
+            If scope contains the <code>did_authn</code> scope, the receiving <a href="#siop">SIOP</a> MUST further validate the <code>SIOP Request</code> as follows in no particular order:
         </p>
 
         <ul>
             <li>If no <code>did_doc</code> is present, resolve the <a href="#did-document">DID Document</a> from the <a href="#rp">RP's</a> <a href="#did">DID</a> specified in the <code>iss</code> request parameter.</li>
             <li>If <code>did_doc</code> is present, ensure this is a viable channel to exchange the <a href="#rp">RP's</a> <a href="#did-document">DID Document</a> according to the applicable DID method.</li>
             <li>If <code>jwks_uri</code> is present, ensure that the <a href="#did">DID</a> in the <code>jwks_uri</code> matches the <a href="#did">DID</a> in the <code>iss</code> claim.</li>
-            <li>Determine the verification method from the <a href="#rp">RP's</a> <a href="#did-document">DID Document</a> that matches the <code>kid</code> of the &lt;SIOP Request&gt;.</li>
-            <li>Verify the &lt;SIOP Request&gt; according to the verification method above. This step depends on the verification method in the authentication section in the <a href="#did-document">DID Document</a> and is out-of-scope of this specification.</li>
+            <li>Determine the verification method from the <a href="#rp">RP's</a> <a href="#did-document">DID Document</a> that matches the <code>kid</code> of the <code>SIOP Request</code>.</li>
+            <li>Verify the <code>SIOP Request</code> according to the verification method above. This step depends on the verification method in the authentication section in the <a href="#did-document">DID Document</a> and is out-of-scope of this specification.</li>
         </ul>
 
         <p class="note">
-            If the key pair that signed the &lt;SIOP Request&gt; refers to the same key as indicated by the verification method, then no additional verification has to be done as the <a href="#siop">SIOP</a> validation will verify the signature of the JWS.
+            If the key pair that signed the <code>SIOP Request</code> refers to the same key as indicated by the verification method, then no additional verification has to be done as the <a href="#siop">SIOP</a> validation will verify the signature of the JWS.
         </p>
 
         <h2>Generate SIOP Response</h2>
 
         <p>
-            The <a href="#siop">SIOP</a> MUST generate and send the &lt;SIOP Response&gt; to the <a href="#rp">RP</a> as described in the Self-Issued OpenID Provider Response section. The <code>id_token</code> represents the &lt;SIOP Response&gt; encoded as a JWS, or nested JWS/JWE.
+            The <a href="#siop">SIOP</a> MUST generate and send the <code>SIOP Response</code> to the <a href="#rp">RP</a> as described in the Self-Issued OpenID Provider Response section in [[?OIDC.Core]]. The <code>id_token</code> represents the &lt;SIOP Response&gt; encoded as a JWS, or nested JWS/JWE.
         </p>
 
         <p>
@@ -461,7 +466,7 @@
         <h2>SIOP Response Validation</h2>
 
         <p>
-            The <a href="#rp">RP</a> MUST validate the &lt;SIOP Response&gt; as described in the Self-Issued ID Token Validation section. This includes:
+            The <a href="#rp">RP</a> MUST validate the <code>SIOP Response</code> as described in the Self-Issued ID Token Validation section in [[?OIDC.Core]]. This includes:
         </p>
 
         <ul>
@@ -530,7 +535,7 @@
     <h1>Security Considerations</h1>
     <h2>Threat: Interception of the Redirect URI</h2>
     <p>
-        If an attacker can cause the &lt;SIOP Response&gt; to be sent a URI under his control, he will directly get access to the fragment carrying the <code>id_token</code>.
+        If an attacker can cause the <code>SIOP Response</code> to be sent a URI under his control, he will directly get access to the fragment carrying the <code>id_token</code>.
     </p>
     <p>
         This attack can be mitigated by hardening the <a href="#rp">RP</a>, e.g., no support for the open redirector pattern.
@@ -538,7 +543,7 @@
 
     <h2>Threat: Identity Token Leak in Browser History</h2>
     <p>
-        An attacker could obtain the &lt;SIOP Response&gt; from the browser's history.
+        An attacker could obtain the <code>SIOP Response</code> from the browser's history.
     </p>
     <p>
         This attack cannot be fully mitigated. It is RECOMMENDED to use short expiration times for <code>id_token</code>, and indicating that browsers should not cache the response.
@@ -546,7 +551,7 @@
 
     <h2>Threat: Identity Token Leak to Third Party Scripts</h2>
     <p>
-        It is relatively common to use third-party scripts on <a href="#rp">RP</a> pages, such as analytics tools, crash reporting. The author of the application may not be able to be fully aware of the entirety of the code running in the application. When a &lt;SIOP Response&gt; is returned in the fragment, it is visible to any third-party scripts on the page.
+        It is relatively common to use third-party scripts on <a href="#rp">RP</a> pages, such as analytics tools, crash reporting. The author of the application may not be able to be fully aware of the entirety of the code running in the application. When a <code>SIOP Response</code> is returned in the fragment, it is visible to any third-party scripts on the page.
     </p>
     <p>
         This attack could be mitigated by using trusted/ audited third party scripts on the <a href="#rp">RP's</a> page, or browser-based app.
