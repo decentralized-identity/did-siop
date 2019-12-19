@@ -320,7 +320,7 @@
         </p>
 
         <p>
-            <a href="#rp">RPs</a> can decide to receive the &lt;SIOP Response&gt; encrypted. To enable encryption, the registration parameter MUST use <code>id_token_encrypted_response_alg</code> and <code>id_token_encrypted_response_enc</code> according to OIDC Client Metadata.
+            <a href="#rp">RPs</a> can decide to receive the &lt;SIOP Response&gt; encrypted. To enable encryption, the registration parameter MUST use <code>id_token_encrypted_response_alg</code> and <code>id_token_encrypted_response_enc</code> according to OIDC Client Metadata. This specification RECOMMENDS the use of `ECDH-ES` with the `X25519` curve for JWE as explained in section <a href="#encryption">Encryption</a>.
         </p>
 
         <h3>Request Object</h3>
@@ -378,6 +378,63 @@
                 }
             }
         </pre>
+
+        <h3 id="encryption">Encryption</h3>
+        <p>
+            We make the following suggestion for the JWE encryption to use: For the Diffie-Hellman key agreement we use the algorithm `ECDH-ES `using the `X25519` curve which
+            uses Direct Key Agreement with an Ephemeral Key. This means that a symmetric key is derived using Diffie-Hellman from the RP's public key and a
+            randomly generated ephemeral private key. The corresponding ephemeral public key is included in the header of the JWE in the `epk` and the derived
+            symmetric key is used to directly encrypt the JWT content. For symmetrically encrypting the content `XChaCha20Poly1305` is used which has algorithm code `XC20P`.
+        </p>
+
+        <p>
+            The following is an example of the protected header of the resulting JWE:
+        </p>
+
+        <pre class="example nohighlight">
+            {
+               "alg": "ECDH-ES",
+               "epk":
+               {
+                 "kty": "OKP",
+                 "crv":"X25519",
+                 "x":"hSDwCYkwp1R0i33ctD73Wg2_Og0mOBr066SpjqqbTmo"
+               }
+               "enc": "XC20P",
+               "kid": "did:example:0xab#key-1"
+            }
+        </pre>
+
+        <p>
+            Note that the `kid` above denotes the DID and key of the RP, i.e., this public key is the key used by the
+            sender together with the ephemeral private key in order to derive the shared secret. For the encryption we
+            use the 24 bytes nonce field in the `XChaCha20` algorithm as the initialization vector. The authentication
+            tag is the MAC computed by the `Poly1305` function. It is 16 bytes long.
+        </p>
+
+        <p>
+            The message to be encrypted is the JWT of the `id_token`, including header and signature. The JWT is encoded
+            via base64url before encryption.
+        </p>
+
+        <p>
+            For the final encoding of the JWE we use the JWE Compact Serialization outlined in
+            [RFC7516 Section 3.1])(https://tools.ietf.org/html/rfc7516#section-3.1). The structure of the message
+            is as follows:
+        </p>
+
+        <pre class="example nohighlight">
+            BASE64URL(JWE Protected Header) || '.' || '.' ||
+            BASE64URL(JWE Initialization Vector) || '.' ||
+            BASE64URL(JWE Ciphertext) || '.' ||
+            BASE64URL(JWE Authentication Tag)
+        </pre>
+
+        <p>
+            Note that we have two '.' characters above. This represents that the encrypted key is empty since we are
+            using direct key agreement.
+        </p>
+
     </section>
 
     <section>
@@ -404,7 +461,9 @@
         <p class="note">
             If the key pair that signed the &lt;SIOP Request&gt; refers to the same key as indicated by the verification method, then no additional verification has to be done as the <a href="#siop">SIOP</a> validation will verify the signature of the JWS.
         </p>
+    </section>
 
+    <section>
         <h2>Generate SIOP Response</h2>
 
         <p>
