@@ -312,7 +312,7 @@
         </p>
 
         <p>
-            In addition to <code>RS256</code>, an <a href="#siop">SIOP</a> according to this specification MUST support <code>EdDSA</code> and <code>ES256K</code> [[!draft-ietf-cose-webauthn-algorithms-02]] for <code>request_object_signing_alg</code> and <code>request_object_signing_alg</code> can be omitted. <a href="#rp">RPs</a> implementing the <a href="#did-authn">DID AuthN</a> profile MUST not use <code>none</code> for <code>request_object_signing_alg</code>.
+            In addition to <code>RS256</code>, an <a href="#siop">SIOP</a> according to this specification MUST support <code>EdDSA</code> and <code>ES256K</code> as per [[draft-ietf-cose-webauthn-algorithms-03]] for <code>request_object_signing_alg</code> and <code>request_object_signing_alg</code> can be omitted. <a href="#rp">RPs</a> implementing the <a href="#did-authn">DID AuthN</a> profile MUST not use <code>none</code> for <code>request_object_signing_alg</code>.
         </p>
 
         <p>
@@ -320,7 +320,7 @@
         </p>
 
         <p>
-            <a href="#rp">RPs</a> can decide to receive the &lt;SIOP Response&gt; encrypted. To enable encryption, the registration parameter MUST use <code>id_token_encrypted_response_alg</code> and <code>id_token_encrypted_response_enc</code> according to OIDC Client Metadata. This specification RECOMMENDS the use of `ECDH-ES` with the `X25519` curve for JWE as explained in section <a href="#encryption">Encryption</a>.
+            <a href="#rp">RPs</a> can decide to receive the &lt;SIOP Response&gt; encrypted. To enable encryption, the registration parameter MUST use <code>id_token_encrypted_response_alg</code> and <code>id_token_encrypted_response_enc</code> according to OIDC Client Metadata. This specification RECOMMENDS the use of `ECDH-ES` with the `X25519` curve for JWE as explained in section <a href="#encryption">Encryption</a> and described in [[draft-amringer-jose-chacha-00]].
         </p>
 
         <h3>Request Object</h3>
