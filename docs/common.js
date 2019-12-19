@@ -51,7 +51,7 @@ var siop = {
       ]
      },
      "OIDC.Registration": {
-        title: "",
+        title: "OpenID Connect Dynamic Client Registration 1.0 incorporating errata set 1",
         date: "2014",
         href: "https://openid.net/specs/openid-connect-registration-1_0.html",
         authors: [
@@ -79,7 +79,23 @@ var siop = {
          "P. Tarjan",
          "M. Jones"
        ]
-     }
+    },
+    "draft-ietf-cose-webauthn-algorithms-03": {
+      title: "COSE and JOSE Registrations for WebAuthn Algorithms",
+      date: "2019",
+      href: "https://tools.ietf.org/html/draft-ietf-cose-webauthn-algorithms-03",
+      authors: [
+        "M. Jones"
+      ]
+    },
+    "draft-amringer-jose-chacha-00": {
+      title: "Chacha derived AEAD algorithms in JSON Object Signing and Encryption (JOSE)",
+      date: "2018",
+      href: "https://tools.ietf.org/html/draft-amringer-jose-chacha-00",
+      authors: [
+        "G. Amringer"
+      ]
+    }
   }
 };
 
