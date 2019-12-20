@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset='utf-8'>
-    <title>DID AuthN profile for OpenID Connect</title>
+    <title>SIOP DID profile</title>
     <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png">
     <style>
       #subtitle ~ h2,
@@ -95,7 +95,7 @@
 <section id="abstract">
     <h2>Abstract</h2>
     <p>
-        This specification defines the "DID AuthN profile for OpenID Connect" that is a <a href="#did-authn">DID AuthN</a> flavor to use
+        This specification defines the "SIOP DID profile" (<a href="did-siop">SIOP DID</a>) that is a <a href="#did-authn">DID AuthN</a> flavor to use
         OpenID Connect (<a href="#oidc">OIDC</a>) together with the strong decentralization, privacy and security guarantees of Decentralized
         Identifiers (<a href="#did">DID</a>) for everyone who wants to have a generic way to integrate
         <a href="#identity-wallet">Identity Wallets</a> into their web applications.
@@ -104,7 +104,7 @@
 
 <section id='sotd'>
     <p>
-        <a href="did-siop">DID SIOP</a> is a draft specification being developed within the <a href="https://identity.foundation">
+        <a href="did-siop">SIOP DID</a> is a draft specification being developed within the <a href="https://identity.foundation">
         Decentralized Identity Foundation</a> (DIF). This spec will be updated to reflect relevant changes, and
         participants are encouraged to contribute at the following repository location:
         <a href="https://github.com/decentralized-identity/did-siop">https://github.com/decentralized-identity/did-siop</a>
@@ -128,6 +128,10 @@
         <tr>
             <td id="did-document">DID Document</td>
             <td>DID Document as per [[DID]]</td>
+        </tr>
+        <tr>
+            <td id="did-siop">SIOP DID</td>
+            <td>Self-Issued OpenID Connect Provider DID profile</td>
         </tr>
         <tr>
             <td id="jwt">JWT</td>
@@ -199,7 +203,7 @@
         An everyday use case that the Decentralized Identity community identified is the sign-up or login with web
         applications. Nowadays, this is often achieved through social login schemes such as Google Sign-In. While
         the Decentralized Identity community has serious concerns about social login, the underlying protocol,
-        <a href="#oidc">OIDC</a>, does not have these flaws by design. <a href="#did-authn">DID AuthN</a> provides great potential by
+        <a href="#oidc">OIDC</a>, does not have these flaws by design. <a href="#did-siop">SIOP DID</a> provides great potential by
         leveraging an <a href="#identity-wallet">Identity Wallet</a>,
         e.g., as a smartphone app, on the web. This will increase and preserve the user’s privacy by preventing
         third-parties from having the ability to track which web applications a user is interacting with.
