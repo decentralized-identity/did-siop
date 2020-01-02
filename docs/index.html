@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset='utf-8'>
-    <title>SIOP DID profile</title>
+    <title>Self-Issued OpenID Connect Provider DID Profile</title>
     <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png">
     <style>
       #subtitle ~ h2,
@@ -95,18 +95,19 @@
 <section id="abstract">
     <h2>Abstract</h2>
     <p>
-        This specification defines the "SIOP DID profile" (<a href="did-siop">SIOP DID</a>) that is a <a href="#did-authn">DID AuthN</a> flavor to use
-        OpenID Connect (<a href="#oidc">OIDC</a>) together with the strong decentralization, privacy and security guarantees of Decentralized
-        Identifiers (<a href="#did">DID</a>) for everyone who wants to have a generic way to integrate
-        <a href="#identity-wallet">Identity Wallets</a> into their web applications.
+        This specification defines the "SIOP DID Profile" (<a href="did-siop">SIOP DID</a>) that is a
+        <a href="#did-authn">DID AuthN</a> flavor to use
+        OpenID Connect (<a href="#oidc">OIDC</a>) together with the strong decentralization, privacy and security
+        guarantees of Decentralized Identifiers (<a href="#did">DID</a>) for everyone who wants to have a generic
+        way to integrate <a href="#identity-wallet">Identity Wallets</a> into their web applications.
     </p>
 </section>
 
 <section id='sotd'>
     <p>
-        <a href="did-siop">SIOP DID</a> is a draft specification being developed within the <a href="https://identity.foundation">
-        Decentralized Identity Foundation</a> (DIF). This spec will be updated to reflect relevant changes, and
-        participants are encouraged to contribute at the following repository location:
+        <a href="did-siop">SIOP DID</a> is a draft specification being developed within the
+        <a href="https://identity.foundation"> Decentralized Identity Foundation</a> (DIF). This spec will be updated
+        to reflect relevant changes, and participants are encouraged to contribute at the following repository location:
         <a href="https://github.com/decentralized-identity/did-siop">https://github.com/decentralized-identity/did-siop</a>
     </p>
 </section>
@@ -131,7 +132,8 @@
         </tr>
         <tr>
             <td id="did-siop">SIOP DID</td>
-            <td>Self-Issued OpenID Connect Provider DID profile</td>
+            <td>Self-Issued OpenID Connect Provider DID profile. Refers to a specific flavor of DID AuthN used in the
+                OIDC SIOP flow.</td>
         </tr>
         <tr>
             <td id="jwt">JWT</td>
@@ -185,10 +187,6 @@
             <td id="did-authn">DID AuthN</td>
             <td>Refers to a method of proofing control over a DID for the purpose of authentication.</td>
         </tr>
-        <tr>
-            <td id="did-siop">DID SIOP</td>
-            <td>Refers to a specific flavor of DID AuthN used in the OIDC SIOP flow.</td>
-        </tr>
 
         </tbody>
     </table>
@@ -203,15 +201,16 @@
         An everyday use case that the Decentralized Identity community identified is the sign-up or login with web
         applications. Nowadays, this is often achieved through social login schemes such as Google Sign-In. While
         the Decentralized Identity community has serious concerns about social login, the underlying protocol,
-        <a href="#oidc">OIDC</a>, does not have these flaws by design. <a href="#did-siop">SIOP DID</a> provides great potential by
-        leveraging an <a href="#identity-wallet">Identity Wallet</a>,
+        <a href="#oidc">OIDC</a>, does not have these flaws by design. <a href="#did-siop">SIOP DID</a> provides
+        great potential by leveraging an <a href="#identity-wallet">Identity Wallet</a>,
         e.g., as a smartphone app, on the web. This will increase and preserve the user’s privacy by preventing
         third-parties from having the ability to track which web applications a user is interacting with.
     </p>
     <p class="note">
         While this specification focuses on the integration of <a href="#identity-wallet">Identity Wallets</a>
         in the form of browser extensions/ plugins, or smartphone apps, it does not prevent implementers using
-        the proposed flow in different scenarios as well, e.g., between two web services with pre-populated <a href="#did">DIDs</a>.
+        the proposed flow in different scenarios as well, e.g., between two web services with pre-populated
+        <a href="#did">DIDs</a>.
     </p>
 
     <section class="informative">
@@ -220,15 +219,16 @@
         </h2>
 
         <p>
-            The main purpose is to sign up with/ login to an <a href="#rp">RP</a>, i.e., web application. It assumes the user operates
-            a mobile or desktop browser or a browser-based app that can respond to <a href="#siop">SIOP</a> requests according to this
-            specification.
+            The main purpose is to sign up with/ login to an <a href="#rp">RP</a>, i.e., web application. It assumes
+            the user operates a mobile or desktop browser or a browser-based app that can respond to
+            <a href="#siop">SIOP</a> requests according to this specification.
         </p>
 
         <p class="note">
-            The <a href="#siop">SIOP</a> flow is conducted peer-to-peer between the <a href="#rp">RP</a> and the <a href="#siop">SIOP</a>. This could be used to authenticate
-            holders based on their <a href="#did">DID</a>, to setup/ bootstrap a DIDComm connection with any <a href="#did">DID</a> routing that you
-            may need, or to provide the <code>login_hint</code> to an OpenID Connect service in the <a href="#did-document">DID Document</a>
+            The <a href="#siop">SIOP</a> flow is conducted peer-to-peer between the <a href="#rp">RP</a> and the
+            <a href="#siop">SIOP</a>. This could be used to authenticate holders based on their <a href="#did">DID</a>,
+            to setup/ bootstrap a DID Comm connection with any <a href="#did">DID</a> routing that you may need, or to
+            provide the <code>login_hint</code> to an OpenID Connect service in the <a href="#did-document">DID Document</a>
             supporting the Client-Initiated Backend Channel (CIBA) as per [[?OIDC.CIBA]].
         </p>
 
@@ -243,9 +243,19 @@
             The main goals of this specification are:
         </p>
         <ul>
-            <li>Staying backward compatible with existing <a href="#oidc-client">OIDC clients</a> and <a href="#op">OPs</a> that implement the <a href="#siop">SIOP</a> specification which is part of the <a href="oidc">OIDC</a> core specification as per [[?OIDC.Core]] to reach a broader community.</li>
-            <li>Adding validation rules for <a href="#oidc-client">OIDC clients</a> that have <a href="#did-authn">DID AuthN</a> support to make full use of <a href="#did">DIDs</a>.</li>
-            <li>Not relying on any intermediary such as a traditional centralized public or private <a href="#op">OP</a> while still being <a href="#oidc">OIDC</a>-compliant.</li>
+            <li>
+                Staying backward compatible with existing <a href="#oidc-client">OIDC clients</a> and
+                <a href="#op">OPs</a> that implement the <a href="#siop">SIOP</a> specification which is part of the
+                <a href="oidc">OIDC</a> core specification as per [[?OIDC.Core]] to reach a broader community.
+            </li>
+            <li>
+                Adding validation rules for <a href="#oidc-client">OIDC clients</a> that have
+                <a href="#did-authn">DID AuthN</a> support to make full use of <a href="#did">DIDs</a>.
+            </li>
+            <li>
+                Not relying on any intermediary such as a traditional centralized public or private
+                <a href="#op">OP</a> while still being <a href="#oidc">OIDC</a>-compliant.
+            </li>
         </ul>
 
     </section>
@@ -255,29 +265,38 @@
 <section class="normative">
     <h1>Protocol Flow</h1>
     <p>
-        This specification assumes, the user is operating a mobile or desktop browser to visit a web application or uses a browser-based app.
+        This specification assumes, the user is operating a mobile or desktop browser to visit a web application or uses
+        a browser-based app.
     </p>
     <p>
-        First, the user clicks on the sign up or login UX element. The <a href="#rp">RP</a> will then generate the redirect to <code>openid://&lt;SIOP Request&gt;</code> which will be handled by the <a href="#siop">SIOP</a>.
+        First, the user clicks on the sign up or login UX element. The <a href="#rp">RP</a> will then generate the
+        redirect to <code>openid://&lt;SIOP Request&gt;</code> which will be handled by the <a href="#siop">SIOP</a>.
     </p>
 
     <p class="note">
-        On the mobile device, this would open the <a href="#identity-wallet">Identity Wallet</a> app, e.g., uport, connect.me. On the desktop browser, this would either show a QR code which can be scanned by the <a href="#identity-wallet">Identity Wallet</a> app or a redirect to <code>openid://&lt;SIOP Request&gt;</code> that for instance could be handled by a browser extension/ plugin implementing the <a href="#siop">SIOP</a>.
+        On the mobile device, this would open the <a href="#identity-wallet">Identity Wallet</a> app, e.g., uport,
+        connect.me. On the desktop browser, this would either show a QR code which can be scanned by the
+        <a href="#identity-wallet">Identity Wallet</a> app or a redirect to <code>openid://&lt;SIOP Request&gt;</code>
+        that for instance could be handled by a browser extension/ plugin implementing the <a href="#siop">SIOP</a>.
     </p>
 
     <p>
-        The <a href="#siop">SIOP</a> will generate the <code>&lt;SIOP Response&gt;</code> based on the specific <a href="#did">DID</a> method that is supported. The <code>&lt;SIOP Response&gt;</code> will be signed and optionally encrypted and will be provided according to the requested response mode.
+        The <a href="#siop">SIOP</a> will generate the <code>&lt;SIOP Response&gt;</code> based on the specific
+        <a href="#did">DID</a> method that is supported. The <code>&lt;SIOP Response&gt;</code> will be signed and
+        optionally encrypted and will be provided according to the requested response mode.
     </p>
 
     <p>
-        This specification does not explicitly support any intermediate hubs or cloud agents. It is meant to be a protocol to exchange the <a href="#did">DID</a>. You could then interact with a hub/ cloud agent using the service endpoint in the <a href="#did-document">DID Document</a>.
+        This specification does not explicitly support any intermediate hubs or cloud agents. It is meant to be a
+        protocol to exchange the <a href="#did">DID</a>. You could then interact with a hub/ cloud agent using the
+        service endpoint in the <a href="#did-document">DID Document</a>.
     </p>
 
     <p>
         Unlike the <a href="#oidc">OIDC</a> Authorization Code Flow as per [[!OIDC.Core]], the <a href="#siop">SIOP</a>
         will not return an access token to the <a href="#rp">RP</a>. If this is desired, this could be achieved by
         following the aforementioned CIBA flow as per [[?OIDC.CIBA]] in addition. <a href="#siop">SIOP</a> also
-        differs from Authorization Code Flow as per [[!OIDC.Core]] by not relying on a centralized and known
+        differs from Authorization Code Flow by not relying on a centralized and known
         <a href="#op">OP</a>. The <a href="#siop">SIOP</a> can be unknown to the <a href="#rp">RP</a> until the
         user starts to interact with the <a href="#rp">RP</a> using its <a href="#identity-wallet">Identity Wallet</a>.
         <a href="#oidc">OIDC</a> Authorization Code Flow is still a useful approach and should be used whenever the
@@ -291,9 +310,11 @@
 
     <figure id="protocol-flow">
         <img style="margin: auto; display: block; width: 100%;"
-             src="assets/did_authn_siop_profile_flow.png" alt="Example SIOP flow with a mobile browser as the User-Agent and an Identity Wallet app as the SIOP.">
+             src="assets/did_authn_siop_profile_flow.png" alt="Example SIOP flow with a mobile browser as the User-Agent
+              and an Identity Wallet app as the SIOP.">
         <figcaption style="text-align: center;">
-            Example <a href="#siop">SIOP</a> flow with a mobile browser as the User-Agent and an <a href="#identity-wallet">Identity Wallet</a> app as the <a href="#siop">SIOP</a>.
+            Example <a href="#siop">SIOP</a> flow with a mobile browser as the User-Agent and an
+            <a href="#identity-wallet">Identity Wallet</a> app as the <a href="#siop">SIOP</a>.
         </figcaption>
     </figure>
 
@@ -301,8 +322,14 @@
         <h2>Generate SIOP Request</h2>
         <h3>Redirect Request</h3>
         <p>
-            The request contains <code>scope</code>, <code>response_type</code> and <code>client_id</code> as query string parameters for backward compatibility with the OAuth2 specification [[!RFC6749]]. <code>response_type</code> MUST be <code>id_token</code> and <code>client_id</code> MUST specify the callback URL of the <a href="#rp">RP</a> (as per [[!OIDC.Core]]). All other <a href="#oidc">OIDC</a> request parameters MUST be provided in an Request Object as per [[!OIDC.Core]] which is encoded as a JWT. This enables the <a href="#rp">RP</a> to authenticate against the <a href="#siop">SIOP</a> using the <a href="#rp">RP's</a> <a href="#did">DID</a>. The
-            Request Object can be passed by value in the <code>request</code> request parameter, or by reference using the <code>request_uri</code> parameter.
+            The request contains <code>scope</code>, <code>response_type</code> and <code>client_id</code> as query
+            string parameters for backward compatibility with the OAuth2 specification [[!RFC6749]].
+            <code>response_type</code> MUST be <code>id_token</code> and <code>client_id</code> MUST specify the
+            callback URL of the <a href="#rp">RP</a> (as per [[!OIDC.Core]]). All other <a href="#oidc">OIDC</a>
+            request parameters MUST be provided in an Request Object as per [[!OIDC.Core]] which is encoded as a JWT.
+            This enables the <a href="#rp">RP</a> to authenticate against the <a href="#siop">SIOP</a> using the
+            <a href="#rp">RP's</a> <a href="#did">DID</a>. The Request Object can be passed by value in the
+            <code>request</code> request parameter, or by reference using the <code>request_uri</code> parameter.
         </p>
 
         <pre class="example nohighlight">
@@ -313,7 +340,8 @@
         </pre>
 
         <p>
-            In the example above the <a href="#did-authn">DID AuthN</a> <code>&lt;SIOP Request&gt;</code> is initiated by the <a href="#rp">RP</a> using Request Object by value.
+            In the example above the <a href="#did-authn">DID AuthN</a> <code>&lt;SIOP Request&gt;</code> is initiated
+            by the <a href="#rp">RP</a> using Request Object by value.
         </p>
 
         <pre class="example nohighlight">
@@ -324,29 +352,48 @@
         </pre>
 
         <p>
-            In the example above the <a href="#did-authn">DID AuthN</a> <code>&lt;SIOP Request&gt;</code> is initiated by the <a href="#rp">RP</a> using Request Object by reference.
+            In the example above the <a href="#did-authn">DID AuthN</a> <code>&lt;SIOP Request&gt;</code> is initiated
+            by the <a href="#rp">RP</a> using Request Object by reference.
         </p>
 
         <h3>RP Meta-data</h3>
         <p>
-            In contrast to other <a href="#oidc">OIDC</a> flows, e.g., Authorization Code Flow, <a href="#rp">RPs</a> can provide client meta-data in the <code>registration</code> request parameter.
+            In contrast to other <a href="#oidc">OIDC</a> flows, e.g., Authorization Code Flow, <a href="#rp">RPs</a>
+            can provide client meta-data in the <code>registration</code> request parameter.
         </p>
 
         <p>
-            In addition to <code>RS256</code>, an <a href="#siop">SIOP</a> according to this specification MUST support <code>EdDSA</code> and <code>ES256K</code> [[!draft-ietf-cose-webauthn-algorithms-03]] for <code>request_object_signing_alg</code> and <code>request_object_signing_alg</code> can be omitted. <a href="#rp">RPs</a> implementing the <a href="#did-authn">DID AuthN</a> profile MUST not use <code>none</code> for <code>request_object_signing_alg</code>.
+            In addition to <code>RS256</code>, an <a href="#siop">SIOP</a> according to this specification MUST support
+            <code>EdDSA</code> and <code>ES256K</code> [[!draft-ietf-cose-webauthn-algorithms-03]] for
+            <code>request_object_signing_alg</code> and <code>request_object_signing_alg</code> can be omitted.
+            <a href="#rp">RPs</a> implementing the <a href="#did-authn">DID AuthN</a> profile MUST not use
+            <code>none</code> for <code>request_object_signing_alg</code>.
         </p>
 
         <p>
-            The Request Object MUST be directly or indirectly verifiable by a verification method in the <a href="#rp">RP's</a> <a href="#did-document">DID Document</a> and directly by the <a href="#rp">RP's</a> JWKS. The JWKS MUST be provided in the <code>jwks_uri</code> or <code>jwks</code> entry of the <code>registration</code> parameter. The JWKS MUST contain an entry with a <code>kid</code> that matches the <code>kid</code> in the Request Object. <code>jwks_uri</code> MUST use the HTTP(S) DID Resolution Binding for backward compatibility reasons with plain <a href="#siop">SIOP</a> OPs. The <code>jwks</code> request parameter SHOULD be used only if the public key cannot be directly obtained from the <a href="#did-document">DID Document</a>.
+            The Request Object MUST be directly or indirectly verifiable by a verification method in the
+            <a href="#rp">RP's</a> <a href="#did-document">DID Document</a> and directly by the <a href="#rp">RP's</a>
+            JWKS. The JWKS MUST be provided in the <code>jwks_uri</code> or <code>jwks</code> entry of the
+            <code>registration</code> parameter. The JWKS MUST contain an entry with a <code>kid</code> that matches
+            the <code>kid</code> in the Request Object. <code>jwks_uri</code> MUST use the HTTP(S) DID Resolution
+            Binding as per [[DID.Resolution]] for backward compatibility reasons with plain <a href="#siop">SIOP</a>
+            <a href="#op">OPs</a>. The <code>jwks</code> request parameter SHOULD be used only if the public key cannot
+            be directly obtained from the <a href="#did-document">DID Document</a>.
         </p>
 
         <p>
-            <a href="#rp">RPs</a> can decide to receive the <code>SIOP Response</code> encrypted. To enable encryption, the registration parameter MUST use <code>id_token_encrypted_response_alg</code> and <code>id_token_encrypted_response_enc</code> according to <a href="oidc">OIDC</a> Client Metadata [[!OIDC.Registration]]. This specification RECOMMENDS the use of `ECDH-ES` with the `X25519` curve for JWE as explained in section <a href="#encryption">Encryption</a> and described in [[!draft-amringer-jose-chacha-00]].
+            <a href="#rp">RPs</a> can decide to receive the <code>SIOP Response</code> encrypted. To enable encryption,
+            the registration parameter MUST use <code>id_token_encrypted_response_alg</code> and
+            <code>id_token_encrypted_response_enc</code> according to <a href="oidc">OIDC</a> Client Metadata
+            [[!OIDC.Registration]]. This specification RECOMMENDS the use of `ECDH-ES` with the `X25519` curve for JWE
+            as explained in section <a href="#encryption">Encryption</a> and described in
+            [[!draft-amringer-jose-chacha-00]].
         </p>
 
         <h3>Request Object</h3>
         <p>
-            The Request Object follows the <a href="#oidc">OIDC</a> specification, e.g., adding <code>nonce</code>, <code>state</code>, <code>response_type</code>, and <code>client_id</code> parameters.
+            The Request Object follows the <a href="#oidc">OIDC</a> specification, e.g., adding <code>nonce</code>,
+            <code>state</code>, <code>response_type</code>, and <code>client_id</code> parameters.
         </p>
 
         <p>
@@ -354,18 +401,48 @@
         </p>
 
         <ul>
-            <li>REQUIRED. <code>iss</code> MUST contain the <a href="#did">DID</a> of the <a href="#rp">RP</a> that can be resolved to a <a href="#did-document">DID Document</a>. The <a href="#did-document">DID Document</a> MUST contain a verification method in the authentication section, e.g., public key, that allows the <a href="#siop">SIOP</a> to verify the Request Object.</li>
+            <li>
+                REQUIRED. <code>iss</code> MUST contain the <a href="#did">DID</a> of the <a href="#rp">RP</a> that can
+                be resolved to a <a href="#did-document">DID Document</a>. The <a href="#did-document">DID Document</a>
+                MUST contain a verification method in the authentication section, e.g., public key, that allows the
+                <a href="#siop">SIOP</a> to verify the Request Object.
+            </li>
             <p class="note">
-                By default, the <code>iss</code> claim refers to the <code>client_id</code> but <a href="#siop">SIOP</a> assumes that <code>client_id</code> is the callback URL of the <a href="#rp">RP</a>. That is the reason why the <a href="#did">DID</a> is not encoded in the <code>client_id</code>. It is compliant with the <a href="#oidc">OIDC</a> specification to use different values for <code>iss</code> and <code>client_id</code>.
+                By default, the <code>iss</code> claim refers to the <code>client_id</code> but <a href="#siop">SIOP</a>
+                assumes that <code>client_id</code> is the callback URL of the <a href="#rp">RP</a>. That is the reason
+                why the <a href="#did">DID</a> is not encoded in the <code>client_id</code>. It is compliant with the
+                <a href="#oidc">OIDC</a> specification to use different values for <code>iss</code> and
+                <code>client_id</code>.
             </p>
 
-            <li>REQUIRED. <code>kid</code> MUST be a DID URL referring to a verification method in the authentication section in the <a href="#rp">RP's</a> <a href="#did-document">DID Document</a>, e.g., <code>did:example:0xab#key1</code>. The <a href="#siop">SIOP</a> MUST be able to use that verification method to verify the Request Object directly or indirectly. Additionally, the referred JWKS in the <code>registration</code> parameter MUST contain an entry with the same <code>kid</code>.</li>
-            <li>REQUIRED. <code>scope</code> MUST include <code>did_authn</code> to indicate the <a href="#did-authn">DID AuthN</a> profile is used.</li>
-            <li>REQUIRED. <code>registration</code> MUST be included in the Request Object</li>
-            <li>OPTIONAL. <code>did_doc</code> MUST contain the <a href="#did-document">DID Document</a> that corresponds to the <a href="#did">DID</a> in the <code>iss</code> claim.</li>
-            <li>OPTIONAL. <code>response_mode</code> specifies how the response is returned to the callback URL by the <a href="#siop">SIOP</a>. <a href="#siop">SIOP</a> implementing the <a href="#did-authn">DID AuthN</a> specification MAY set the <code>response_mode</code> to <code>form_post</code>. <code>fragment</code> is the default Response Mode. <a href="#rp">RPs</a> MUST take into consideration the platform of the User-Agent when specifying this request parameter.</li>
+            <li>
+                REQUIRED. <code>kid</code> MUST be a DID URL referring to a verification method in the authentication
+                section in the <a href="#rp">RP's</a> <a href="#did-document">DID Document</a>, e.g.,
+                <code>did:example:0xab#key1</code>. The <a href="#siop">SIOP</a> MUST be able to use that verification
+                method to verify the Request Object directly or indirectly. Additionally, the referred JWKS in the
+                <code>registration</code> parameter MUST contain an entry with the same <code>kid</code>.
+            </li>
+            <li>
+                REQUIRED. <code>scope</code> MUST include <code>did_authn</code> to indicate the <a href="#did-siop">
+                SIOP DID </a> profile is used.
+            </li>
+            <li>
+                REQUIRED. <code>registration</code> MUST be included in the Request Object
+            </li>
+            <li>
+                OPTIONAL. <code>did_doc</code> MUST contain the <a href="#did-document">DID Document</a> that
+                corresponds to the <a href="#did">DID</a> in the <code>iss</code> claim.
+            </li>
+            <li>
+                OPTIONAL. <code>response_mode</code> specifies how the response is returned to the callback URL by the
+                <a href="#siop">SIOP</a>. <a href="#siop">SIOP</a> implementing this specification MAY set the
+                <code>response_mode</code> to <code>form_post</code>. <code>fragment</code> is the default
+                Response Mode. <a href="#rp">RPs</a> MUST take into consideration the platform of the
+                User-Agent when specifying this request parameter.
+            </li>
             <p class="note">
-                See OAuth 2.0 Form Post Response Mode [[?OAuth2.FormPost]] and OAuth 2.0 Multiple Response Type Encoding Practices [[?OAuth2.ResponseTypes]] for more information about <code>response_mode</code>.
+                See OAuth 2.0 Form Post Response Mode [[?OAuth2.FormPost]] and OAuth 2.0 Multiple Response Type Encoding
+                Practices [[?OAuth2.ResponseTypes]] for more information about <code>response_mode</code>.
             </p>
 
         </ul>
@@ -382,7 +459,8 @@
         </pre>
 
         <p>
-            The following is a non-normative example of the JWT payload of a Request Object without requesting <code>&lt;SIOP Response&gt;</code> encryption:
+            The following is a non-normative example of the JWT payload of a Request Object without requesting
+            <code>&lt;SIOP Response&gt;</code> encryption:
         </p>
         <pre class="example nohighlight">
             {
@@ -402,10 +480,12 @@
 
         <h3 id="encryption">Encryption</h3>
         <p>
-            JWE encryption MUST use Diffie-Hellman key agreement, i.e., algorithm `ECDH-ES` using the `X25519` curve which
-            uses Direct Key Agreement with an Ephemeral Key. This means that a symmetric key is derived using Diffie-Hellman from the RP's public key and a
-            randomly generated ephemeral private key. The corresponding ephemeral public key is included in the header of the JWE in the `epk` and the derived
-            symmetric key is used to directly encrypt the JWT content. For symmetrically encrypting the content `XChaCha20Poly1305` is used which has algorithm code `XC20P`.
+            JWE encryption MUST use Diffie-Hellman key agreement, i.e., algorithm `ECDH-ES` using the `X25519` curve
+            which uses direct key agreement with an ephemeral key. This means that a symmetric key is derived using
+            Diffie-Hellman from the <a href="#rp">RP's</a> public key and a randomly generated ephemeral private key.
+            The corresponding ephemeral public key is included in the header of the JWE in the `epk` and the derived
+            symmetric key is used to directly encrypt the JWT content. For symmetrically encrypting the content
+            `XChaCha20Poly1305` is used which has algorithm code `XC20P`.
         </p>
 
         <p>
@@ -427,10 +507,10 @@
         </pre>
 
         <p>
-            Note that the `kid` above denotes the DID and key of the RP, i.e., this public key is the key used by the
-            sender together with the ephemeral private key in order to derive the shared secret. For the encryption we
-            use the 24 bytes nonce field in the `XChaCha20` algorithm as the initialization vector. The authentication
-            tag is the MAC computed by the `Poly1305` function. It is 16 bytes long.
+            Note that the `kid` above denotes the DID and key of the <a href="#rp">RP</a>, i.e., this public key is the
+            key used by the sender together with the ephemeral private key in order to derive the shared secret. For the
+            encryption the 24 bytes nonce field in the `XChaCha20` algorithm is used as the initialization vector. The
+            authentication tag is the MAC computed by the `Poly1305` function. It is 16 bytes long.
         </p>
 
         <p>
@@ -439,9 +519,8 @@
         </p>
 
         <p>
-            For the final encoding of the JWE we use the JWE Compact Serialization outlined in
-            [RFC7516 Section 3.1])(https://tools.ietf.org/html/rfc7516#section-3.1). The structure of the message
-            is as follows:
+            For the final encoding of the JWE the JWE Compact Serialization outlined in
+            [[!RFC7516]] is used. The structure of the message is as follows:
         </p>
 
         <pre class="example nohighlight">
@@ -452,7 +531,7 @@
         </pre>
 
         <p>
-            Note that we have two '.' characters above. This represents that the encrypted key is empty since we are
+            Note the two '.' characters above which indicates that the encrypted key is empty since we are
             using direct key agreement.
         </p>
 
@@ -461,26 +540,48 @@
     <section>
         <h2>SIOP Request Validation</h2>
         <p>
-            The <a href="#siop">SIOP</a> MUST validate the <code>SIOP Request</code> by following the Self-Issued ID Token Validation rules as per [[!OIDC.Core]].
+            The <a href="#siop">SIOP</a> MUST validate the <code>&lt;SIOP Request&gt;</code> by following the
+            Self-Issued ID Token Validation rules as per [[!OIDC.Core]].
         </p>
         <p class="note">
-            The step described above ensures that the Request Object is verified according to the <a href="#oidc">OIDC</a> specification. This includes basic JWS verification.
+            The step described above ensures that the Request Object is verified according to the
+            <a href="#oidc">OIDC</a> specification. This includes basic JWS verification.
         </p>
 
         <p>
-            If scope contains the <code>did_authn</code> scope, the receiving <a href="#siop">SIOP</a> MUST further validate the <code>SIOP Request</code> as follows in no particular order:
+            If scope contains the <code>did_authn</code> scope, the receiving <a href="#siop">SIOP</a> MUST further
+            validate the <code>SIOP Request</code> as follows in no particular order:
         </p>
 
         <ul>
-            <li>If no <code>did_doc</code> is present, resolve the <a href="#did-document">DID Document</a> from the <a href="#rp">RP's</a> <a href="#did">DID</a> specified in the <code>iss</code> request parameter.</li>
-            <li>If <code>did_doc</code> is present, ensure this is a viable channel to exchange the <a href="#rp">RP's</a> <a href="#did-document">DID Document</a> according to the applicable DID method.</li>
-            <li>If <code>jwks_uri</code> is present, ensure that the <a href="#did">DID</a> in the <code>jwks_uri</code> matches the <a href="#did">DID</a> in the <code>iss</code> claim.</li>
-            <li>Determine the verification method from the <a href="#rp">RP's</a> <a href="#did-document">DID Document</a> that matches the <code>kid</code> of the <code>SIOP Request</code>.</li>
-            <li>Verify the <code>SIOP Request</code> according to the verification method above. This step depends on the verification method in the authentication section in the <a href="#did-document">DID Document</a> and is out-of-scope of this specification.</li>
+            <li>
+                If no <code>did_doc</code> is present, resolve the <a href="#did-document">DID Document</a> from the
+                <a href="#rp">RP's</a> <a href="#did">DID</a> specified in the <code>iss</code> request parameter.
+            </li>
+            <li>
+                If <code>did_doc</code> is present, ensure this is a viable channel to exchange the
+                <a href="#rp">RP's</a> <a href="#did-document">DID Document</a> according to the applicable DID method.
+            </li>
+            <li>
+                If <code>jwks_uri</code> is present, ensure that the <a href="#did">DID</a> in the
+                <code>jwks_uri</code> matches the <a href="#did">DID</a> in the <code>iss</code> claim.
+            </li>
+            <li>
+                Determine the verification method from the <a href="#rp">RP's</a>
+                <a href="#did-document">DID Document</a> that matches the <code>kid</code> of the
+                <code>SIOP Request</code>.
+            </li>
+            <li>
+                Verify the <code>SIOP Request</code> according to the verification method above. This step depends on
+                the verification method in the authentication section in the <a href="#did-document">DID Document</a>
+                and is out-of-scope of this specification.
+            </li>
         </ul>
 
         <p class="note">
-            If the key pair that signed the <code>SIOP Request</code> refers to the same key as indicated by the verification method, then no additional verification has to be done as the <a href="#siop">SIOP</a> validation will verify the signature of the JWS.
+            If the key pair that signed the <code>SIOP Request</code> refers to the same key as indicated by the
+            verification method, then no additional verification has to be done as the <a href="#siop">SIOP</a>
+            validation will verify the signature of the JWS.
         </p>
     </section>
 
@@ -488,7 +589,9 @@
         <h2>Generate SIOP Response</h2>
 
         <p>
-            The <a href="#siop">SIOP</a> MUST generate and send the <code>SIOP Response</code> to the <a href="#rp">RP</a> as described in the Self-Issued OpenID Provider Response section in [[!OIDC.Core]]. The <code>id_token</code> represents the &lt;SIOP Response&gt; encoded as a JWS, or nested JWS/JWE.
+            The <a href="#siop">SIOP</a> MUST generate and send the <code>&lt;SIOP Response&gt;</code> to the
+            <a href="#rp">RP</a> as described in the Self-Issued OpenID Provider Response section in [[!OIDC.Core]].
+            The <code>id_token</code> represents the &lt;SIOP Response&gt; encoded as a JWS, or nested JWS/JWE.
         </p>
 
         <p>
@@ -496,13 +599,24 @@
         </p>
 
         <ul>
-            <li>REQUIRED. <code>sub_jwk</code> MUST contain a <code>kid</code> that is a DID URL referring to the verification method in the <a href="#siop">SIOP's</a> <a href="#did-document">DID Document</a> that can be used to verify the JWS of the <code>id_token</code> directly or indirectly.</li>
-            <li>REQUIRED. <code>did</code> MUST be the <a href="#siop">SIOP's</a> <a href="#did">DID</a>.</li>
-            <li>OPTIONAL. <code>did_doc</code> MUST be the <a href="#siop">SIOP's</a> <a href="#did-document">DID Document</a> corresponding to <code>did</code> in JSON encoding.</li>
+            <li>
+                REQUIRED. <code>sub_jwk</code> MUST contain a <code>kid</code> that is a DID URL referring to the
+                verification method in the <a href="#siop">SIOP's</a> <a href="#did-document">DID Document</a> that can
+                be used to verify the JWS of the <code>id_token</code> directly or indirectly.
+            </li>
+            <li>
+                REQUIRED. <code>did</code> MUST be the <a href="#siop">SIOP's</a> <a href="#did">DID</a>.
+            </li>
+            <li>
+                OPTIONAL. <code>did_doc</code> MUST be the <a href="#siop">SIOP's</a>
+                <a href="#did-document">DID Document</a> corresponding to <code>did</code> in JSON encoding.
+            </li>
         </ul>
 
         <p class="note">
-            The <code>sub_jwk</code> claim has to be provided for backward compatibility reasons. The verification method in the <a href="#did-document">DID Document</a> can be different from a public key and can use a <code>publicKey</code> property value other than <code>publicKeyJwk</code>.
+            The <code>sub_jwk</code> claim has to be provided for backward compatibility reasons. The verification
+            method in the <a href="#did-document">DID Document</a> can be different from a public key and can use a
+            <code>publicKey</code> property value other than <code>publicKeyJwk</code>.
         </p>
 
         <p>
@@ -541,27 +655,51 @@
         <h2>SIOP Response Validation</h2>
 
         <p>
-            The <a href="#rp">RP</a> MUST validate the <code>SIOP Response</code> as described in the Self-Issued ID Token Validation section in [[!OIDC.Core]]. This includes:
+            The <a href="#rp">RP</a> MUST validate the <code>&lt;SIOP Response&gt;</code> as described in the
+            Self-Issued ID Token Validation section in [[!OIDC.Core]]. This includes:
         </p>
 
         <ul>
-            <li>Optionally decrypting the JWE to obtain the JWS which contains the <code>id_token</code>.</li>
-            <li>Verifying that the <code>id_token</code> was signed by the key specified in the <code>sub_jwk</code> claim.</li>
+            <li>
+                Optionally decrypting the JWE to obtain the JWS which contains the <code>id_token</code>.
+            </li>
+            <li>
+                Verifying that the <code>id_token</code> was signed by the key specified in the <code>sub_jwk</code>
+                claim.
+            </li>
         </ul>
 
         <p>
-            Additionally, the <a href="#rp">RP</a> MUST validate the <code>id_token</code> against the <a href="#siop">SIOP's</a> <a href="#did-document">DID Document</a> as follows:
+            Additionally, the <a href="#rp">RP</a> MUST validate the <code>id_token</code> against the
+            <a href="#siop">SIOP's</a> <a href="#did-document">DID Document</a> as follows:
         </p>
 
         <ul>
-            <li>If no <code>did_doc</code> is present, resolve the <a href="#did-document">DID Document</a> from the <a href="#siop">SIOP's</a> <a href="#did">DID</a> specified in the <code>did</code> claim.</li>
-            <li>If <code>did_doc</code> is present, ensure this is a viable channel to exchange the <a href="#siop">SIOP's</a> <a href="#did-document">DID Document</a> according to the applicable DID method.</li>
-            <li>Determine the verification method from the <a href="#siop">SIOP's</a> <a href="#did-document">DID Document</a> that matches the <code>kid</code> of the <code>sub_jwk</code> claim in the <code>id_token</code>.</li>
-            <li>Verify the <code>id_token</code> according to the verification method above. This step depends on the verification method in the authentication section in the <a href="#did-document">DID Document</a> and is out-of-scope of this specification.</li>
+            <li>
+                If no <code>did_doc</code> is present, resolve the <a href="#did-document">DID Document</a> from the
+                <a href="#siop">SIOP's</a> <a href="#did">DID</a> specified in the <code>did</code> claim.
+            </li>
+            <li>
+                If <code>did_doc</code> is present, ensure this is a viable channel to exchange the
+                <a href="#siop">SIOP's</a> <a href="#did-document">DID Document</a> according to the applicable DID
+                method.
+            </li>
+            <li>
+                Determine the verification method from the <a href="#siop">SIOP's</a> <a href="#did-document">DID
+                Document</a> that matches the <code>kid</code> of the <code>sub_jwk</code> claim in the
+                <code>id_token</code>.
+            </li>
+            <li>
+                Verify the <code>id_token</code> according to the verification method above. This step depends on the
+                verification method in the authentication section in the <a href="#did-document">DID Document</a> and
+                is out-of-scope of this specification.
+            </li>
         </ul>
 
         <p class="note">
-            If the key pair that signed the <code>id_token</code> refers to the same key as indicated by the verification method, then no additional verification has to be done as the <a href="#siop">SIOP</a> validation will verify the signature of the JWS.
+            If the key pair that signed the <code>id_token</code> refers to the same key as indicated by the
+            verification method, then no additional verification has to be done as the <a href="#siop">SIOP</a>
+            validation will verify the signature of the JWS.
         </p>
     </section>
 
@@ -585,11 +723,17 @@
         </pre>
 
         <p>
-            This change will allow <a href="#did-authn">DID AuthN</a> enabled <a href="#rp">RPs</a> to use additional signature algorithms commonly used amongst members of the SSI community.
+            This change will allow <a href="#did-authn">DID AuthN</a> enabled <a href="#rp">RPs</a> to use additional
+            signature algorithms commonly used amongst members of the SSI community.
         </p>
 
         <p class="note">
-            "Self-Issued OpenID Provider Discovery" IS NOT normative and does not contain any MUST, SHOULD, or MAY statements. Therefore, using a different signing algorithmn than <code>RS256</code> shouldn't break the <a href="#siop">SIOP</a> specification. An <a href="#did-authn">DID AuthN</a> enabled <a href="#rp">RP</a> would provide <code>id_token_signed_response_alg</code> to indicate which signature algorithms other than <code>RS256</code> are supported, and can assume that <a href="#siop">SIOP</a> implementing the <a href="#did-authn">DID AuthN</a> profile support any of the additional algorithms.
+            "Self-Issued OpenID Provider Discovery" IS NOT normative and does not contain any MUST, SHOULD, or MAY
+            statements. Therefore, using a different signing algorithmn than <code>RS256</code> shouldn't break the
+            <a href="#siop">SIOP</a> specification. An <a href="#did-authn">DID AuthN</a> enabled <a href="#rp">RP</a>
+            would provide <code>id_token_signed_response_alg</code> to indicate which signature algorithms other than
+            <code>RS256</code> are supported, and can assume that <a href="#siop">SIOP</a> implementing the
+            <a href="#did-authn">DID AuthN</a> profile support any of the additional algorithms.
         </p>
     </section>
 </section>
@@ -598,11 +742,19 @@
     <h1>UX Considerations</h1>
 
     <p>
-        <a href="#siop">SIOP</a> uses the custom URL scheme <code>openid://</code>. Mobile browsers would open the app that registered that scheme. Desktop browser extensions/ plugins have support for similar functionality. It is out of the scope of the spec under which circumstances a QR code will be rendered. One option will be to provide the QR code if the user is using the desktop browser, and no browser extension/ plugin is available.
+        <a href="#siop">SIOP</a> uses the custom URL scheme <code>openid://</code>. Mobile browsers would open the app
+        that registered that scheme. Desktop browser extensions/ plugins have support for similar functionality. It is
+        out of the scope of the spec under which circumstances a QR code will be rendered. One option will be to provide
+        the QR code if the user is using the desktop browser, and no browser extension/ plugin is available.
     </p>
 
     <p>
-        On Android, the user can choose which app should open if multiple apps registered the same custom URL scheme. On iOS, the behavior is undefined. One approach would be to check if the user is on an iOS device and then, won't render the button if this is a concern. A fallback on iOS could be the use of custom mime types, but unusual UX has to be considered. Note, this issue is not specific to <a href="#siop">SIOP</a> only but affects all apps using custom URL schemes. In case a QR Code is used where the user has to open the app first and has to scan the QR Code, this issue is mitigated.
+        On Android, the user can choose which app should open if multiple apps registered the same custom URL scheme. On
+        iOS, the behavior is undefined. One approach would be to check if the user is on an iOS device and then, won't
+        render the button if this is a concern. A fallback on iOS could be the use of custom mime types, but unusual UX
+        has to be considered. Note, this issue is not specific to <a href="#siop">SIOP</a> only but affects all apps
+        using custom URL schemes. In case a QR Code is used where the user has to open the app first and has to scan the
+        QR Code, this issue is mitigated.
     </p>
 </section>
 
@@ -610,50 +762,67 @@
     <h1>Security Considerations</h1>
     <h2>Threat: Interception of the Redirect URI</h2>
     <p>
-        If an attacker can cause the <code>SIOP Response</code> to be sent a URI under his control, he will directly get access to the fragment carrying the <code>id_token</code>.
+        If an attacker can cause the <code>&lt;SIOP Response&gt;</code> to be sent a URI under his control, he will
+        directly get access to the fragment carrying the <code>id_token</code>.
     </p>
     <p>
-        This attack can be mitigated by hardening the <a href="#rp">RP</a>, e.g., no support for the open redirector pattern.
+        This attack can be mitigated by hardening the <a href="#rp">RP</a>, e.g., no support for the open redirector
+        pattern.
     </p>
 
     <h2>Threat: Identity Token Leak in Browser History</h2>
     <p>
-        An attacker could obtain the <code>SIOP Response</code> from the browser's history.
+        An attacker could obtain the <code>&lt;SIOP Response&gt;</code> from the browser's history.
     </p>
     <p>
-        This attack cannot be fully mitigated. It is RECOMMENDED to use short expiration times for <code>id_token</code>, and indicating that browsers should not cache the response.
+        This attack cannot be fully mitigated. It is RECOMMENDED to use short expiration times for
+        <code>id_token</code>, and indicating that browsers should not cache the response.
     </p>
 
     <h2>Threat: Identity Token Leak to Third Party Scripts</h2>
     <p>
-        It is relatively common to use third-party scripts on <a href="#rp">RP</a> pages, such as analytics tools, crash reporting. The author of the application may not be able to be fully aware of the entirety of the code running in the application. When a <code>SIOP Response</code> is returned in the fragment, it is visible to any third-party scripts on the page.
+        It is relatively common to use third-party scripts on <a href="#rp">RP</a> pages, such as analytics tools, crash
+        reporting. The author of the application may not be able to be fully aware of the entirety of the code running
+        in the application. When a <code>&lt;SIOP Response&gt;</code> is returned in the fragment, it is visible to any
+        third-party scripts on the page.
     </p>
     <p>
-        This attack could be mitigated by using trusted/ audited third party scripts on the <a href="#rp">RP's</a> page, or browser-based app.
+        This attack could be mitigated by using trusted/ audited third party scripts on the <a href="#rp">RP's</a> page,
+        or browser-based app.
     </p>
 
     <h2>Countermeasures</h2>
     <p>
-        Use <code>response_mode=form_post</code> whenever possible to mitigate the risks described above. Under some circumstances, e.g., this will not be possible as such in the case of purely decentralized apps (dApp).
+        Use <code>response_mode=form_post</code> whenever possible to mitigate the risks described above. Under some
+        circumstances, e.g., this will not be possible as such in the case of purely decentralized apps (dApp).
     </p>
 
     <h2>Additional Security Considerations</h2>
     <p>
-        The OWASP Foundation maintains a set of security recommendations and best practices for web applications, and it is RECOMMENDED to follow these best practices when creating an <a href="#siop">SIOP</a> or <a href="#rp">RP</a> based on this specification.
+        The OWASP Foundation maintains a set of security recommendations and best practices for web applications, and it
+        is RECOMMENDED to follow these best practices when creating an <a href="#siop">SIOP</a> or <a href="#rp">RP</a>
+        based on this specification.
     </p>
 </section>
 
 <section class="informative">
     <h1>IANA Considerations</h1>
     <p>
-        This specification registers the <code>did</code> and <code>did_doc</code> claims in the IANA JSON Web Token Claims registry defined in JWT.
+        This specification registers the <code>did</code> and <code>did_doc</code> claims in the IANA JSON Web Token
+        Claims registry defined in JWT.
     </p>
 </section>
 
 <section class="informative">
     <h1>OIDC Considerations</h1>
     <p>
-        This specification aims to be backward compatible with existing OIDC clients and OPs that implement the <a href="#siop">SIOP</a> specification. Although the <a href="#siop">SIOP</a> specification is part of the OIDC core specification, it is not widely adopted yet. One of the reasons was that not many apps existed that provided functionality we can find in <a href="#identity-wallet">Identity Wallets</a>. Nevertheless, <a href="#siop">SIOP</a> uses the same or similar request and response messages and should be easy to allow OIDC vendors to upgrade existing OIDC clients to support <a href="#siop">SIOP</a>.
+        This specification aims to be backward compatible with existing <a href="#oidc-client">OIDC clients</a> and
+        <a href="#op">OPs</a> that implement the <a href="#siop">SIOP</a> specification. Although the
+        <a href="#siop">SIOP</a> specification is part of the OIDC core specification, it is not widely adopted yet.
+        One of the reasons was that not many apps existed that provided functionality we can find in
+        <a href="#identity-wallet">Identity Wallets</a>. Nevertheless, <a href="#siop">SIOP</a> uses the same or similar
+        request and response messages and should be easy to allow <a href="#oidc">OIDC</a> vendors to upgrade existing
+        <a href="#oidc-client">OIDC</a> clients to support <a href="#siop">SIOP</a>.
     </p>
 </section>
 
