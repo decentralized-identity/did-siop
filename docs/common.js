@@ -2,7 +2,7 @@ var siop = {
   // Add as the respecConfig localBiblio variable
   // Extend or override global respec references
   localBiblio: {
-    "DID-RESOLUTION": {
+    "DID.Resolution": {
       title: "Decentralized Identifier Resolution",
       href: "https://w3c-ccg.github.io/did-resolution/",
       authors: [

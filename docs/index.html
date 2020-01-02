@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset='utf-8'>
-    <title>SIOP DID profile</title>
+    <title>Self-Issued OpenID Connect Provider DID Profile</title>
     <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png">
     <style>
       #subtitle ~ h2,
@@ -95,7 +95,7 @@
 <section id="abstract">
     <h2>Abstract</h2>
     <p>
-        This specification defines the "SIOP DID profile" (<a href="did-siop">SIOP DID</a>) that is a
+        This specification defines the "SIOP DID Profile" (<a href="did-siop">SIOP DID</a>) that is a
         <a href="#did-authn">DID AuthN</a> flavor to use
         OpenID Connect (<a href="#oidc">OIDC</a>) together with the strong decentralization, privacy and security
         guarantees of Decentralized Identifiers (<a href="#did">DID</a>) for everyone who wants to have a generic
@@ -132,7 +132,8 @@
         </tr>
         <tr>
             <td id="did-siop">SIOP DID</td>
-            <td>Self-Issued OpenID Connect Provider DID profile</td>
+            <td>Self-Issued OpenID Connect Provider DID profile. Refers to a specific flavor of DID AuthN used in the
+                OIDC SIOP flow.</td>
         </tr>
         <tr>
             <td id="jwt">JWT</td>
@@ -186,10 +187,6 @@
             <td id="did-authn">DID AuthN</td>
             <td>Refers to a method of proofing control over a DID for the purpose of authentication.</td>
         </tr>
-        <tr>
-            <td id="did-siop">DID SIOP</td>
-            <td>Refers to a specific flavor of DID AuthN used in the OIDC SIOP flow.</td>
-        </tr>
 
         </tbody>
     </table>
@@ -230,7 +227,7 @@
         <p class="note">
             The <a href="#siop">SIOP</a> flow is conducted peer-to-peer between the <a href="#rp">RP</a> and the
             <a href="#siop">SIOP</a>. This could be used to authenticate holders based on their <a href="#did">DID</a>,
-            to setup/ bootstrap a DIDComm connection with any <a href="#did">DID</a> routing that you may need, or to
+            to setup/ bootstrap a DID Comm connection with any <a href="#did">DID</a> routing that you may need, or to
             provide the <code>login_hint</code> to an OpenID Connect service in the <a href="#did-document">DID Document</a>
             supporting the Client-Initiated Backend Channel (CIBA) as per [[?OIDC.CIBA]].
         </p>
@@ -299,7 +296,7 @@
         Unlike the <a href="#oidc">OIDC</a> Authorization Code Flow as per [[!OIDC.Core]], the <a href="#siop">SIOP</a>
         will not return an access token to the <a href="#rp">RP</a>. If this is desired, this could be achieved by
         following the aforementioned CIBA flow as per [[?OIDC.CIBA]] in addition. <a href="#siop">SIOP</a> also
-        differs from Authorization Code Flow as per [[!OIDC.Core]] by not relying on a centralized and known
+        differs from Authorization Code Flow by not relying on a centralized and known
         <a href="#op">OP</a>. The <a href="#siop">SIOP</a> can be unknown to the <a href="#rp">RP</a> until the
         user starts to interact with the <a href="#rp">RP</a> using its <a href="#identity-wallet">Identity Wallet</a>.
         <a href="#oidc">OIDC</a> Authorization Code Flow is still a useful approach and should be used whenever the
@@ -379,9 +376,9 @@
             JWKS. The JWKS MUST be provided in the <code>jwks_uri</code> or <code>jwks</code> entry of the
             <code>registration</code> parameter. The JWKS MUST contain an entry with a <code>kid</code> that matches
             the <code>kid</code> in the Request Object. <code>jwks_uri</code> MUST use the HTTP(S) DID Resolution
-            Binding for backward compatibility reasons with plain <a href="#siop">SIOP</a> OPs. The <code>jwks</code>
-            request parameter SHOULD be used only if the public key cannot be directly obtained from the
-            <a href="#did-document">DID Document</a>.
+            Binding as per [[DID.Resolution]] for backward compatibility reasons with plain <a href="#siop">SIOP</a>
+            <a href="#op">OPs</a>. The <code>jwks</code> request parameter SHOULD be used only if the public key cannot
+            be directly obtained from the <a href="#did-document">DID Document</a>.
         </p>
 
         <p>
@@ -426,8 +423,8 @@
                 <code>registration</code> parameter MUST contain an entry with the same <code>kid</code>.
             </li>
             <li>
-                REQUIRED. <code>scope</code> MUST include <code>did_authn</code> to indicate the <a href="#did-authn">
-                DID AuthN</a> profile is used.
+                REQUIRED. <code>scope</code> MUST include <code>did_authn</code> to indicate the <a href="#did-siop">
+                SIOP DID </a> profile is used.
             </li>
             <li>
                 REQUIRED. <code>registration</code> MUST be included in the Request Object
@@ -438,9 +435,9 @@
             </li>
             <li>
                 OPTIONAL. <code>response_mode</code> specifies how the response is returned to the callback URL by the
-                <a href="#siop">SIOP</a>. <a href="#siop">SIOP</a> implementing the <a href="#did-authn">DID AuthN</a>
-                specification MAY set the <code>response_mode</code> to <code>form_post</code>. <code>fragment</code>
-                is the default Response Mode. <a href="#rp">RPs</a> MUST take into consideration the platform of the
+                <a href="#siop">SIOP</a>. <a href="#siop">SIOP</a> implementing this specification MAY set the
+                <code>response_mode</code> to <code>form_post</code>. <code>fragment</code> is the default
+                Response Mode. <a href="#rp">RPs</a> MUST take into consideration the platform of the
                 User-Agent when specifying this request parameter.
             </li>
             <p class="note">
@@ -484,11 +481,11 @@
         <h3 id="encryption">Encryption</h3>
         <p>
             JWE encryption MUST use Diffie-Hellman key agreement, i.e., algorithm `ECDH-ES` using the `X25519` curve
-            which uses Direct Key Agreement with an Ephemeral Key. This means that a symmetric key is derived using
-            Diffie-Hellman from the RP's public key and a randomly generated ephemeral private key. The corresponding
-            ephemeral public key is included in the header of the JWE in the `epk` and the derived symmetric key is used
-            to directly encrypt the JWT content. For symmetrically encrypting the content `XChaCha20Poly1305` is used
-            which has algorithm code `XC20P`.
+            which uses direct key agreement with an ephemeral key. This means that a symmetric key is derived using
+            Diffie-Hellman from the <a href="#rp">RP's</a> public key and a randomly generated ephemeral private key.
+            The corresponding ephemeral public key is included in the header of the JWE in the `epk` and the derived
+            symmetric key is used to directly encrypt the JWT content. For symmetrically encrypting the content
+            `XChaCha20Poly1305` is used which has algorithm code `XC20P`.
         </p>
 
         <p>
@@ -510,10 +507,10 @@
         </pre>
 
         <p>
-            Note that the `kid` above denotes the DID and key of the RP, i.e., this public key is the key used by the
-            sender together with the ephemeral private key in order to derive the shared secret. For the encryption we
-            use the 24 bytes nonce field in the `XChaCha20` algorithm as the initialization vector. The authentication
-            tag is the MAC computed by the `Poly1305` function. It is 16 bytes long.
+            Note that the `kid` above denotes the DID and key of the <a href="#rp">RP</a>, i.e., this public key is the
+            key used by the sender together with the ephemeral private key in order to derive the shared secret. For the
+            encryption the 24 bytes nonce field in the `XChaCha20` algorithm is used as the initialization vector. The
+            authentication tag is the MAC computed by the `Poly1305` function. It is 16 bytes long.
         </p>
 
         <p>
@@ -522,9 +519,8 @@
         </p>
 
         <p>
-            For the final encoding of the JWE we use the JWE Compact Serialization outlined in
-            [RFC7516 Section 3.1])(https://tools.ietf.org/html/rfc7516#section-3.1). The structure of the message
-            is as follows:
+            For the final encoding of the JWE the JWE Compact Serialization outlined in
+            [[!RFC7516]] is used. The structure of the message is as follows:
         </p>
 
         <pre class="example nohighlight">
@@ -535,7 +531,7 @@
         </pre>
 
         <p>
-            Note that we have two '.' characters above. This represents that the encrypted key is empty since we are
+            Note the two '.' characters above which indicates that the encrypted key is empty since we are
             using direct key agreement.
         </p>
 
@@ -544,8 +540,8 @@
     <section>
         <h2>SIOP Request Validation</h2>
         <p>
-            The <a href="#siop">SIOP</a> MUST validate the <code>SIOP Request</code> by following the Self-Issued ID
-            Token Validation rules as per [[!OIDC.Core]].
+            The <a href="#siop">SIOP</a> MUST validate the <code>&lt;SIOP Request&gt;</code> by following the
+            Self-Issued ID Token Validation rules as per [[!OIDC.Core]].
         </p>
         <p class="note">
             The step described above ensures that the Request Object is verified according to the
@@ -593,7 +589,7 @@
         <h2>Generate SIOP Response</h2>
 
         <p>
-            The <a href="#siop">SIOP</a> MUST generate and send the <code>SIOP Response</code> to the
+            The <a href="#siop">SIOP</a> MUST generate and send the <code>&lt;SIOP Response&gt;</code> to the
             <a href="#rp">RP</a> as described in the Self-Issued OpenID Provider Response section in [[!OIDC.Core]].
             The <code>id_token</code> represents the &lt;SIOP Response&gt; encoded as a JWS, or nested JWS/JWE.
         </p>
@@ -659,8 +655,8 @@
         <h2>SIOP Response Validation</h2>
 
         <p>
-            The <a href="#rp">RP</a> MUST validate the <code>SIOP Response</code> as described in the Self-Issued ID
-            Token Validation section in [[!OIDC.Core]]. This includes:
+            The <a href="#rp">RP</a> MUST validate the <code>&lt;SIOP Response&gt;</code> as described in the
+            Self-Issued ID Token Validation section in [[!OIDC.Core]]. This includes:
         </p>
 
         <ul>
@@ -766,8 +762,8 @@
     <h1>Security Considerations</h1>
     <h2>Threat: Interception of the Redirect URI</h2>
     <p>
-        If an attacker can cause the <code>SIOP Response</code> to be sent a URI under his control, he will directly get
-        access to the fragment carrying the <code>id_token</code>.
+        If an attacker can cause the <code>&lt;SIOP Response&gt;</code> to be sent a URI under his control, he will
+        directly get access to the fragment carrying the <code>id_token</code>.
     </p>
     <p>
         This attack can be mitigated by hardening the <a href="#rp">RP</a>, e.g., no support for the open redirector
@@ -776,7 +772,7 @@
 
     <h2>Threat: Identity Token Leak in Browser History</h2>
     <p>
-        An attacker could obtain the <code>SIOP Response</code> from the browser's history.
+        An attacker could obtain the <code>&lt;SIOP Response&gt;</code> from the browser's history.
     </p>
     <p>
         This attack cannot be fully mitigated. It is RECOMMENDED to use short expiration times for
@@ -787,7 +783,7 @@
     <p>
         It is relatively common to use third-party scripts on <a href="#rp">RP</a> pages, such as analytics tools, crash
         reporting. The author of the application may not be able to be fully aware of the entirety of the code running
-        in the application. When a <code>SIOP Response</code> is returned in the fragment, it is visible to any
+        in the application. When a <code>&lt;SIOP Response&gt;</code> is returned in the fragment, it is visible to any
         third-party scripts on the page.
     </p>
     <p>
@@ -820,12 +816,13 @@
 <section class="informative">
     <h1>OIDC Considerations</h1>
     <p>
-        This specification aims to be backward compatible with existing OIDC clients and OPs that implement the
-        <a href="#siop">SIOP</a> specification. Although the <a href="#siop">SIOP</a> specification is part of the OIDC
-        core specification, it is not widely adopted yet. One of the reasons was that not many apps existed that
-        provided functionality we can find in <a href="#identity-wallet">Identity Wallets</a>. Nevertheless,
-        <a href="#siop">SIOP</a> uses the same or similar request and response messages and should be easy to allow OIDC
-        vendors to upgrade existing OIDC clients to support <a href="#siop">SIOP</a>.
+        This specification aims to be backward compatible with existing <a href="#oidc-client">OIDC clients</a> and
+        <a href="#op">OPs</a> that implement the <a href="#siop">SIOP</a> specification. Although the
+        <a href="#siop">SIOP</a> specification is part of the OIDC core specification, it is not widely adopted yet.
+        One of the reasons was that not many apps existed that provided functionality we can find in
+        <a href="#identity-wallet">Identity Wallets</a>. Nevertheless, <a href="#siop">SIOP</a> uses the same or similar
+        request and response messages and should be easy to allow <a href="#oidc">OIDC</a> vendors to upgrade existing
+        <a href="#oidc-client">OIDC</a> clients to support <a href="#siop">SIOP</a>.
     </p>
 </section>
 
