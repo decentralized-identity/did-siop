@@ -19,7 +19,7 @@ Note over User, IW: SIOP protocol
 RP --> UA : web page with QR Code (openid://?<SIOP DID Request>)
 UA --> User : ACK
 
-User -> SIOP : opens SIOP app to scan QR Code
+User -> IW : opens SIOP app to scan QR Code
 IW -> UA :  scan QR Code
 UA --> IW : openid://?<SIOP DID Request>
 IW -> IW : OIDC <SIOP DID Request> validation
