@@ -265,98 +265,64 @@
 <section class="normative">
     <h1>Protocol Flow</h1>
     <p>
-        This specification assumes, the user is operating a mobile or desktop browser to visit a web application or uses
-        a browser-based app.
+        It is assumed that the user owns an <a href="#identity-wallet">Identity Wallet</a> implementing
+        the <a href="#did-siop">SIOP DID</a> specification. It is further assumed that the user is operating a mobile
+        or desktop browser to visit a web application or is using a mobile app under the control of the
+        <a href="#rp">RP</a> that supports <a href="#did-siop">DID SIOP</a> authentication requests.
     </p>
     <p>
-        First, the user clicks on the sign up or login UX element. The <a href="#rp">RP</a> will then generate the
-        redirect to <code>openid://&lt;SIOP Request&gt;</code> which will be handled by the <a href="#siop">SIOP</a>.
+        This specification supports the <a href="#single-device-flow">Regular-device Flow</a> and the
+        <a href="#multi-device-flow">Multi-device Flow</a>. The abstract protocol flow is as follows:
     </p>
-
-    <p class="note">
-        On the mobile device, this would open the <a href="#identity-wallet">Identity Wallet</a> app, e.g., uport,
-        connect.me. On the desktop browser, this would either show a QR code which can be scanned by the
-        <a href="#identity-wallet">Identity Wallet</a> app or a redirect to <code>openid://&lt;SIOP Request&gt;</code>
-        that for instance could be handled by a browser extension/ plugin implementing the <a href="#siop">SIOP</a>.
-    </p>
-
-    <p>
-        The <a href="#siop">SIOP</a> will generate the <code>&lt;SIOP Response&gt;</code> based on the specific
-        <a href="#did">DID</a> method that is supported. The <code>&lt;SIOP Response&gt;</code> will be signed and
-        optionally encrypted and will be provided according to the requested response mode.
-    </p>
-
-    <p>
-        This specification does not explicitly support any intermediate hubs or cloud agents. It is meant to be a
-        protocol to exchange the <a href="#did">DID</a>. You could then interact with a hub/ cloud agent using the
-        service endpoint in the <a href="#did-document">DID Document</a>.
-    </p>
-
-    <p>
-        Unlike the <a href="#oidc">OIDC</a> Authorization Code Flow as per [[!OIDC.Core]], the <a href="#siop">SIOP</a>
-        will not return an access token to the <a href="#rp">RP</a>. If this is desired, this could be achieved by
-        following the aforementioned CIBA flow as per [[?OIDC.CIBA]] in addition. <a href="#siop">SIOP</a> also
-        differs from Authorization Code Flow by not relying on a centralized and known
-        <a href="#op">OP</a>. The <a href="#siop">SIOP</a> can be unknown to the <a href="#rp">RP</a> until the
-        user starts to interact with the <a href="#rp">RP</a> using its <a href="#identity-wallet">Identity Wallet</a>.
-        <a href="#oidc">OIDC</a> Authorization Code Flow is still a useful approach and should be used whenever the
-        <a href="op">OP</a> is known, and <a href="#op">OP</a> discovery is possible, e.g., exchanged or pre-populated
-        <a href="#did-document">DID Document</a> containing an openid element in the service section.
-        The <a href="#siop">SIOP</a> flow allows to integrate <a href="#identity-wallet">Identity Wallets</a> with
-        plain <a href="oidc-client">OIDC clients</a> if they implemented the <a href="#siop">SIOP</a> specification.
-        In contrast, using <a href="#did-authn">DID AuthN</a> as the authentication means in the <a href="oidc">OIDC</a>
-        Authorization Code Flow would require integration with the <a href="op">OP</a> vendor itself.
-    </p>
-
-    <figure id="protocol-flow">
-        <img style="margin: auto; display: block; width: 100%;"
-             src="assets/did_authn_siop_profile_flow.png" alt="Example SIOP flow with a mobile browser as the User-Agent
-              and an Identity Wallet app as the SIOP.">
-        <figcaption style="text-align: center;">
-            Example <a href="#siop">SIOP</a> flow with a mobile browser as the User-Agent and an
-            <a href="#identity-wallet">Identity Wallet</a> app as the <a href="#siop">SIOP</a>.
-        </figcaption>
-    </figure>
+    <ul>
+        <li>
+            The <a href="#rp">RP</a> generates the <code>&lt;SIOP DID Request&gt;</code> which is associated with/
+            secured by the <a href="#rp">RP's</a> <a href="#did-document">DID Document</a>.
+        </li>
+        <li>
+            The <a href="#rp">RP</a> sends the <code>&lt;SIOP DID Request&gt;</code> to the <a href="#siop">SIOP</a>.
+        </li>
+        <li>
+            The <a href="#siop">SIOP</a> validates the <code>&lt;SIOP DID Request&gt;</code> using the <a href="#rp">RP's</a>
+            <a href="#did-document">DID Document</a>.
+        </li>
+        <li>
+            The <a href="#siop">SIOP's</a> generates the <code>&lt;SIOP DID Response&gt;</code> which is associated with/
+            secured by the <a href="#siop">SIOP's</a> <a href="#did-document">DID Document</a> and optionally encrypted
+            to the <a href="#rp">RP</a> using the <a href="#rp">RP's</a> <a href="#did-document">DID Document</a>.
+        </li>
+        <li>
+            The <a href="#siop">SIOP</a> sends the <code>&lt;SIOP DID Response&gt;</code> to the <a href="#rp">RP</a>
+            according to the requested Response Mode.
+        </li>
+        <p class="note">
+            This specification does not explicitly support any intermediate hubs or cloud agents. It is meant to be a
+            protocol to exchange the <a href="#did">DID</a>. You could then interact with a hub/ cloud agent using the
+            service endpoint in the <a href="#did-document">DID Document</a>.
+        </p>
+        <li>
+            The <a href="#rp">RP</a> validates the <code>&lt;SIOP DID Response&gt;</code> and uses the contained information
+            to sign up/ login the user.
+        </li>
+        <p class="note">
+            Unlike the <a href="#oidc">OIDC</a> Authorization Code Flow as per [[?OIDC.Core]], the <a href="#siop">SIOP</a>
+            will not return an access token to the <a href="#rp">RP</a>. If this is desired, this could be achieved by
+            following the aforementioned CIBA flow as per [[?OIDC.CIBA]] in addition. <a href="#siop">SIOP</a> also
+            differs from Authorization Code Flow by not relying on a centralized and known
+            <a href="#op">OP</a>. The <a href="#siop">SIOP</a> can be unknown to the <a href="#rp">RP</a> until the
+            user starts to interact with the <a href="#rp">RP</a> using its <a href="#identity-wallet">Identity Wallet</a>.
+            <a href="#oidc">OIDC</a> Authorization Code Flow is still a useful approach and should be used whenever the
+            <a href="op">OP</a> is known, and <a href="#op">OP</a> discovery is possible, e.g., exchanged or pre-populated
+            <a href="#did-document">DID Document</a> containing an openid element in the service section.
+            The <a href="#siop">SIOP</a> flow allows to integrate <a href="#identity-wallet">Identity Wallets</a> with
+            plain <a href="oidc-client">OIDC clients</a> if they implemented the <a href="#siop">SIOP</a> specification.
+            In contrast, using <a href="#did-authn">DID AuthN</a> as the authentication means in the <a href="oidc">OIDC</a>
+            Authorization Code Flow would require integration with the <a href="op">OP</a> vendor itself.
+        </p>
+    </ul>
 
     <section>
-        <h2>Generate SIOP Request</h2>
-        <h3>Redirect Request</h3>
-        <p>
-            The request contains <code>scope</code>, <code>response_type</code> and <code>client_id</code> as query
-            string parameters for backward compatibility with the OAuth2 specification [[!RFC6749]].
-            <code>response_type</code> MUST be <code>id_token</code> and <code>client_id</code> MUST specify the
-            callback URL of the <a href="#rp">RP</a> (as per [[!OIDC.Core]]). All other <a href="#oidc">OIDC</a>
-            request parameters MUST be provided in an Request Object as per [[!OIDC.Core]] which is encoded as a JWT.
-            This enables the <a href="#rp">RP</a> to authenticate against the <a href="#siop">SIOP</a> using the
-            <a href="#rp">RP's</a> <a href="#did">DID</a>. The Request Object can be passed by value in the
-            <code>request</code> request parameter, or by reference using the <code>request_uri</code> parameter.
-        </p>
-
-        <pre class="example nohighlight">
-            openid://?response_type=id_token
-                &client_id=https%3A%2F%2Frp.example.com%2Fcb
-                &scope=openid%20did_authn
-                &request=&lt;JWT&gt;
-        </pre>
-
-        <p>
-            In the example above the <a href="#did-authn">DID AuthN</a> <code>&lt;SIOP Request&gt;</code> is initiated
-            by the <a href="#rp">RP</a> using Request Object by value.
-        </p>
-
-        <pre class="example nohighlight">
-            openid://?response_type=id_token
-                &client_id=https%3A%2F%2Frp.example.com%2Fcb
-                &scope=openid%20did_authn
-                &request_uri=https%3A%2F%2Frp.example.com%2F90ce0b8a-a910-4dd0
-        </pre>
-
-        <p>
-            In the example above the <a href="#did-authn">DID AuthN</a> <code>&lt;SIOP Request&gt;</code> is initiated
-            by the <a href="#rp">RP</a> using Request Object by reference.
-        </p>
-
-        <h3>RP Meta-data</h3>
+        <h2>RP Meta-data</h2>
         <p>
             In contrast to other <a href="#oidc">OIDC</a> flows, e.g., Authorization Code Flow, <a href="#rp">RPs</a>
             can provide client meta-data in the <code>registration</code> request parameter.
@@ -371,340 +337,685 @@
         </p>
 
         <p>
-            The Request Object MUST be directly or indirectly verifiable by a verification method in the
-            <a href="#rp">RP's</a> <a href="#did-document">DID Document</a> and directly by the <a href="#rp">RP's</a>
-            JWKS. The JWKS MUST be provided in the <code>jwks_uri</code> or <code>jwks</code> entry of the
-            <code>registration</code> parameter. The JWKS MUST contain an entry with a <code>kid</code> that matches
-            the <code>kid</code> in the Request Object. <code>jwks_uri</code> MUST use the HTTP(S) DID Resolution
+            The <a href="#rp">RP</a> MUST provide <code>jwks_uri</code> or <code>jwks</code> in the
+            <code>registration</code> parameter which correlate with the <a href="#did-document">DID Document</a> of
+            the <a href="rp">RP</a>. <code>jwks_uri</code> MUST use the HTTP(S) DID Resolution
             Binding as per [[DID.Resolution]] for backward compatibility reasons with plain <a href="#siop">SIOP</a>
             <a href="#op">OPs</a>. The <code>jwks</code> request parameter SHOULD be used only if the public key cannot
             be directly obtained from the <a href="#did-document">DID Document</a>.
         </p>
 
         <p>
-            <a href="#rp">RPs</a> can decide to receive the <code>SIOP Response</code> encrypted. To enable encryption,
-            the registration parameter MUST use <code>id_token_encrypted_response_alg</code> and
+            <a href="#rp">RPs</a> can decide to receive the <code>&lt;SIOP DID Response&gt;</code> encrypted. To enable
+            encryption, the registration parameter MUST use <code>id_token_encrypted_response_alg</code> and
             <code>id_token_encrypted_response_enc</code> according to <a href="oidc">OIDC</a> Client Metadata
-            [[!OIDC.Registration]]. This specification RECOMMENDS the use of `ECDH-ES` with the `X25519` curve for JWE
-            as explained in section <a href="#encryption">Encryption</a> and described in
-            [[!draft-amringer-jose-chacha-00]].
+            [[!OIDC.Registration]]. See <a href="#encryption">SIOP DID Encryption</a> for more information.
         </p>
+    </section>
 
-        <h3>Request Object</h3>
-        <p>
-            The Request Object follows the <a href="#oidc">OIDC</a> specification, e.g., adding <code>nonce</code>,
-            <code>state</code>, <code>response_type</code>, and <code>client_id</code> parameters.
-        </p>
+    <section>
+        <h2 id="single-device-flow">Regular Flow</h2>
 
         <p>
-            This specification introduces additional rules for request parameters and claims in the Request Object:
+            The Regular Flow can be used if the entire flow is conducted on the same device, e.g., desktop or
+            mobile phone. Typically, the initial authentication request is created in response to a
+            <code>302 HTTP</code> redirect, or clicking on a button/ link on the web page or inside a mobile app under
+            the control of the <a href="#rp">RP</a>.
         </p>
 
-        <ul>
-            <li>
-                REQUIRED. <code>iss</code> MUST contain the <a href="#did">DID</a> of the <a href="#rp">RP</a> that can
-                be resolved to a <a href="#did-document">DID Document</a>. The <a href="#did-document">DID Document</a>
-                MUST contain a verification method in the authentication section, e.g., public key, that allows the
-                <a href="#siop">SIOP</a> to verify the Request Object.
-            </li>
-            <p class="note">
-                By default, the <code>iss</code> claim refers to the <code>client_id</code> but <a href="#siop">SIOP</a>
-                assumes that <code>client_id</code> is the callback URL of the <a href="#rp">RP</a>. That is the reason
-                why the <a href="#did">DID</a> is not encoded in the <code>client_id</code>. It is compliant with the
-                <a href="#oidc">OIDC</a> specification to use different values for <code>iss</code> and
-                <code>client_id</code>.
+        <p>
+            The following diagram is a non-normative example of the Regular Flow:
+        </p>
+
+        <figure id="protocol-single-device-flow">
+            <img style="margin: auto; display: block; width: 100%;"
+                 src="assets/did_authn_siop_profile_single_device_flow.png" alt="Regular flow using mobile phone.">
+            <figcaption style="text-align: center;">
+                : Regular Flow with a mobile browser as the User-Agent and an
+                <a href="#identity-wallet">Identity Wallet</a> app as the <a href="#siop">SIOP</a>.
+            </figcaption>
+        </figure>
+
+        <section>
+            <h3 id="sd-generate-siop-request">Request (Regular-device Flow)</h3>
+            <p>
+                The request contains <code>scope</code>, <code>response_type</code> and <code>client_id</code> as query
+                string parameters for backward compatibility with the OAuth2 specification [[!RFC6749]].
+                <code>response_type</code> MUST be <code>id_token</code> and <code>client_id</code> MUST specify the
+                callback URL of the <a href="#rp">RP</a> (as per [[!OIDC.Core]]). All other <a href="#oidc">OIDC</a>
+                request parameters MUST be provided in an Request Object as per [[!OIDC.Core]] which is encoded as a JWT.
+                This enables the <a href="#rp">RP</a> to authenticate against the <a href="#siop">SIOP</a> using the
+                <a href="#rp">RP's</a> <a href="#did">DID</a>. The Request Object can be passed by value in the
+                <code>request</code> request parameter, or by reference using the <code>request_uri</code> parameter.
             </p>
 
-            <li>
-                REQUIRED. <code>kid</code> MUST be a DID URL referring to a verification method in the authentication
-                section in the <a href="#rp">RP's</a> <a href="#did-document">DID Document</a>, e.g.,
-                <code>did:example:0xab#key1</code>. The <a href="#siop">SIOP</a> MUST be able to use that verification
-                method to verify the Request Object directly or indirectly. Additionally, the referred JWKS in the
-                <code>registration</code> parameter MUST contain an entry with the same <code>kid</code>.
-            </li>
-            <li>
-                REQUIRED. <code>scope</code> MUST include <code>did_authn</code> to indicate the <a href="#did-siop">
-                SIOP DID </a> profile is used.
-            </li>
-            <li>
-                REQUIRED. <code>registration</code> MUST be included in the Request Object
-            </li>
-            <li>
-                OPTIONAL. <code>did_doc</code> MUST contain the <a href="#did-document">DID Document</a> that
-                corresponds to the <a href="#did">DID</a> in the <code>iss</code> claim.
-            </li>
-            <li>
-                OPTIONAL. <code>response_mode</code> specifies how the response is returned to the callback URL by the
-                <a href="#siop">SIOP</a>. <a href="#siop">SIOP</a> implementing this specification MAY set the
-                <code>response_mode</code> to <code>form_post</code>. <code>fragment</code> is the default
-                Response Mode. <a href="#rp">RPs</a> MUST take into consideration the platform of the
-                User-Agent when specifying this request parameter.
-            </li>
-            <p class="note">
-                See OAuth 2.0 Form Post Response Mode [[?OAuth2.FormPost]] and OAuth 2.0 Multiple Response Type Encoding
-                Practices [[?OAuth2.ResponseTypes]] for more information about <code>response_mode</code>.
+            <p>
+                The Request Object follows the <a href="#oidc">OIDC</a> specification, e.g., adding <code>nonce</code>,
+                <code>state</code>, <code>response_type</code>, and <code>client_id</code> parameters.
             </p>
 
-        </ul>
+            <p>
+                This specification introduces additional rules for request parameters and claims in the Request Object:
+            </p>
 
-        <p>
-            The following is a non-normative example of the JWT header of a Request Object:
-        </p>
-        <pre class="example nohighlight">
-            {
-               "alg": "ES256K",
-               "typ": "JWT",
-               "kid": "did:example:0xab#veri-key1"
-            }
-        </pre>
+            <ul>
+                <li>
+                    REQUIRED. <code>iss</code> MUST contain the <a href="#did">DID</a> of the <a href="#rp">RP</a> that can
+                    be resolved to a <a href="#did-document">DID Document</a>. The <a href="#did-document">DID Document</a>
+                    MUST contain a verification method in the authentication section, e.g., public key, that allows the
+                    <a href="#siop">SIOP</a> to verify the Request Object.
+                </li>
+                <p class="note">
+                    By default, the <code>iss</code> claim refers to the <code>client_id</code> but <a href="#siop">SIOP</a>
+                    assumes that <code>client_id</code> is the callback URL of the <a href="#rp">RP</a>. That is the reason
+                    why the <a href="#did">DID</a> is not encoded in the <code>client_id</code>. It is compliant with the
+                    <a href="#oidc">OIDC</a> specification to use different values for <code>iss</code> and
+                    <code>client_id</code>.
+                </p>
 
-        <p>
-            The following is a non-normative example of the JWT payload of a Request Object without requesting
-            <code>&lt;SIOP Response&gt;</code> encryption:
-        </p>
-        <pre class="example nohighlight">
-            {
-                "iss": "did:example:0xab",
-                "response_type": "id_token",
-                "client_id": "https://my.rp.com/cb",
-                "scope": "openid did_authn",
-                "state": "af0ifjsldkj",
-                "nonce": "n-0S6_WzA2Mj",
-                "response_mode" : "form_post",
-                "registration" : {
-                    "jwks_uri" : "https://uniresolver.io/1.0/identifiers/did:example:0xab;transform-keys=jwks",
-                    "id_token_signed_response_alg" : [ "ES256K", "EdDSA", "RS256" ]
+                <li>
+                    REQUIRED. <code>kid</code> MUST be a DID URL referring to a verification method in the authentication
+                    section in the <a href="#rp">RP's</a> <a href="#did-document">DID Document</a>, e.g.,
+                    <code>did:example:0xab#key1</code>. The <a href="#siop">SIOP</a> MUST be able to use that verification
+                    method to verify the Request Object directly or indirectly. Additionally, the referred JWKS in the
+                    <code>registration</code> parameter MUST contain an entry with the same <code>kid</code>.
+                </li>
+                <li>
+                    REQUIRED. <code>scope</code> MUST include <code>did_authn</code> to indicate the <a href="#did-siop">
+                    SIOP DID </a> profile is used.
+                </li>
+                <li>
+                    REQUIRED. <code>registration</code> MUST be included in the Request Object
+                </li>
+                <li>
+                    REQUIRED. <code>client_id</code> MUST be repeated in the Request Object
+                </li>
+                <li>
+                    OPTIONAL. <code>did_doc</code> MUST contain the <a href="#did-document">DID Document</a> that
+                    corresponds to the <a href="#did">DID</a> in the <code>iss</code> claim.
+                </li>
+                <li>
+                    OPTIONAL. <code>response_mode</code> specifies how the response is returned to the callback URL by the
+                    <a href="#siop">SIOP</a>. <a href="#siop">SIOP</a> implementing this specification MAY set the
+                    <code>response_mode</code> to <code>form_post</code>. <code>fragment</code> is the default
+                    Response Mode. <a href="#rp">RPs</a> MUST take into consideration the platform of the
+                    User-Agent when specifying this request parameter.
+                </li>
+                <p class="note">
+                    See OAuth 2.0 Form Post Response Mode [[?OAuth2.FormPost]] and OAuth 2.0 Multiple Response Type Encoding
+                    Practices [[?OAuth2.ResponseTypes]] for more information about <code>response_mode</code>.
+                </p>
+
+            </ul>
+
+            <p>
+                The following is a non-normative example of the JWT header of a Request Object:
+            </p>
+            <pre class="example nohighlight">
+                {
+                   "alg": "ES256K",
+                   "typ": "JWT",
+                   "kid": "did:example:0xab#veri-key1"
                 }
-            }
-        </pre>
+            </pre>
 
-        <h3 id="encryption">Encryption</h3>
-        <p>
-            JWE encryption MUST use Diffie-Hellman key agreement, i.e., algorithm `ECDH-ES` using the `X25519` curve
-            which uses direct key agreement with an ephemeral key. This means that a symmetric key is derived using
-            Diffie-Hellman from the <a href="#rp">RP's</a> public key and a randomly generated ephemeral private key.
-            The corresponding ephemeral public key is included in the header of the JWE in the `epk` and the derived
-            symmetric key is used to directly encrypt the JWT content. For symmetrically encrypting the content
-            `XChaCha20Poly1305` is used which has algorithm code `XC20P`.
-        </p>
+            <p>
+                The following is a non-normative example of the JWT payload of a Request Object without requesting
+                <code>&lt;SIOP DID Response&gt;</code> encryption:
+            </p>
+            <pre class="example nohighlight">
+                {
+                    "iss": "did:example:0xab",
+                    "response_type": "id_token",
+                    "client_id": "https://my.rp.com/cb",
+                    "scope": "openid did_authn",
+                    "state": "af0ifjsldkj",
+                    "nonce": "n-0S6_WzA2Mj",
+                    "response_mode" : "form_post",
+                    "registration" : {
+                        "jwks_uri" : "https://uniresolver.io/1.0/identifiers/did:example:0xab;transform-keys=jwks",
+                        "id_token_signed_response_alg" : [ "ES256K", "EdDSA", "RS256" ]
+                    }
+                }
+            </pre>
 
-        <p>
-            The following is an example of the protected header of the resulting JWE:
-        </p>
+            <p>
+                The following is a non-normative example HTTP 302 redirect response by the <a href="#rp">RP</a>, which
+                triggers the User-Agent to make an <a href="siop-did">SIOP DID</a> Authentication Request using Request
+                Object by value to the <a href="#siop">SIOP</a> (with line wraps within values for display purposes
+                only):
+            </p>
+            <pre class="example nohighlight">
+                HTTP/1.1 302 Found
+                Location: openid://?
+                    &client_id=https%3A%2F%2Frp.example.com%2Fcb
+                    &scope=openid%20did_authn
+                    &request=&lt;JWT&gt;
+            </pre>
 
-        <pre class="example nohighlight">
-            {
-               "alg": "ECDH-ES",
-               "epk":
-               {
-                 "kty": "OKP",
-                 "crv":"X25519",
-                 "x":"hSDwCYkwp1R0i33ctD73Wg2_Og0mOBr066SpjqqbTmo"
-               }
-               "enc": "XC20P",
-               "kid": "did:example:0xab#key-1"
-            }
-        </pre>
+            <p>
+                The following is a non-normative example HTTP 302 redirect response by the <a href="#rp">RP</a>, which
+                triggers the User-Agent to make an <a href="siop-did">SIOP DID</a> Authentication Request using Request
+                Object by reference to the <a href="#siop">SIOP</a> (with line wraps within values for display purposes
+                only):
+            </p>
+            <pre class="example nohighlight">
+                HTTP/1.1 302 Found
+                Location: openid://?
+                    response_type=id_token
+                    &client_id=https%3A%2F%2Frp.example.com%2Fcb
+                    &scope=openid%20did_authn
+                    &request_uri=https%3A%2F%2Frp.example.com%2F90ce0b8a-a910-4dd0
+            </pre>
+        </section>
 
-        <p>
-            Note that the `kid` above denotes the DID and key of the <a href="#rp">RP</a>, i.e., this public key is the
-            key used by the sender together with the ephemeral private key in order to derive the shared secret. For the
-            encryption the 24 bytes nonce field in the `XChaCha20` algorithm is used as the initialization vector. The
-            authentication tag is the MAC computed by the `Poly1305` function. It is 16 bytes long.
-        </p>
+        <section>
+            <h3 id="sd-siop-request-validation">Request Validation (Regular-device Flow)</h3>
+            <p>
+                The <a href="#siop">SIOP</a> MUST validate the <code>&lt;SIOP DID Request&gt;</code> by following the
+                Self-Issued ID Token Validation rules as per [[!OIDC.Core]].
+            </p>
+            <p class="note">
+                The step described above ensures that the Request Object is verified according to the
+                <a href="#oidc">OIDC</a> specification. This includes basic JWS verification.
+            </p>
 
-        <p>
-            The message to be encrypted is the JWT of the `id_token`, including header and signature. The JWT is encoded
-            via base64url before encryption.
-        </p>
+            <p>
+                If scope contains the <code>did_authn</code> scope, the receiving <a href="#siop">SIOP</a> MUST further
+                validate the <code>&lt;SIOP DID Request&gt;</code> as follows in no particular order:
+            </p>
 
-        <p>
-            For the final encoding of the JWE the JWE Compact Serialization outlined in
-            [[!RFC7516]] is used. The structure of the message is as follows:
-        </p>
+            <ul>
+                <li>
+                    If no <code>did_doc</code> is present, resolve the <a href="#did-document">DID Document</a> from the
+                    <a href="#rp">RP's</a> <a href="#did">DID</a> specified in the <code>iss</code> request parameter.
+                </li>
+                <li>
+                    If <code>did_doc</code> is present, ensure this is a viable channel to exchange the
+                    <a href="#rp">RP's</a> <a href="#did-document">DID Document</a> according to the applicable DID method.
+                </li>
+                <li>
+                    If <code>jwks_uri</code> is present, ensure that the <a href="#did">DID</a> in the
+                    <code>jwks_uri</code> matches the <a href="#did">DID</a> in the <code>iss</code> claim.
+                </li>
+                <li>
+                    Determine the verification method from the <a href="#rp">RP's</a>
+                    <a href="#did-document">DID Document</a> that matches the <code>kid</code> of the
+                    <code>&lt;SIOP DID Request&gt;</code>.
+                </li>
+                <li>
+                    Verify the <code>&lt;SIOP DID Request&gt;</code> according to the verification method above. This step depends on
+                    the verification method in the authentication section in the <a href="#did-document">DID Document</a>
+                    and is out-of-scope of this specification.
+                </li>
+            </ul>
 
-        <pre class="example nohighlight">
-            BASE64URL(JWE Protected Header) || '.' || '.' ||
-            BASE64URL(JWE Initialization Vector) || '.' ||
-            BASE64URL(JWE Ciphertext) || '.' ||
-            BASE64URL(JWE Authentication Tag)
-        </pre>
+            <p class="note">
+                If the key pair that signed the <code>&lt;SIOP DID Request&gt;</code> refers to the same key as indicated by the
+                verification method, then no additional verification has to be done as the <a href="#siop">SIOP</a>
+                validation will verify the signature of the JWS.
+            </p>
+        </section>
 
-        <p>
-            Note the two '.' characters above which indicates that the encrypted key is empty since we are
-            using direct key agreement.
-        </p>
+        <section>
+            <h3 id="sd-generate-siop-response">Response (Regular-device Flow)</h3>
+
+            <p>
+                The <a href="#siop">SIOP</a> MUST generate and send the <code>&lt;SIOP DID Response&gt;</code> to the
+                <a href="#rp">RP</a> as described in the Self-Issued OpenID Provider Response section in [[!OIDC.Core]].
+                The <code>id_token</code> represents the &lt;SIOP DID Response&gt; encoded as a JWS, or nested JWS/JWE.
+            </p>
+
+            <p>
+                This specification introduces additional rules for claims in the <code>id_token</code>:
+            </p>
+
+            <ul>
+                <li>
+                    REQUIRED. <code>sub_jwk</code> MUST contain a <code>kid</code> that is a DID URL referring to the
+                    verification method in the <a href="#siop">SIOP's</a> <a href="#did-document">DID Document</a> that can
+                    be used to verify the JWS of the <code>id_token</code> directly or indirectly.
+                </li>
+                <li>
+                    REQUIRED. <code>did</code> MUST be the <a href="#siop">SIOP's</a> <a href="#did">DID</a>.
+                </li>
+                <li>
+                    OPTIONAL. <code>did_doc</code> MUST be the <a href="#siop">SIOP's</a>
+                    <a href="#did-document">DID Document</a> corresponding to <code>did</code> in JSON encoding.
+                </li>
+            </ul>
+
+            <p class="note">
+                The <code>sub_jwk</code> claim has to be provided for backward compatibility reasons. The verification
+                method in the <a href="#did-document">DID Document</a> can be different from a public key and can use a
+                <code>publicKey</code> property value other than <code>publicKeyJwk</code>.
+            </p>
+
+            <p>
+                The following is a non-normative example of the JWT header of an <code>id_token</code> using no encryption:
+            </p>
+            <pre class="example nohighlight">
+                {
+                    "alg": "ES256K",
+                    "typ": "JWT",
+                    "kid": "did:example:0xab#key-1"
+                }
+            </pre>
+
+            <p>
+                The following is a non-normative example of the unencrypted JWT payload of an <code>id_token</code>:
+            </p>
+            <pre class="example nohighlight">
+                {
+                   "iss": "https://self-issued.me",
+                   "nonce": "n-0S6_WzA2Mj",
+                   "exp": 1311281970,
+                   "iat": 1311280970,
+                   "sub_jwk" : {
+                      "crv":"secp256k1",
+                      "kid":"did:example:0xcd#verikey-1",
+                      "kty":"EC",
+                      "x":"7KEKZa5xJPh7WVqHJyUpb2MgEe3nA8Rk7eUlXsmBl-M",
+                      "y":"3zIgl_ml4RhapyEm5J7lvU-4f5jiBvZr4KgxUjEhl9o"
+                   },
+                   "sub": "9-aYUQ7mgL2SWQ_LNTeVN2rtw7xFP-3Y2EO9WV22cF0",
+                   "did": "did:example:0xcd"
+                }
+            </pre>
+        </section>
+
+        <section>
+            <h3 id="sd-siop-response-validation">Response Validation (Regular-device Flow)</h3>
+
+            <p>
+                The <a href="#rp">RP</a> MUST validate the <code>&lt;SIOP DID Response&gt;</code> as described in the
+                Self-Issued ID Token Validation section in [[!OIDC.Core]]. This includes:
+            </p>
+
+            <ul>
+                <li>
+                    Optionally decrypting the JWE to obtain the JWS which contains the <code>id_token</code>.
+                </li>
+                <li>
+                    Verifying that the <code>id_token</code> was signed by the key specified in the <code>sub_jwk</code>
+                    claim.
+                </li>
+            </ul>
+
+            <p>
+                Additionally, the <a href="#rp">RP</a> MUST validate the <code>id_token</code> against the
+                <a href="#siop">SIOP's</a> <a href="#did-document">DID Document</a> as follows:
+            </p>
+
+            <ul>
+                <li>
+                    If no <code>did_doc</code> is present, resolve the <a href="#did-document">DID Document</a> from the
+                    <a href="#siop">SIOP's</a> <a href="#did">DID</a> specified in the <code>did</code> claim.
+                </li>
+                <li>
+                    If <code>did_doc</code> is present, ensure this is a viable channel to exchange the
+                    <a href="#siop">SIOP's</a> <a href="#did-document">DID Document</a> according to the applicable DID
+                    method.
+                </li>
+                <li>
+                    Determine the verification method from the <a href="#siop">SIOP's</a> <a href="#did-document">DID
+                    Document</a> that matches the <code>kid</code> of the <code>sub_jwk</code> claim in the
+                    <code>id_token</code>.
+                </li>
+                <li>
+                    Verify the <code>id_token</code> according to the verification method above. This step depends on the
+                    verification method in the authentication section in the <a href="#did-document">DID Document</a> and
+                    is out-of-scope of this specification.
+                </li>
+            </ul>
+
+            <p class="note">
+                If the key pair that signed the <code>id_token</code> refers to the same key as indicated by the
+                verification method, then no additional verification has to be done as the <a href="#siop">SIOP</a>
+                validation will verify the signature of the JWS.
+            </p>
+        </section>
 
     </section>
 
     <section>
-        <h2>SIOP Request Validation</h2>
+        <h2 id="multi-device-flow">Multi-device Flow</h2>
+
         <p>
-            The <a href="#siop">SIOP</a> MUST validate the <code>&lt;SIOP Request&gt;</code> by following the
-            Self-Issued ID Token Validation rules as per [[!OIDC.Core]].
-        </p>
-        <p class="note">
-            The step described above ensures that the Request Object is verified according to the
-            <a href="#oidc">OIDC</a> specification. This includes basic JWS verification.
+            <a href="#siop">SIOP</a> as per [[OIDC.Core]] does not consider multi-device flows, e.g., the user starts in
+            the desktop browser and finishes the authentication flow on the mobile device. Because this is a common
+            pattern in the decentralized identity community, this specification has explicit support for this flow.
+            To prevent certain attacks such as session fixation, additional device binding as described in
+            <a href="#md-device-binding">Device Binding</a> MUST be performed.
         </p>
 
         <p>
-            If scope contains the <code>did_authn</code> scope, the receiving <a href="#siop">SIOP</a> MUST further
-            validate the <code>SIOP Request</code> as follows in no particular order:
+            The high-level flow for <a href="#md-device-binding">Device Binding</a> is as follows:
         </p>
-
         <ul>
             <li>
-                If no <code>did_doc</code> is present, resolve the <a href="#did-document">DID Document</a> from the
-                <a href="#rp">RP's</a> <a href="#did">DID</a> specified in the <code>iss</code> request parameter.
+                The <a href="#rp">RP</a> generates a random device code for the device, and includes the device code
+                and a verification URI in the <code>&lt;SIOP DID Request&gt;</code>.
             </li>
             <li>
-                If <code>did_doc</code> is present, ensure this is a viable channel to exchange the
-                <a href="#rp">RP's</a> <a href="#did-document">DID Document</a> according to the applicable DID method.
+                The <a href="#siop">SIOP</a> generates a random user code.
             </li>
             <li>
-                If <code>jwks_uri</code> is present, ensure that the <a href="#did">DID</a> in the
-                <code>jwks_uri</code> matches the <a href="#did">DID</a> in the <code>iss</code> claim.
+                The <a href="#siop">SIOP</a> generates the <code>&lt;Device Binding Request&gt;</code> and sends it to
+                the verification URI. Then, the <a href="#siop">SIOP</a> starts polling requests to the verification
+                URI.
             </li>
             <li>
-                Determine the verification method from the <a href="#rp">RP's</a>
-                <a href="#did-document">DID Document</a> that matches the <code>kid</code> of the
-                <code>SIOP Request</code>.
+                The <a href="#rp">RP</a> validates the <code>&lt;Device Binding Request&gt;</code>. The
+                <a href="#rp">RP</a> uses the device code to grant the <a href="#siop">SIOP</a> access to the
+                endpoint.
             </li>
             <li>
-                Verify the <code>SIOP Request</code> according to the verification method above. This step depends on
-                the verification method in the authentication section in the <a href="#did-document">DID Document</a>
-                and is out-of-scope of this specification.
+                The <a href="#rp">RP</a> prompts the user to repeat the user code.
+            </li>
+            <li>
+                The <a href="#rp">RP</a> validates the user code.
+            </li>
+            <li>
+                The <a href="#siop">SIOP</a> polls a request to the verification URI and obtains the
+                <code>&lt;Device Binding Response&gt;</code>.
             </li>
         </ul>
-
         <p class="note">
-            If the key pair that signed the <code>SIOP Request</code> refers to the same key as indicated by the
-            verification method, then no additional verification has to be done as the <a href="#siop">SIOP</a>
-            validation will verify the signature of the JWS.
+            The approach is borrowed from OAuth2 Device Flow [[RFC8628]]. Note, that OAuth2 Device Flow cannot be
+            used as the device is the <a href="#op">OP</a> itself and the <a href="#rp">RP</a> cannot poll requests
+            to the <a href="#siop">SIOP</a> as in most cases, the device cannot expose public endpoints without
+            additional infrastructure, e.g., a mobile phone.
         </p>
+
+        <p>
+            The following diagram is a non-normative example of the Multi-device Flow:
+        </p>
+
+        <figure id="protocol-multi-device-flow">
+            <img style="margin: auto; display: block; width: 100%;"
+                 src="assets/did_authn_siop_profile_multi_device_flow.png" alt="Multi-device flow using QR Code.">
+            <figcaption style="text-align: center;">
+                : Multi-device Flow with a Desktop browser as the User-Agent and an
+                <a href="#identity-wallet">Identity Wallet</a> app as the <a href="#siop">SIOP</a> using QR Code.
+            </figcaption>
+        </figure>
+
+        <section>
+            <h3 id="md-generate-siop-request">Request (Multi-device Flow)</h3>
+
+            <p>
+                The <a href="#rp">RP</a> MUST follow the rules in
+                <a href="#sd-generate-siop-request">Request (Regular Flow)</a>
+                to generate the <code>&lt;SIOP DID Request&gt;</code>.
+            </p>
+
+            <p>
+                Additionally, the Request Object in the <code>&lt;SIOP DID Request&gt;</code> MUST contain the
+                following parameters:
+            </p>
+
+            <ul>
+                <li>
+                    REQUIRED. <code>verification_uri</code> MUST contain the verification URI that points to an endpoint
+                    on the <a href="#rp">RP</a> to check whether
+                    the user has repeated the <code>user_code</code>. The presence of
+                    <code>verification_uri</code> also indicates the <a href="#multi-device-flow">Multi-device flow</a>
+                    is requested. The details of the interface is described in
+                    <a href="#md-device-binding">Device Binding</a>.
+                </li>
+                <li>
+                    REQUIRED. <code>device_code</code> MUST contain the device verification code. The
+                    <a href="#rp">RP</a> SHOULD use the <code>device_code</code> to authorize the
+                    <code>&lt;Device Binding Requests&gt;</code> from the <a href="#siop">SIOP</a>. As the
+                    <code>device_code</code> is not displayed to the user and thus there are no usability considerations
+                    on the length, a very high entropy code SHOULD be used.
+                </li>
+                <li>
+                    REQUIRED. <code>expires_in</code> MUST contain the lifetime in seconds of the
+                    <code>device_code</code> after when the <a href="#siop">SIOP</a> MUST stop polling requests to the
+                    verification URI.
+                </li>
+                <li>
+                    OPTIONAL. <code>interval</code> MUST contain the minimum amount of time in seconds that the client
+                    SHOULD wait between polling requests to the verification URI. If no value is provided, clients MUST
+                    use 5 as the default.
+                </li>
+            </ul>
+
+            <p class="note">
+                See <a href="#md-device-binding">Device Binding</a> for more details on the usage of
+                <code>verification_uri</code>, <code>device_code</code>, <code>expires_in</code> and
+                <code>interval</code>.
+            </p>
+
+        </section>
+
+        <section>
+            <h3 id="md-siop-request-validation">Request Validation (Multi-device Flow)</h3>
+
+            <p>
+                The <a href="#siop">SIOP</a> MUST follow the rules in
+                <a href="#sd-siop-request-validation">Request Validation (Regular Flow)</a> to validate
+                the <code>&lt;SIOP DID Request&gt;</code>.
+            </p>
+
+            <p>
+                Additionally, the following validation rules MUST be applied:
+            </p>
+
+            <ul>
+                <li>
+                    If no <code>verification_uri</code> is present, then continue with the Regular-device Flow.
+                </li>
+                <li>
+                    If <code>verification_uri</code> is present, then <a href="#md-device-binding">Device Binding</a>
+                    has to be performed before the <code>&lt;SIOP DID Response&gt;</code> is sent to the
+                    <a href="#rp">RP</a>.
+                </li>
+            </ul>
+        </section>
+
+        <section>
+            <h3 id="md-device-binding">Device Binding (Multi-device Flow)</h3>
+
+            <p>
+                The <a href="#siop">SIOP</a> extracts the parameters from the <code>&lt;SIOP DID Request&gt;</code> that
+                were described in <a href="#md-generate-siop-request">Request (Multi-device Flow)</a>.
+            </p>
+            <p>
+                Then, the <a href="#siop">SIOP</a> generates a <code>user_code</code>. The <code>user_code</code> is
+                typed by the user. For this reason, shorter codes are more desirable for usability reasons. This means
+                the entropy is typically less than would be used for the <code>device_code</code> where the code length
+                does not impact usability. Therefore, it is RECOMMENDED that the server rate-limit
+                <code>user_code</code> attempts. The <code>user_code</code> SHOULD have enough entropy that, when
+                combined with rate-limiting and other mitigations, a brute-force attack becomes infeasible.
+            </p>
+
+            <p>
+                The <a href="#siop">SIOP</a> SHOULD then continuously poll the <code>verification_uri</code>
+                endpoint with the <code>device_code</code> and <code>user_code</code> as detailed in
+                <a href="#md-device-binding-request">Device Binding Request</a> and
+                <a href="#md-device-binding-response">Device Binding Response</a>, until the user completes the
+                interaction, the <code>user_code</code> or <code>device_code</code> expires, or another error occurs.
+            </p>
+
+            <p>
+                <a href="#rp">RPs</a> supporting this specification MUST implement a user interaction sequence that
+                allows users to supply the <code>user_code</code> at some stage during the interaction. Other than that,
+                the exact sequence and implementation of the user interaction is up to the <a href="#rp">RP</a>.
+            </p>
+
+            <h4 id="md-device-binding-request">Device Binding Request</h4>
+            <p>
+                The <a href="#siop">SIOP</a> sends the <code>&lt;Device Binding Request&gt;</code> to the
+                verification URI. Between polling requests to the verification URI, the <a href="#siop">SIOP</a>
+                considers the device binding parameters enclosed in the <code>&lt;SIOP DID Request&gt;</code>
+                which are detailed in <a href="#md-generate-siop-request">Request (Multi-device Flow)</a>.
+            </p>
+            <p>
+                All requests from the <a href="#siop">SIOP</a> MUST use the Transport Layer Security
+                (TLS) protocol [[RFC8446]] and implement the best practices of BCP 195 [[RFC7525]].
+            </p>
+            <p>
+                The verification URI endpoint MUST support HTTP POST and MUST accept the
+                <code>&lt;Device Binding Request&gt;</code> provided as a JSON object with <code>Content-Type</code>
+                of the HTTP request set to <code>application/json</code>.
+            </p>
+            <p>
+                The <code>&lt;Device Binding Request&gt;</code> MUST contain the following parameters:
+            </p>
+            <ul>
+                <li>
+                    REQUIRED. <code>device_code</code> MUST contain the device verification code as described
+                    in <a href="#md-generate-siop-request">Request (Multi-device Flow)</a>.
+                </li>
+
+                <li>
+                    REQUIRED. <code>user_code</code> MUST contain the user code as described in
+                    <a href="#md-device-binding">Device Binding</a>.
+                </li>
+                <li>
+                    REQUIRED. <code>expires_in</code> MUST contain the expiration date of the <code>user_code</code>
+                    in seconds, after when <a href="#rp">RPs</a> MUST reject the
+                    <code>&lt;Device Binding Request&gt;</code>.
+                </li>
+            </ul>
+
+            <p>
+                Parameters sent without a value MUST be treated as if they were omitted from the request.
+                The <a href="#rp">RP</a> MUST ignore unrecognized request parameters. Request and response parameters
+                MUST NOT be included more than once.
+            </p>
+
+            <p>
+                For example, the <a href="#siop">SIOP</a> makes the following HTTPS request:
+            </p>
+            <pre class="example nohighlight">
+                POST /device_verification HTTP/1.1
+                Host: server.example.com
+                Content-Type: application/json
+
+                {
+                  "device_code" : "GmRhmhcxhwAzkoEqiMEg_DnyEysNkuNhszIySk9eS",
+                  "user_code" : "WDJB-MJHT",
+                  "expires_in" : 1800
+                }
+            </pre>
+
+
+            <h4 id="md-device-binding-response">Device Binding Response</h4>
+            <p>
+                If the user has repeated the <code>user_code</code> for the <code>device_code</code> on time,
+                the verification URI endpoint MUST respond with a success response with a <code>200 (OK)</code> status
+                code in case the <a href="#md-device-binding">Device Binding</a> was successful; otherwise,
+                it MUST respond with an error response, as defined in Section 5.2 of [[RFC6749]]. Instead of the error
+                codes defined in Section 5.2 of [[RFC6749]], the following error codes are
+                specified for use with the <a href="#md-device-binding">Device Binding</a>:
+            </p>
+            <ul>
+                <li>
+                    <code>authorization_pending</code>: The <a href="#rp">RP</a> request is still pending as the end
+                    user hasn't yet completed the user-interaction steps. The <a href="#siop">SIOP</a> SHOULD repeat
+                    the request to the verification URI endpoint (a process known as polling). Before each new request,
+                    the <a href="#siop">SIOP</a> MUST wait at least the number of seconds specified by
+                    the <code>interval</code> parameter of the <code>&lt;SIOP DID Request&gt;</code>, or 5 seconds if
+                    none was provided, and respect any increase in the polling interval required by the
+                    <code>slow_down</code> error.
+                </li>
+                <li>
+                    <code>slow_down</code>: A variant of <code>authorization_pending</code>, the
+                    <code>&lt;Device Binding Request&gt;</code> is still pending and polling should continue, but the
+                    interval MUST be increased by 5 seconds for this and all subsequent requests.
+                </li>
+                <li>
+                    <code>expired_token</code>: The <code>device_code</code> has expired and the device binding session
+                    has concluded. The <a href="#siop">SIOP</a> SHOULD stop polling and send the
+                    <code>&lt;SIOP DID Response&gt;</code>.
+                </li>
+                <li>
+                    <code>access_denied</code>: The end user denied the request and the <a href="#siop">SIOP</a> SHOULD
+                    stop polling and send the <code>&lt;SIOP DID Response&gt;</code>.
+                </li>
+            </ul>
+
+            <p>
+                The <code>authorization_pending</code> and <code>slow_down</code> error codes define particularly unique
+                behavior, as they indicate that the <a href="#siop">SIOP</a> should continue to poll the verification
+                URI by repeating the <code>&lt;Device Binding Request&gt;</code> (implementing the precise behavior
+                defined above).  If the <a href="#siop">SIOP</a> receives an error response with any other error code,
+                it MUST stop polling and SHOULD react accordingly, for example, by displaying an error to the user.
+            </p>
+            <p>
+                On encountering a connection timeout, <a href="#siop">SIOPs</a> MUST unilaterally reduce their polling
+                frequency before retrying.  The use of an exponential backoff algorithm to achieve this, such as by
+                doubling the polling interval on each such connection timeout, is RECOMMENDED.
+            </p>
+            <p>
+                The assumption of this specification is that the <a href="#rp">RP</a> does not have a way to communicate
+                back to the <a href="#siop">SIOP</a>. This protocol only requires a one-way channel in order to maximise
+                the viability of the protocol in restricted environments, like a <a href="#siop">SIOP</a> on a
+                mobile phone that is only capable of outbound requests. If a return channel were to exist for the chosen
+                user interaction interface, then the <a href="#siop">SIOP</a> MAY wait until notified on that channel
+                that the user has completed the action before sending the <code>&lt;SIOP DID Response&gt;</code> (as an
+                alternative to polling). Such behavior is, however, outside the scope of this specification.
+            </p>
+
+            <p>
+                For example, the <a href="#rp">RP</a> responds the following HTTPS response in case the request was
+                successful:
+            </p>
+            <pre class="example nohighlight">
+                HTTP/1.1 200 OK
+                Cache-Control: no-store
+                Pragma: no-cache
+            </pre>
+
+            <p>
+                For example, the <a href="#rp">RP</a> responds the following HTTPS response in case of an error:
+            </p>
+            <pre class="example nohighlight">
+                HTTP/1.1 400 Bad Request
+                Content-Type: application/json;charset=UTF-8
+                Cache-Control: no-store
+                Pragma: no-cache
+
+                {
+                  "error" : "invalid_request",
+                  "error_description" : "Some error description"
+                }
+            </pre>
+
+        </section>
+
+        <section>
+            <h3 id="md-generate-siop-response">Response (Multi-device Flow)</h3>
+
+            <p>
+                The <a href="#siop">SIOP</a> MUST perform <a href="#md-device-binding">Device Binding</a>.
+                Then, the <a href="#siop">SIOP</a> MUST follow the rules in
+                <a href="#sd-generate-siop-response">Response (Regular Flow)</a> to generate the
+                <code>&lt;SIOP DID Response&gt;</code>.
+            </p>
+        </section>
+
+        <section>
+            <h3 id="md-siop-response-validation">Response Validation (Multi-device Flow)</h3>
+
+            <p>
+                The <a href="#rp">RP</a> MUST follow the rules in
+                <a href="#sd-siop-response-validation">Response Validation (Regular Flow)</a>
+                to validate the <code>&lt;SIOP DID Response&gt;</code>. Additionally,
+                <a href="#rp">RPs</a> implementing this specification MUST reject the
+                <code>&lt;SIOP DID Response&gt;</code> without prior successful
+                <a href="#md-device-binding">Device Binding</a>.
+            </p>
+        </section>
+
     </section>
 
     <section>
-        <h2>Generate SIOP Response</h2>
-
-        <p>
-            The <a href="#siop">SIOP</a> MUST generate and send the <code>&lt;SIOP Response&gt;</code> to the
-            <a href="#rp">RP</a> as described in the Self-Issued OpenID Provider Response section in [[!OIDC.Core]].
-            The <code>id_token</code> represents the &lt;SIOP Response&gt; encoded as a JWS, or nested JWS/JWE.
-        </p>
-
-        <p>
-            This specification introduces additional rules for claims in the <code>id_token</code>:
-        </p>
-
-        <ul>
-            <li>
-                REQUIRED. <code>sub_jwk</code> MUST contain a <code>kid</code> that is a DID URL referring to the
-                verification method in the <a href="#siop">SIOP's</a> <a href="#did-document">DID Document</a> that can
-                be used to verify the JWS of the <code>id_token</code> directly or indirectly.
-            </li>
-            <li>
-                REQUIRED. <code>did</code> MUST be the <a href="#siop">SIOP's</a> <a href="#did">DID</a>.
-            </li>
-            <li>
-                OPTIONAL. <code>did_doc</code> MUST be the <a href="#siop">SIOP's</a>
-                <a href="#did-document">DID Document</a> corresponding to <code>did</code> in JSON encoding.
-            </li>
-        </ul>
-
-        <p class="note">
-            The <code>sub_jwk</code> claim has to be provided for backward compatibility reasons. The verification
-            method in the <a href="#did-document">DID Document</a> can be different from a public key and can use a
-            <code>publicKey</code> property value other than <code>publicKeyJwk</code>.
-        </p>
-
-        <p>
-            The following is a non-normative example of the JWT header of an <code>id_token</code> using no encryption:
-        </p>
-
-        <pre class="example nohighlight">
-            {
-                "alg": "ES256K",
-                "typ": "JWT",
-                "kid": "did:example:0xab#key-1"
-            }
-        </pre>
-
-        The following is a non-normative example of the unencrypted JWT payload of an <code>id_token</code>:
-        <pre class="example nohighlight">
-            {
-               "iss": "https://self-issued.me",
-               "nonce": "n-0S6_WzA2Mj",
-               "exp": 1311281970,
-               "iat": 1311280970,
-               "sub_jwk" : {
-                  "crv":"secp256k1",
-                  "kid":"did:example:0xcd#verikey-1",
-                  "kty":"EC",
-                  "x":"7KEKZa5xJPh7WVqHJyUpb2MgEe3nA8Rk7eUlXsmBl-M",
-                  "y":"3zIgl_ml4RhapyEm5J7lvU-4f5jiBvZr4KgxUjEhl9o"
-               },
-               "sub": "9-aYUQ7mgL2SWQ_LNTeVN2rtw7xFP-3Y2EO9WV22cF0",
-               "did": "did:example:0xcd"
-            }
-        </pre>
-    </section>
-
-    <section>
-        <h2>SIOP Response Validation</h2>
-
-        <p>
-            The <a href="#rp">RP</a> MUST validate the <code>&lt;SIOP Response&gt;</code> as described in the
-            Self-Issued ID Token Validation section in [[!OIDC.Core]]. This includes:
-        </p>
-
-        <ul>
-            <li>
-                Optionally decrypting the JWE to obtain the JWS which contains the <code>id_token</code>.
-            </li>
-            <li>
-                Verifying that the <code>id_token</code> was signed by the key specified in the <code>sub_jwk</code>
-                claim.
-            </li>
-        </ul>
-
-        <p>
-            Additionally, the <a href="#rp">RP</a> MUST validate the <code>id_token</code> against the
-            <a href="#siop">SIOP's</a> <a href="#did-document">DID Document</a> as follows:
-        </p>
-
-        <ul>
-            <li>
-                If no <code>did_doc</code> is present, resolve the <a href="#did-document">DID Document</a> from the
-                <a href="#siop">SIOP's</a> <a href="#did">DID</a> specified in the <code>did</code> claim.
-            </li>
-            <li>
-                If <code>did_doc</code> is present, ensure this is a viable channel to exchange the
-                <a href="#siop">SIOP's</a> <a href="#did-document">DID Document</a> according to the applicable DID
-                method.
-            </li>
-            <li>
-                Determine the verification method from the <a href="#siop">SIOP's</a> <a href="#did-document">DID
-                Document</a> that matches the <code>kid</code> of the <code>sub_jwk</code> claim in the
-                <code>id_token</code>.
-            </li>
-            <li>
-                Verify the <code>id_token</code> according to the verification method above. This step depends on the
-                verification method in the authentication section in the <a href="#did-document">DID Document</a> and
-                is out-of-scope of this specification.
-            </li>
-        </ul>
-
-        <p class="note">
-            If the key pair that signed the <code>id_token</code> refers to the same key as indicated by the
-            verification method, then no additional verification has to be done as the <a href="#siop">SIOP</a>
-            validation will verify the signature of the JWS.
-        </p>
-    </section>
-
-    <section>
-        <h2>SIOP Discovery</h2>
+        <h2>Discovery</h2>
         <p>
             The <a href="#siop">SIOP</a> specification assumes the following OP discovery meta-data:
         </p>
@@ -736,6 +1047,66 @@
             <a href="#did-authn">DID AuthN</a> profile support any of the additional algorithms.
         </p>
     </section>
+
+    <section>
+        <h2 id="encryption">Encryption</h2>
+        <p>
+            JWE encryption MUST use Diffie-Hellman key agreement, i.e., algorithm `ECDH-ES` using the `X25519` curve
+            which uses direct key agreement with an ephemeral key as described in
+            [[!draft-amringer-jose-chacha-00]]. This means that a symmetric key is derived using
+            Diffie-Hellman from the <a href="#rp">RP's</a> public key and a randomly generated ephemeral private key.
+            The corresponding ephemeral public key is included in the header of the JWE in the `epk` and the derived
+            symmetric key is used to directly encrypt the JWT content. For symmetrically encrypting the content
+            `XChaCha20Poly1305` is used which has algorithm code `XC20P`.
+        </p>
+
+        <p>
+            The following is an example of the protected header of the resulting JWE:
+        </p>
+
+        <pre class="example nohighlight">
+                {
+                   "alg": "ECDH-ES",
+                   "epk":
+                   {
+                     "kty": "OKP",
+                     "crv":"X25519",
+                     "x":"hSDwCYkwp1R0i33ctD73Wg2_Og0mOBr066SpjqqbTmo"
+                   }
+                   "enc": "XC20P",
+                   "kid": "did:example:0xab#key-1"
+                }
+            </pre>
+
+        <p>
+            Note that the `kid` above denotes the DID and key of the <a href="#rp">RP</a>, i.e., this public key is the
+            key used by the sender together with the ephemeral private key in order to derive the shared secret. For the
+            encryption the 24 bytes nonce field in the `XChaCha20` algorithm is used as the initialization vector. The
+            authentication tag is the MAC computed by the `Poly1305` function. It is 16 bytes long.
+        </p>
+
+        <p>
+            The message to be encrypted is the JWT of the `id_token`, including header and signature. The JWT is encoded
+            via base64url before encryption.
+        </p>
+
+        <p>
+            For the final encoding of the JWE the JWE Compact Serialization outlined in
+            [[!RFC7516]] is used. The structure of the message is as follows:
+        </p>
+
+        <pre class="example nohighlight">
+                BASE64URL(JWE Protected Header) || '.' || '.' ||
+                BASE64URL(JWE Initialization Vector) || '.' ||
+                BASE64URL(JWE Ciphertext) || '.' ||
+                BASE64URL(JWE Authentication Tag)
+            </pre>
+
+        <p>
+            Note the two '.' characters above which indicates that the encrypted key is empty since we are
+            using direct key agreement.
+        </p>
+    </section>
 </section>
 
 <section class="informative">
@@ -762,7 +1133,7 @@
     <h1>Security Considerations</h1>
     <h2>Threat: Interception of the Redirect URI</h2>
     <p>
-        If an attacker can cause the <code>&lt;SIOP Response&gt;</code> to be sent a URI under his control, he will
+        If an attacker can cause the <code>&lt;SIOP DID Response&gt;</code> to be sent a URI under his control, he will
         directly get access to the fragment carrying the <code>id_token</code>.
     </p>
     <p>
@@ -772,7 +1143,7 @@
 
     <h2>Threat: Identity Token Leak in Browser History</h2>
     <p>
-        An attacker could obtain the <code>&lt;SIOP Response&gt;</code> from the browser's history.
+        An attacker could obtain the <code>&lt;SIOP DID Response&gt;</code> from the browser's history.
     </p>
     <p>
         This attack cannot be fully mitigated. It is RECOMMENDED to use short expiration times for
@@ -783,7 +1154,7 @@
     <p>
         It is relatively common to use third-party scripts on <a href="#rp">RP</a> pages, such as analytics tools, crash
         reporting. The author of the application may not be able to be fully aware of the entirety of the code running
-        in the application. When a <code>&lt;SIOP Response&gt;</code> is returned in the fragment, it is visible to any
+        in the application. When a <code>&lt;SIOP DID Response&gt;</code> is returned in the fragment, it is visible to any
         third-party scripts on the page.
     </p>
     <p>
