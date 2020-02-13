@@ -30,19 +30,21 @@ User -> IW : (optional and out-of-scope) out-of-band authn
 
 IW -> IW: generates <Device Binding Request>
 IW -> IW: presents user_code
+
+Note over IW, RP: submit the <Device Binding Request> and start polling
 IW -> RP: HTTPS POST /verification_uri <Device Binding Request>
 RP -> RP: <Device Binding Request> validation
 RP --> IW: <Device Binding Response> (authorization_pending)
 
 UA -> RP: reload (or similar, e.g., web socket)
 RP --> UA: prompt for user_code
-
 IW --> User: ACK
 
 User -> UA: repeats user_code
 UA -> RP: HTTPS POST user_code
 RP -> RP: user_code validation
 
+Note over IW, RP: polling continues
 IW -> RP: HTTPS POST /verification_uri <Device Binding Request>
 RP -> RP: <Device Binding Request> validation
 RP --> IW: OK
