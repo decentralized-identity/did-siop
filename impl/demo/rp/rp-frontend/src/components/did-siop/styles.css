@@ -1,0 +1,36 @@
+.app {
+  font-family: sans-serif;
+  text-align: center;
+}
+
+h1 {
+  margin: 0;
+}
+
+pre {
+  margin: 0;
+  text-align: left;
+  background: #dddddd;
+  padding: 5px;
+  border-radius: 5px;
+  display: inline-block;
+}
+
+a {
+  color: currentColor;
+}
+
+.install {
+  text-align: left;
+  margin: 5px;
+}
+
+.center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.credits svg {
+  margin: 0px 5px;
+}
