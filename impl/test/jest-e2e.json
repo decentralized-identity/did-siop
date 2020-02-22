@@ -1,0 +1,17 @@
+{
+  "moduleFileExtensions": [
+    "js",
+    "json",
+    "ts"
+  ],
+  "rootDir": ".",
+  "testEnvironment": "node",
+  "testRegex": ".e2e-spec.ts$",
+  "transform": {
+    "^.+\\.(t|j)s$": "ts-jest"
+  },
+  "moduleNameMapper": {
+    "@app/lib-did-siop/(.*)": "<rootDir>/../libs/lib-did-siop/src/$1",
+    "@app/lib-did-siop": "<rootDir>/../libs/lib-did-siop/src"
+  }
+}
