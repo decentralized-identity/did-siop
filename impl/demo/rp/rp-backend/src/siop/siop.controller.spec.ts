@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { SiopController } from './siop.controller';
+import { SiopService } from './siop.service';
 
 describe('Siop Controller', () => {
   let controller: SiopController;
@@ -7,6 +8,7 @@ describe('Siop Controller', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [SiopController],
+      providers: [SiopService],
     }).compile();
 
     controller = module.get<SiopController>(SiopController);
@@ -18,21 +20,21 @@ describe('Siop Controller', () => {
 
   describe('SIOP Request endpoint', () => {
     it('should return "first siop request"', () => {
-      expect(controller.createSIOPRequest).toBe('first siop request');
+      expect(controller.createSIOPRequest()).toBe('first siop request');
     });
 
     it('should return "true" on request validation', () => {
-      expect(controller.validateSIOPRequest).toBe(true);
+      expect(controller.validateSIOPRequest()).toBe(true);
     })
   });
 
   describe('SIOP Response endpoint', () => {
     it('should return "first siop response"', () => {
-      expect(controller.createSIOPResponse).toBe('first siop response');
+      expect(controller.createSIOPResponse()).toBe('first siop response');
     });
 
     it('should return "true" on response validation', () => {
-      expect(controller.validateSIOPResponse).toBe(true);
+      expect(controller.validateSIOPResponse()).toBe(true);
     })
   });
 });
