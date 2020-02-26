@@ -1,4 +1,5 @@
 import { SIOP_KEY_ALGO } from "./DID";
+import { JWTHeader, JWTClaims } from "./JWT";
 
 export enum SIOPScope {
   OPENID_DIDAUTHN = 'openid did_authn'
@@ -29,6 +30,22 @@ export interface SIOPRequestURI {
 export interface SIOPRequest {
   iss: string;
   kid: string;
+  response_type: SIOPResponseType;
+  client_id: string;
+  scope: SIOPScope;
+  state: string;
+  nonce: string;
+  registration: SIOPRegistration;
+  response_mode?: SIOPResponseMode
+  did_doc?: string;
+}
+
+export interface SIOPRequestHeader extends JWTHeader {
+  kid: string;
+}
+
+export interface SIOPRequestPayload extends JWTClaims {
+  iss: string;
   response_type: SIOPResponseType;
   client_id: string;
   scope: SIOPScope;
