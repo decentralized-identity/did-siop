@@ -42,7 +42,7 @@ export class LibDidSiopService implements DID_SIOP {
       id_token_signed_response_alg: [alg]
     }
 
-    return {
+    return <SIOPRequest> {
       iss,
       kid,
       response_type: SIOPResponseType.ID_TOKEN,
