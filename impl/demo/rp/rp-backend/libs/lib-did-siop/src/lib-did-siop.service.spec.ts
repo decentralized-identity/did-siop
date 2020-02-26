@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { LibDidSiopService } from './lib-did-siop.service';
 import { JWT, JWK } from 'jose'
 import { SIOP_KEY_ALGO } from './dtos/DID';
+import { SIOPRequestHeader, SIOPRequestPayload, SIOPResponseType, SIOPScope, SIOPResponseMode } from './dtos/siop';
 
 const SIOP_HEADER = {
   "alg": "ES256K",
@@ -19,7 +20,7 @@ const SIOP_PAYLOAD = {
   "response_mode" : "form_post",
   "registration" : {
       "jwks_uri" : "https://uniresolver.io/1.0/identifiers/did:example:0xab;transform-keys=jwks",
-      "id_token_signed_response_alg" : [ "ES256K", "EdDSA", "RS256" ]
+      "id_token_signed_response_alg" : [ "ES256K" ]
   }
 }
 
@@ -39,13 +40,13 @@ describe('LibDidSiopService', () => {
   });
 
   describe('SIOP Request', () => {
-    it('should create a JWT SIOP Request Object with "ES256K" algo and random keys', async () => {
+    it('should create a JWT SIOP Request Object with "ES256K" algo and random keys', () => {
       const iss = 'did:example:0xab';
       const client_id = 'https://my.rp.com/cb';
       const algo = SIOP_KEY_ALGO.ES256K;
       const key = JWK.generateSync("EC", "secp256k1", { use: 'sig' });
 
-      const jws = await service.createSIOPRequest(iss, client_id, algo, key);
+      const jws = service.createSIOPRequest(iss, client_id, algo, key);
       const { header, payload } = JWT.decode(jws, { complete: true });
 
       const expectedHeader = SIOP_HEADER;
