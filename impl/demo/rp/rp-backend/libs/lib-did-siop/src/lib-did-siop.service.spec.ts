@@ -3,7 +3,7 @@ import { LibDidSiopService } from './lib-did-siop.service';
 import { JWT, JWK } from 'jose'
 import { SIOP_KEY_ALGO } from './dtos/DID';
 import { getDIDFromKey, getKeyFromDID } from './util/Util';
-import { SIOPRequest, SIOPResponseMode, SIOPRequestCall } from './dtos/siop';
+import { SIOPRequest, SIOPResponseMode, SIOPRequestCall, SIOPRequestPayload } from './dtos/siop';
 import { ecKeyToDidDoc, DIDDocument } from './dtos/DIDDocument'
 const didKeyDriver = require('did-method-key').driver();
 
@@ -69,7 +69,7 @@ describe('LibDidSiopService', () => {
       expectedPayload.iss = expect.stringContaining('did:key:');
       expectedPayload.state = expect.any(String);
       expectedPayload.nonce = expect.any(String);
-      expectedPayload.registration.jwks_uri = expect.any(String);
+      expectedPayload.registration.jwks_uri = expect.stringContaining((<SIOPRequestPayload>payload).iss);
       expectedPayload.registration.id_token_signed_response_alg = expect.arrayContaining([SIOP_KEY_ALGO.ES256K]);
 
       expect(header).toMatchObject(expectedHeader);
