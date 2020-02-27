@@ -75,12 +75,13 @@ export interface PublicKeyElement {
  * @returns {DidDocument}
  */
 export function ecKeyToDidDoc(key: JWK.Key): DIDDocument {
-  const did = `did:key:${getDIDFromKey(key)}`;
-  const keyId = `${did}#${getDIDFromKey(key)}`;
+  const base58PubKey = getBase58PubKeyFromKey(key)
+  const did = `did:key:${base58PubKey}`;
+  const keyId = `${did}#${base58PubKey}`;
 
   const authentication:Authentication = {
     type: DEFAULT_PUBKEY_TYPE,
-    publicKey: getBase58PubKeyFromKey(key)
+    publicKey: base58PubKey
   }
 
   return {
@@ -90,7 +91,7 @@ export function ecKeyToDidDoc(key: JWK.Key): DIDDocument {
       id: keyId,
       type: DEFAULT_PUBKEY_TYPE,
       controller: did,
-      publicKeyBase58: getBase58PubKeyFromKey(key)
+      publicKeyBase58: base58PubKey
     }],
     authentication: [authentication]
   }

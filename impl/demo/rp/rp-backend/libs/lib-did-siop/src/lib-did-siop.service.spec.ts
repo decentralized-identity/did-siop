@@ -17,7 +17,7 @@ const SIOP_HEADER = {
 const SIOP_PAYLOAD = {
   "iss": "did:example:0xab",
   "response_type": "id_token",
-  "client_id": "https://my.rp.com/cb",
+  "client_id": "http://localhost:5000/response/validation",
   "scope": "openid did_authn",
   "state": "af0ifjsldkj",
   "nonce": "n-0S6_WzA2Mj",
@@ -46,10 +46,6 @@ describe('LibDidSiopService', () => {
   describe('SIOP Request', () => {
     it('should create a JWT SIOP Request Object with "ES256K" algo and random keys', async () => {
       
-      const tmpPubKey = getKeyFromDID('did:key:z6MkmqGuGFUR5DPVWJgeHuHNS5jaZvYeoQJpfjpYzJsV1LmW')
-      console.log(tmpPubKey);
-      const didDocument = await didKeyDriver.generate();
-
       const key = JWK.generateSync("EC", "secp256k1", { use: 'sig' });
       const did = getDIDFromKey(key)
       console.log('DID created: ' + did)
@@ -60,7 +56,8 @@ describe('LibDidSiopService', () => {
         client_id: 'http://localhost:5000/response/validation',
         key: key,
         alg: [SIOP_KEY_ALGO.ES256K, SIOP_KEY_ALGO.EdDSA, SIOP_KEY_ALGO.RS256],
-        did_doc: didDoc
+        did_doc: didDoc,
+        response_mode: SIOPResponseMode.FORM_POST
       }
 
       const jws = service.createSIOPRequest(siopRequestCall);
@@ -69,6 +66,7 @@ describe('LibDidSiopService', () => {
       const expectedHeader = SIOP_HEADER;
       expectedHeader.kid = expect.any(String);
       const expectedPayload = SIOP_PAYLOAD;
+      expectedPayload.iss = expect.stringContaining('did:key:');
       expectedPayload.state = expect.any(String);
       expectedPayload.nonce = expect.any(String);
       expectedPayload.registration.jwks_uri = expect.any(String);

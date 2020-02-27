@@ -14,7 +14,7 @@ function getDIDFromKey(key: JWK.Key): string {
 
 function getBase58PubKeyFromKey(key: JWK.Key): string {
   const publicKey = ethPublicKey(key)
-  return 'did:key:' + base58.encode(Buffer.from(publicKey.replace('0x', '')))
+  return base58.encode(Buffer.from(publicKey.replace('0x', '')))
 }
 
 function getKeyFromDID(did: string): string {

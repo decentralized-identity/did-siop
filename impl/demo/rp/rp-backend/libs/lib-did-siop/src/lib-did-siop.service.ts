@@ -123,7 +123,7 @@ export class LibDidSiopService implements DID_SIOP {
     if (!didDoc.publicKey) return false;
     // it should search for the exact public key matching the same owner
     // for now we take the first one !!! TODO 
-    if (didDoc.publicKey[0].id !== issuer) return false;
+    if (!didDoc.publicKey[0].id.includes(issuer)) return false;
     const pubkey = didDoc.publicKey[0]
     // check if there is a defined format for public key or throws an error
     if (!pubkey.publicKeyPem && !pubkey.publicKeyHex && !pubkey.publicKeyBase64 && !pubkey.publicKeyBase58) return false;
