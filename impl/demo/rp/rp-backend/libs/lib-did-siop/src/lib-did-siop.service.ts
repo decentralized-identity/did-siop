@@ -8,12 +8,20 @@ import { DID_SIOP_ERRORS } from './error'
 
 export interface DID_SIOP {
 
+  createRedirectRequest(siopRequest:SIOPRequestCall): string
   createSIOPRequest(siopRequest:SIOPRequestCall): string
 
 }
 
 @Injectable()
 export class LibDidSiopService implements DID_SIOP {
+
+  createRedirectRequest(siopRequest:SIOPRequestCall): string {
+    return 'openid://?response_type=' + SIOPResponseType.ID_TOKEN +
+    '&client_id=' + siopRequest.client_id +
+    '&scope=' + SIOPScope.OPENID_DIDAUTHN +
+    '&request=' + this.createSIOPRequest(siopRequest)
+  }
   createSIOPRequest(input: SIOPRequestCall): string {
 
     const siopRequest:SIOPRequest = this._createPayloadRequest(input)

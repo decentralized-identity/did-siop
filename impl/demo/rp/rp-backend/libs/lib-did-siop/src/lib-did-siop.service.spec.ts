@@ -3,9 +3,8 @@ import { LibDidSiopService } from './lib-did-siop.service';
 import { JWT, JWK } from 'jose'
 import { SIOP_KEY_ALGO } from './dtos/DID';
 import { getDIDFromKey, getKeyFromDID } from './util/Util';
-import { SIOPRequest, SIOPResponseMode, SIOPRequestCall, SIOPRequestPayload } from './dtos/siop';
+import { SIOPRequest, SIOPResponseMode, SIOPRequestCall, SIOPRequestPayload, SIOPResponseType, SIOPScope } from './dtos/siop';
 import { ecKeyToDidDoc, DIDDocument } from './dtos/DIDDocument'
-const didKeyDriver = require('did-method-key').driver();
 
 
 const SIOP_HEADER = {
@@ -28,8 +27,19 @@ const SIOP_PAYLOAD = {
   }
 }
 
+let key: JWK.Key;
+let did: string;
+let didDoc: DIDDocument;
+
 describe('LibDidSiopService', () => {
   let service: LibDidSiopService;
+
+  beforeAll( () => {
+    key = JWK.generateSync("EC", "secp256k1", { use: 'sig' });
+    did = getDIDFromKey(key)
+    console.log('DID created: ' + did)
+    didDoc = ecKeyToDidDoc(key)
+  })
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -44,12 +54,7 @@ describe('LibDidSiopService', () => {
   });
 
   describe('SIOP Request', () => {
-    it('should create a JWT SIOP Request Object with "ES256K" algo and random keys', async () => {
-      
-      const key = JWK.generateSync("EC", "secp256k1", { use: 'sig' });
-      const did = getDIDFromKey(key)
-      console.log('DID created: ' + did)
-      const didDoc:DIDDocument = ecKeyToDidDoc(key)
+    it('should create a JWT SIOP Request Object with "ES256K" algo and random keys', () => {
 
       const siopRequestCall:SIOPRequestCall = {
         iss: did,
@@ -75,6 +80,24 @@ describe('LibDidSiopService', () => {
       expect(header).toMatchObject(expectedHeader);
       expect(payload).toMatchObject(expectedPayload);
     });
+
+    it('should create a SIOP Request URL', () => {
+      const siopRequestCall:SIOPRequestCall = {
+        iss: did,
+        client_id: 'http://localhost:5000/response/validation',
+        key: key,
+        alg: [SIOP_KEY_ALGO.ES256K, SIOP_KEY_ALGO.EdDSA, SIOP_KEY_ALGO.RS256],
+        did_doc: didDoc,
+        response_mode: SIOPResponseMode.FORM_POST
+      }
+
+      const siopURI:string = service.createRedirectRequest(siopRequestCall);
+      console.log(siopURI)
+      expect(siopURI).toContain('openid://?response_type=' + SIOPResponseType.ID_TOKEN)
+      expect(siopURI).toContain('client_id=' + siopRequestCall.client_id)
+      expect(siopURI).toContain('scope=' + SIOPScope.OPENID_DIDAUTHN)
+      expect(siopURI).toContain('&request=')
+    })
 
     it('should return "true" on request validation', () => {
       expect(service.validateSIOPRequest()).toBe(true);
