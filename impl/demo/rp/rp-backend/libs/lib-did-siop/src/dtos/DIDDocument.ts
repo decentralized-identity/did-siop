@@ -1,5 +1,8 @@
 import { Authentication } from "did-resolver/src/resolver";
 import { SIOP_KEY_ALGO, SIOP_KEY_FORMAT } from "./DID";
+import { JWK } from "jose";
+import { getDIDFromKey, getBase58PubKeyFromKey } from "../util/Util";
+import { DEFAULT_PROOF_TYPE, DEFAULT_PUBKEY_TYPE } from "../constants";
 
 export enum DidDocumentElementType {
   publicKey = 'publicKey',
@@ -17,7 +20,7 @@ export interface PublicKeyOut {
 }
 
 export interface DIDDocument {
-  '@context': 'https://w3id.org/did/v1';
+  '@context': string[];
   id: string;
   publicKey: PublicKey[];
   authentication?: Authentication[]
@@ -63,4 +66,32 @@ export interface PublicKeyElement {
   publicKeyBase58?: string;
   publicKeyHex?: string;
   publicKeyPem?: string;
+}
+
+/**
+ * Converts a secp256k1 object to a `did:key` method DID Document.
+ *
+ * @param {secp256k1} key
+ * @returns {DidDocument}
+ */
+export function ecKeyToDidDoc(key: JWK.Key): DIDDocument {
+  const did = `did:key:${getDIDFromKey(key)}`;
+  const keyId = `${did}#${getDIDFromKey(key)}`;
+
+  const authentication:Authentication = {
+    type: DEFAULT_PUBKEY_TYPE,
+    publicKey: getBase58PubKeyFromKey(key)
+  }
+
+  return {
+    '@context': ['https://w3id.org/did/v0.11'],
+    id: did,
+    publicKey: [{
+      id: keyId,
+      type: DEFAULT_PUBKEY_TYPE,
+      controller: did,
+      publicKeyBase58: getBase58PubKeyFromKey(key)
+    }],
+    authentication: [authentication]
+  }
 }

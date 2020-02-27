@@ -2,7 +2,11 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { LibDidSiopService } from './lib-did-siop.service';
 import { JWT, JWK } from 'jose'
 import { SIOP_KEY_ALGO } from './dtos/DID';
-import { SIOPRequestHeader, SIOPRequestPayload, SIOPResponseType, SIOPScope, SIOPResponseMode } from './dtos/siop';
+import { getDIDFromKey, getKeyFromDID } from './util/Util';
+import { SIOPRequest, SIOPResponseMode, SIOPRequestCall } from './dtos/siop';
+import { ecKeyToDidDoc, DIDDocument } from './dtos/DIDDocument'
+const didKeyDriver = require('did-method-key').driver();
+
 
 const SIOP_HEADER = {
   "alg": "ES256K",
@@ -20,7 +24,7 @@ const SIOP_PAYLOAD = {
   "response_mode" : "form_post",
   "registration" : {
       "jwks_uri" : "https://uniresolver.io/1.0/identifiers/did:example:0xab;transform-keys=jwks",
-      "id_token_signed_response_alg" : [ "ES256K" ]
+      "id_token_signed_response_alg" : [ "ES256K", "EdDSA", "RS256" ]
   }
 }
 
@@ -40,13 +44,26 @@ describe('LibDidSiopService', () => {
   });
 
   describe('SIOP Request', () => {
-    it('should create a JWT SIOP Request Object with "ES256K" algo and random keys', () => {
-      const iss = 'did:example:0xab';
-      const client_id = 'https://my.rp.com/cb';
-      const algo = SIOP_KEY_ALGO.ES256K;
-      const key = JWK.generateSync("EC", "secp256k1", { use: 'sig' });
+    it('should create a JWT SIOP Request Object with "ES256K" algo and random keys', async () => {
+      
+      const tmpPubKey = getKeyFromDID('did:key:z6MkmqGuGFUR5DPVWJgeHuHNS5jaZvYeoQJpfjpYzJsV1LmW')
+      console.log(tmpPubKey);
+      const didDocument = await didKeyDriver.generate();
 
-      const jws = service.createSIOPRequest(iss, client_id, algo, key);
+      const key = JWK.generateSync("EC", "secp256k1", { use: 'sig' });
+      const did = getDIDFromKey(key)
+      console.log('DID created: ' + did)
+      const didDoc:DIDDocument = ecKeyToDidDoc(key)
+
+      const siopRequestCall:SIOPRequestCall = {
+        iss: did,
+        client_id: 'http://localhost:5000/response/validation',
+        key: key,
+        alg: [SIOP_KEY_ALGO.ES256K, SIOP_KEY_ALGO.EdDSA, SIOP_KEY_ALGO.RS256],
+        did_doc: didDoc
+      }
+
+      const jws = service.createSIOPRequest(siopRequestCall);
       const { header, payload } = JWT.decode(jws, { complete: true });
 
       const expectedHeader = SIOP_HEADER;
@@ -55,6 +72,7 @@ describe('LibDidSiopService', () => {
       expectedPayload.state = expect.any(String);
       expectedPayload.nonce = expect.any(String);
       expectedPayload.registration.jwks_uri = expect.any(String);
+      expectedPayload.registration.id_token_signed_response_alg = expect.arrayContaining([SIOP_KEY_ALGO.ES256K]);
 
       expect(header).toMatchObject(expectedHeader);
       expect(payload).toMatchObject(expectedPayload);

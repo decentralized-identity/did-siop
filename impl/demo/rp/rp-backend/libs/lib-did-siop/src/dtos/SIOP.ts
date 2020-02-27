@@ -1,5 +1,7 @@
 import { SIOP_KEY_ALGO } from "./DID";
 import { JWTHeader, JWTClaims } from "./JWT";
+import { DIDDocument } from './DIDDocument'
+import { JWK } from "jose";
 
 export enum SIOPScope {
   OPENID_DIDAUTHN = 'openid did_authn'
@@ -14,7 +16,11 @@ export enum SIOPResponseType {
   ID_TOKEN = 'id_token'
 }
 
-export interface SIOPRegistration {
+export interface SIOPDirectRegistration {
+  jwks: string;
+}
+
+export interface SIOPIndirectRegistration {
   jwks_uri: string;
   id_token_signed_response_alg: SIOP_KEY_ALGO[]
 }
@@ -35,9 +41,9 @@ export interface SIOPRequest {
   scope: SIOPScope;
   state: string;
   nonce: string;
-  registration: SIOPRegistration;
+  registration: SIOPIndirectRegistration | SIOPDirectRegistration;
   response_mode?: SIOPResponseMode
-  did_doc?: string;
+  did_doc?: DIDDocument;
 }
 
 export interface SIOPRequestHeader extends JWTHeader {
@@ -51,7 +57,17 @@ export interface SIOPRequestPayload extends JWTClaims {
   scope: SIOPScope;
   state: string;
   nonce: string;
-  registration: SIOPRegistration;
+  registration: SIOPIndirectRegistration | SIOPDirectRegistration
   response_mode?: SIOPResponseMode
   did_doc?: string;
+}
+
+export interface SIOPRequestCall{
+  iss: string;
+  client_id: string;
+  key: JWK.Key;
+  alg: string[];
+  kid?: string;
+  response_mode?: SIOPResponseMode
+  did_doc?: DIDDocument;
 }
