@@ -34,16 +34,6 @@ function toHex(data: string): string {
   return Buffer.from(data, 'base64').toString('hex');
 }
 
-function arrayBufferToString(buffer: ArrayBuffer): string {
-  return String.fromCharCode.apply(null, Array.from(new Uint16Array(buffer)));
-}
-
-export function bytes32toString (bytes32) {
-  return Buffer.from(bytes32.slice(2), 'hex')
-    .toString('utf8')
-    .replace(/\0+$/, '')
-}
-
 export { 
   getRandomString, 
   getDIDFromKey, 

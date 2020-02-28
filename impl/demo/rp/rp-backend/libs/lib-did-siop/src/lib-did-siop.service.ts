@@ -2,14 +2,15 @@ import { Injectable } from '@nestjs/common';
 import { SIOP_KEY_ALGO } from './dtos/DID';
 import { JWT, JWK } from 'jose';
 import { getRandomString } from './util/Util'
-import { SIOPRequest, SIOPResponseType, SIOPScope, SIOPRequestCall, SIOPIndirectRegistration, SIOPDirectRegistration } from './dtos/siop';
-import { DIDDocument } from './dtos/DIDDocument'
+import { SIOPRequest, SIOPResponseType, SIOPScope, SIOPRequestCall, SIOPIndirectRegistration, SIOPDirectRegistration, SIOPRequestPayload, SIOPRequestHeader } from './dtos/siop';
+import { DIDDocument, getDIDDocument, PublicKey, getHexPublicKey } from './dtos/DIDDocument'
 import { DID_SIOP_ERRORS } from './error'
 
 export interface DID_SIOP {
 
   createRedirectRequest(siopRequest:SIOPRequestCall): string
   createSIOPRequest(siopRequest:SIOPRequestCall): string
+  validateSIOPRequest(siopJwt: string): boolean
 
 }
 
@@ -34,8 +35,37 @@ export class LibDidSiopService implements DID_SIOP {
       siopRequest.kid )
   }
 
-  validateSIOPRequest(): boolean {
-    return true;
+  validateSIOPRequest(siopJwt: string): boolean {
+
+    let didDoc: DIDDocument;
+
+    // decode token
+    const { header, payload } = JWT.decode(siopJwt, { complete: true });
+    const siopHeader = <SIOPRequestHeader>header;
+    const siopPayload = <SIOPRequestPayload>payload;
+
+    // throw error if scope does not contain did_authn both in URI and inside the decoded JWT
+    if (!siopPayload.scope.includes(SIOPScope.OPENID_DIDAUTHN)) throw new Error(DID_SIOP_ERRORS.NO_DIDAUTHN_SCOPE_INCLUDED);
+
+    // If no did_doc is present, resolve the DID Document from the RP's DID specified in the iss request parameter.
+    if (!siopPayload.did_doc) didDoc = getDIDDocument(siopPayload.iss)
+
+    // If did_doc is present, ensure this is a viable channel to exchange the RP's DID Document according to the applicable DID method.
+    // !!! TODO
+
+    // If jwks_uri is present, ensure that the DID in the jwks_uri matches the DID in the iss claim.
+    if (siopPayload.registration && (<SIOPIndirectRegistration>siopPayload.registration).jwks_uri && 
+    !(<SIOPIndirectRegistration>siopPayload.registration).jwks_uri.includes(siopPayload.iss)) {
+      throw new Error(DID_SIOP_ERRORS.DID_MISMATCH)
+    }
+
+    // Determine the verification method from the RP's DID Document that matches the kid of the SIOP Request.
+    if (didDoc.publicKey && didDoc.publicKey.length>0 && didDoc.publicKey[0].id !== siopHeader.kid) {
+      throw new Error(DID_SIOP_ERRORS.KID_MISMATCH)
+    }
+
+    // Verify the SIOP Request according to the verification method above.
+    return this._verifySIOPRequest(didDoc.publicKey[0], siopJwt);
   }
 
   createSIOPResponse(): string {
@@ -76,6 +106,18 @@ export class LibDidSiopService implements DID_SIOP {
     )
 
     return jws;
+  }
+
+  private _verifySIOPRequest(pubKey: PublicKey, siopJwt: string): boolean {
+
+    const publicKey = getHexPublicKey(pubKey)
+    const decodedKey = Buffer.from(publicKey, 'base64').toString('utf8')
+    const jwk = JWK.asKey(decodedKey);
+
+    // throws error if verify is signature incorrect
+    JWT.verify(siopJwt, jwk);
+
+    return true;
   }
 
   private _getAlgKeyType(supportedAlg: string[], key: JWK.Key): SIOP_KEY_ALGO {

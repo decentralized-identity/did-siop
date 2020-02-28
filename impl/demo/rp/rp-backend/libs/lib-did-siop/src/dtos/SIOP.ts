@@ -16,13 +16,16 @@ export enum SIOPResponseType {
   ID_TOKEN = 'id_token'
 }
 
-export interface SIOPDirectRegistration {
+interface SIOPRegistration {
+  id_token_signed_response_alg: SIOP_KEY_ALGO[]
+}
+
+export interface SIOPDirectRegistration extends SIOPRegistration {
   jwks: string;
 }
 
-export interface SIOPIndirectRegistration {
+export interface SIOPIndirectRegistration extends SIOPRegistration {
   jwks_uri: string;
-  id_token_signed_response_alg: SIOP_KEY_ALGO[]
 }
 
 export interface SIOPRequestURI {

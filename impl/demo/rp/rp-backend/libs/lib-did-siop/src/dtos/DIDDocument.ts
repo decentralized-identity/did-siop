@@ -1,8 +1,8 @@
 import { Authentication } from "did-resolver/src/resolver";
 import { SIOP_KEY_ALGO, SIOP_KEY_FORMAT } from "./DID";
 import { JWK } from "jose";
-import { getDIDFromKey, getBase58PubKeyFromKey } from "../util/Util";
-import { DEFAULT_PROOF_TYPE, DEFAULT_PUBKEY_TYPE } from "../constants";
+import { getBase58PubKeyFromKey, getKeyFromDID } from "../util/Util";
+import { DEFAULT_PUBKEY_TYPE } from "../constants";
 
 export enum DidDocumentElementType {
   publicKey = 'publicKey',
@@ -95,4 +95,32 @@ export function ecKeyToDidDoc(key: JWK.Key): DIDDocument {
     }],
     authentication: [authentication]
   }
+}
+
+export function getDIDDocument(did: string): DIDDocument {
+  const base58PubKey = did.replace('did:key', '')
+  const keyId = `${did}#${base58PubKey}`;
+
+  const authentication:Authentication = {
+    type: DEFAULT_PUBKEY_TYPE,
+    publicKey: base58PubKey
+  }
+
+  return {
+    '@context': ['https://w3id.org/did/v0.11'],
+    id: did,
+    publicKey: [{
+      id: keyId,
+      type: DEFAULT_PUBKEY_TYPE,
+      controller: did,
+      publicKeyBase58: base58PubKey
+    }],
+    authentication: [authentication]
+  }
+}
+
+export function getHexPublicKey(pubKey: PublicKey): string {
+  // !!! TODO check that public key is from base58 and implement
+  // other methods to convert to hex a public key
+  return getKeyFromDID(pubKey.id)
 }
