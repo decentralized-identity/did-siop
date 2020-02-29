@@ -8,5 +8,6 @@ export enum DID_SIOP_ERRORS {
   DID_MISMATCH = 'DID in JWKS URI does not match Issuer DID',
   NOT_IMPLEMENTED = 'Feature not implemented yet.',
   NO_HEX_PUBKEY = 'No Public Key in Hex format found.',
-  PUBKEY_FORMAT_NOT_SUPPORTED = 'Public Key format not supported.'
+  PUBKEY_FORMAT_NOT_SUPPORTED = 'Public Key format not supported.',
+  KEY_MALFORMED_THUMBPRINT = 'JWK malformed, should contain its thumbprint.'
 }

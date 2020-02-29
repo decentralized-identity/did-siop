@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { SIOP_KEY_ALGO } from './dtos/DID';
-import { JWT, JWK } from 'jose';
+import { JWT, JWK, JSONWebKey, JWKRSAKey, JWKECKey, JWKOKPKey } from 'jose';
 import { getRandomString, getPemPubKey } from './util/Util'
 import { 
   SIOPRequest, SIOPResponseType, SIOPScope, 
   SIOPRequestCall, SIOPIndirectRegistration, SIOPDirectRegistration, 
-  SIOPRequestPayload, SIOPJwtHeader, SIOPResponseCall, SIOPResponse } from './dtos/siop';
+  SIOPRequestPayload, SIOPJwtHeader, SIOPResponseCall, SIOPResponse, SIOP_RESPONSE_ISS } from './dtos/siop';
 import { DIDDocument, getDIDDocument, PublicKey } from './dtos/DIDDocument'
 import { DID_SIOP_ERRORS } from './error'
 
@@ -15,19 +15,25 @@ export interface DID_SIOP {
    * 
    * @param siopRequest 
    */
-  createRedirectRequest(siopRequest:SIOPRequestCall): string
+  createRedirectRequest(siopRequestCall:SIOPRequestCall): string
 
   /**
    * 
    * @param siopRequest 
    */
-  createSIOPRequest(siopRequest:SIOPRequestCall): string
+  createSIOPRequest(siopRequestCall:SIOPRequestCall): string
 
   /**
    * 
    * @param siopJwt 
    */
   validateSIOPRequest(siopJwt: string): boolean
+
+  /**
+   * 
+   * @param input 
+   */
+  createSIOPResponse(siopResponseCall: SIOPResponseCall): string
 
 }
 
@@ -102,6 +108,7 @@ export class LibDidSiopService implements DID_SIOP {
   }
 
   createSIOPResponse(input: SIOPResponseCall): string {
+
     const siopResponse:SIOPResponse = this._createPayloadResponse(input)
     const payload = Buffer.from(JSON.stringify(siopResponse))
 
@@ -149,18 +156,15 @@ export class LibDidSiopService implements DID_SIOP {
   }
 
   private _createPayloadResponse(input: SIOPResponseCall): SIOPResponse {
+    const kid:string = input.kid ? input.kid : this._getKidFromDidDoc(input.did_doc)
 
     return {
-      iss: input.iss,
-      kid: input.kid ? input.kid : this._getKidFromDidDoc(input.did_doc),
-      response_type: SIOPResponseType.ID_TOKEN,
-      client_id: input.client_id,
-      scope: SIOPScope.OPENID_DIDAUTHN,
-      state: getRandomString(),
-      nonce: getRandomString(),
-      registration: this._getRegistration(input),
-      response_mode: input.response_mode,
-      did_doc: input.did_doc
+      iss: SIOP_RESPONSE_ISS.SELF_ISSUE,
+      kid,
+      nonce: input.nonce,
+      did: input.did,
+      sub_jwk: this._getJWK(input.alg, input.key, kid),
+      sub: this._getSIOPResponseSub(input.key)
     }
   }
 
@@ -247,5 +251,40 @@ export class LibDidSiopService implements DID_SIOP {
     if (!pubkey.publicKeyPem && !pubkey.publicKeyHex && !pubkey.publicKeyBase64 && !pubkey.publicKeyBase58) return false;
     // if we get here it means that the public key can be retrieved
     return true;
+  }
+
+  private _getJWK(alg:string[], key: JWK.Key, kid: string): JSONWebKey {
+    const keyType:SIOP_KEY_ALGO = this._getAlgKeyType(alg, key);
+
+    switch (keyType) {
+      case (SIOP_KEY_ALGO.RS256):
+        return <JWKRSAKey> {
+          kid,
+          kty: key.kty,
+          e: key.e,
+          n: key.n
+        }
+      case (SIOP_KEY_ALGO.ES256K):
+        return <JWKECKey> {
+          kid,
+          kty: key.kty,
+          crv: key.crv,
+          x: key.x,
+          y: key.y
+        }
+      case (SIOP_KEY_ALGO.EdDSA):
+        return <JWKOKPKey> {
+          kid,
+          kty: key.kty,
+          crv: key.crv,
+          x: key.x
+        }
+      default: throw new Error(DID_SIOP_ERRORS.NO_ALG_SUPPORTED)
+    }
+  }
+
+  private _getSIOPResponseSub(key: JWK.Key): string {
+    if (!key || !key.thumbprint) throw new Error(DID_SIOP_ERRORS.KEY_MALFORMED_THUMBPRINT)
+    return key.thumbprint
   }
 }

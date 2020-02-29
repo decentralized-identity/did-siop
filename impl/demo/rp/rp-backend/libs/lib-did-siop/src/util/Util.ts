@@ -1,6 +1,5 @@
 import uuidv1 from 'uuid/v1';
 import { JWK } from 'jose';
-import { ethers } from "ethers";
 import { PublicKey } from '../dtos/DIDDocument';
 import Base58 from 'base-58'
 import KeyEncoder from 'key-encoder'
@@ -11,7 +10,10 @@ function getRandomString(): string {
 }
 
 function getHexPubKeyFromKey(key: JWK.Key): string {
-  return ethPublicKey(key).replace('0x', '')
+  const pemPub = key.toPEM(false)
+  // !!! TODO Convert other formats or use PEM as the standard format
+  const keyEncoder = new KeyEncoder('secp256k1') 
+  return keyEncoder.encodePublic(pemPub, 'pem', 'raw')
 }
 
 function getDIDFromKey(key: JWK.Key): string {
@@ -21,11 +23,6 @@ function getDIDFromKey(key: JWK.Key): string {
 function getBase58PubKeyFromKey(key: JWK.Key): string {
   const hexPubKey:string = getHexPubKeyFromKey(key)
   return Base58.encode(Buffer.from(hexPubKey))
-}
-
-function ethPublicKey(key: JWK.Key): string {
-  const wallet = new ethers.Wallet(toHex(<string>key.d));
-  return new ethers.utils.SigningKey(wallet.privateKey).publicKey
 }
 
 function toHex(data: string): string {

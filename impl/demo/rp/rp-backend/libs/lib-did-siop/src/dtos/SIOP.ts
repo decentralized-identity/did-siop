@@ -1,7 +1,7 @@
 import { SIOP_KEY_ALGO } from "./DID";
 import { JWTHeader, JWTClaims } from "./JWT";
 import { DIDDocument } from './DIDDocument'
-import { JWK } from "jose";
+import { JWK, JSONWebKey } from "jose";
 
 export enum SIOPScope {
   OPENID_DIDAUTHN = 'openid did_authn'
@@ -36,17 +36,8 @@ export interface SIOPRequestURI {
   request_uri?: string;
 }
 
-export interface SIOPRequest {
-  iss: string;
+export interface SIOPRequest extends SIOPRequestPayload {
   kid: string;
-  response_type: SIOPResponseType;
-  client_id: string;
-  scope: SIOPScope;
-  state: string;
-  nonce: string;
-  registration: SIOPIndirectRegistration | SIOPDirectRegistration;
-  response_mode?: SIOPResponseMode
-  did_doc?: DIDDocument;
 }
 
 export interface SIOPJwtHeader extends JWTHeader {
@@ -75,37 +66,29 @@ export interface SIOPRequestCall{
   did_doc?: DIDDocument;
 }
 
+export enum SIOP_RESPONSE_ISS {
+  SELF_ISSUE = 'https://self-issued.me'
+}
+
 export interface SIOPResponseCall{
-  iss: string;
-  client_id: string;
   key: JWK.Key;
   alg: string[];
+  did: string;
+  nonce: string;
   kid?: string;
-  response_mode?: SIOPResponseMode
   did_doc?: DIDDocument;
 }
 
-export interface SIOPResponse {
-  iss: string;
+export interface SIOPResponse extends SIOPResponsePayload {
   kid: string;
-  response_type: SIOPResponseType;
-  client_id: string;
-  scope: SIOPScope;
-  state: string;
-  nonce: string;
-  registration: SIOPIndirectRegistration | SIOPDirectRegistration;
-  response_mode?: SIOPResponseMode
-  did_doc?: DIDDocument;
 }
 
 export interface SIOPResponsePayload extends JWTClaims {
-  iss: string;
-  response_type: SIOPResponseType;
-  client_id: string;
-  scope: SIOPScope;
-  state: string;
+  iss: SIOP_RESPONSE_ISS.SELF_ISSUE;
   nonce: string;
-  registration: SIOPIndirectRegistration | SIOPDirectRegistration
-  response_mode?: SIOPResponseMode
-  did_doc?: DIDDocument;
+  sub_jwk: JSONWebKey;
+  sub: string;
+  did: string;
+  exp?: string;
+  iat?: number;
 }
