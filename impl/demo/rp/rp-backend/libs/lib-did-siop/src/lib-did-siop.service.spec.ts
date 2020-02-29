@@ -5,6 +5,7 @@ import { SIOP_KEY_ALGO } from './dtos/DID';
 import { getDIDFromKey, getKeyIdFromKey } from './util/Util';
 import { SIOPResponseMode, SIOPRequestCall, SIOPRequestPayload, SIOPResponseType, SIOPScope } from './dtos/siop';
 import { ecKeyToDidDoc, DIDDocument } from './dtos/DIDDocument'
+import { TEST_KEY, SIOP_KEY_TYPE, generateTestKey } from '../test/Aux';
 
 
 const SIOP_HEADER = {
@@ -27,26 +28,15 @@ const SIOP_PAYLOAD = {
   }
 }
 
-let key: JWK.Key;
-let did: string;
-let didDoc: DIDDocument;
+let testKeyRP: TEST_KEY;
+let testKeyUser: TEST_KEY;
 
 describe('LibDidSiopService', () => {
   let service: LibDidSiopService;
 
   beforeAll( () => {
-    const initKey = JWK.generateSync("EC", "secp256k1", { use: 'sig' });
-    key = JWK.asKey({
-      crv: initKey.crv,
-      x: initKey.x,
-      y: initKey.y,
-      d: initKey.d,
-      kty: initKey.kty,
-      kid: getKeyIdFromKey(initKey)
-    });
-    did = getDIDFromKey(key)
-    console.log('DID created: ' + did)
-    didDoc = ecKeyToDidDoc(key)
+    testKeyRP = generateTestKey(SIOP_KEY_TYPE.EC)
+    testKeyUser = generateTestKey(SIOP_KEY_TYPE.EC)
   })
 
   beforeEach(async () => {
@@ -65,11 +55,11 @@ describe('LibDidSiopService', () => {
     it('should create a JWT SIOP Request Object with "ES256K" algo and random keys', () => {
 
       const siopRequestCall:SIOPRequestCall = {
-        iss: did,
+        iss: testKeyRP.did,
         client_id: 'http://localhost:5000/response/validation',
-        key: key,
+        key: testKeyRP.key,
         alg: [SIOP_KEY_ALGO.ES256K, SIOP_KEY_ALGO.EdDSA, SIOP_KEY_ALGO.RS256],
-        did_doc: didDoc,
+        did_doc: testKeyRP.didDoc,
         response_mode: SIOPResponseMode.FORM_POST
       }
 
@@ -91,11 +81,11 @@ describe('LibDidSiopService', () => {
 
     it('should create a SIOP Request URL', () => {
       const siopRequestCall:SIOPRequestCall = {
-        iss: did,
+        iss: testKeyRP.did,
         client_id: 'http://localhost:5000/response/validation',
-        key: key,
+        key: testKeyRP.key,
         alg: [SIOP_KEY_ALGO.ES256K, SIOP_KEY_ALGO.EdDSA, SIOP_KEY_ALGO.RS256],
-        did_doc: didDoc,
+        did_doc: testKeyRP.didDoc,
         response_mode: SIOPResponseMode.FORM_POST
       }
 
@@ -106,13 +96,13 @@ describe('LibDidSiopService', () => {
       expect(siopURI).toContain('&request=')
     })
 
-    it.only('should return "true" on request validation', () => {
+    it('should return "true" on request validation', () => {
       const siopRequestCall:SIOPRequestCall = {
-        iss: did,
+        iss: testKeyRP.did,
         client_id: 'http://localhost:5000/response/validation',
-        key: key,
+        key: testKeyRP.key,
         alg: [SIOP_KEY_ALGO.ES256K, SIOP_KEY_ALGO.EdDSA, SIOP_KEY_ALGO.RS256],
-        did_doc: didDoc,
+        did_doc: testKeyRP.didDoc,
         response_mode: SIOPResponseMode.FORM_POST
       }
 
