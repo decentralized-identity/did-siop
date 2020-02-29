@@ -1,32 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { LibDidSiopService } from './lib-did-siop.service';
-import { JWT, JWK } from 'jose'
+import { JWT } from 'jose'
 import { SIOP_KEY_ALGO } from './dtos/DID';
-import { getDIDFromKey, getKeyIdFromKey } from './util/Util';
-import { SIOPResponseMode, SIOPRequestCall, SIOPRequestPayload, SIOPResponseType, SIOPScope } from './dtos/siop';
-import { ecKeyToDidDoc, DIDDocument } from './dtos/DIDDocument'
-import { TEST_KEY, SIOP_KEY_TYPE, generateTestKey } from '../test/Aux';
-
-
-const SIOP_HEADER = {
-  "alg": "ES256K",
-  "typ": "JWT",
-  "kid": "did:example:0xab#veri-key1"
-}
-
-const SIOP_PAYLOAD = {
-  "iss": "did:example:0xab",
-  "response_type": "id_token",
-  "client_id": "http://localhost:5000/response/validation",
-  "scope": "openid did_authn",
-  "state": "af0ifjsldkj",
-  "nonce": "n-0S6_WzA2Mj",
-  "response_mode" : "form_post",
-  "registration" : {
-      "jwks_uri" : "https://uniresolver.io/1.0/identifiers/did:example:0xab;transform-keys=jwks",
-      "id_token_signed_response_alg" : [ "ES256K", "EdDSA", "RS256" ]
-  }
-}
+import { SIOPResponseMode, SIOPRequestCall, SIOPRequestPayload, SIOPResponseType, SIOPScope, SIOPResponseCall, SIOP_RESPONSE_ISS } from './dtos/siop';
+import { TEST_KEY, SIOP_KEY_TYPE, generateTestKey, SIOP_HEADER, SIOP_REQUEST_PAYLOAD, SIOP_RESPONSE_PAYLOAD } from '../test/Aux';
+import { getRandomString } from './util/Util';
 
 let testKeyRP: TEST_KEY;
 let testKeyUser: TEST_KEY;
@@ -68,7 +46,7 @@ describe('LibDidSiopService', () => {
 
       const expectedHeader = SIOP_HEADER;
       expectedHeader.kid = expect.any(String);
-      const expectedPayload = SIOP_PAYLOAD;
+      const expectedPayload = SIOP_REQUEST_PAYLOAD;
       expectedPayload.iss = expect.stringContaining('did:key:');
       expectedPayload.state = expect.any(String);
       expectedPayload.nonce = expect.any(String);
@@ -114,9 +92,33 @@ describe('LibDidSiopService', () => {
   });
 
   describe('SIOP Response', () => {
-    it('should return "first siop response"', () => {
-      // expect(service.createSIOPResponse()).toBe('first siop response');
-      expect(true)
+    it('should create a JWT SIOP Response Object with "ES256K" algo and random keys', () => {
+
+      const siopResponseCall:SIOPResponseCall = {
+        key: testKeyUser.key,
+        alg: [SIOP_KEY_ALGO.ES256K, SIOP_KEY_ALGO.EdDSA, SIOP_KEY_ALGO.RS256],
+        did: testKeyUser.did,
+        nonce: getRandomString(),
+        did_doc: testKeyUser.didDoc
+      }
+      
+      const jws = service.createSIOPResponse(siopResponseCall);
+      const { header, payload } = JWT.decode(jws, { complete: true });
+      const expectedHeader = SIOP_HEADER;
+      expectedHeader.kid = expect.any(String);
+      const expectedPayload = SIOP_RESPONSE_PAYLOAD;
+      expectedPayload.iss = expect.stringMatching(SIOP_RESPONSE_ISS.SELF_ISSUE);
+      expectedPayload.exp = expect.any(Number);
+      expectedPayload.iat = expect.any(Number);
+      expectedPayload.nonce = expect.any(String);
+      expectedPayload.sub_jwk.kid = expect.stringContaining('did:key:');
+      expectedPayload.sub_jwk.x = expect.any(String);
+      expectedPayload.sub_jwk.y = expect.any(String);
+      expectedPayload.sub = expect.any(String);
+      expectedPayload.did = expect.stringContaining('did:key:');
+      
+      expect(header).toMatchObject(expectedHeader);
+      expect(payload).toMatchObject(expectedPayload);
     });
 
     it('should return "true" on response validation', () => {

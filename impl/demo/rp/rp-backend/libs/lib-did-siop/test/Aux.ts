@@ -3,6 +3,42 @@ import { DIDDocument, ecKeyToDidDoc } from "@app/lib-did-siop/dtos/DIDDocument";
 import { DID_SIOP_ERRORS } from "@app/lib-did-siop/error";
 import { getKeyIdFromKey, getDIDFromKey } from "@app/lib-did-siop/util/Util";
 
+export const SIOP_HEADER = {
+  "alg": "ES256K",
+  "typ": "JWT",
+  "kid": "did:example:0xab#veri-key1"
+}
+
+export const SIOP_REQUEST_PAYLOAD = {
+  "iss": "did:example:0xab",
+  "response_type": "id_token",
+  "client_id": "http://localhost:5000/response/validation",
+  "scope": "openid did_authn",
+  "state": "af0ifjsldkj",
+  "nonce": "n-0S6_WzA2Mj",
+  "response_mode" : "form_post",
+  "registration" : {
+      "jwks_uri" : "https://uniresolver.io/1.0/identifiers/did:example:0xab;transform-keys=jwks",
+      "id_token_signed_response_alg" : [ "ES256K", "EdDSA", "RS256" ]
+  }
+}
+
+export const SIOP_RESPONSE_PAYLOAD ={
+    "iss": "https://self-issued.me",
+    "nonce": "n-0S6_WzA2Mj",
+    "exp": 1311281970,
+    "iat": 1311280970,
+    "sub_jwk" : {
+       "crv":"secp256k1",
+       "kid":"did:example:0xcd#verikey-1",
+       "kty":"EC",
+       "x":"7KEKZa5xJPh7WVqHJyUpb2MgEe3nA8Rk7eUlXsmBl-M",
+       "y":"3zIgl_ml4RhapyEm5J7lvU-4f5jiBvZr4KgxUjEhl9o"
+    },
+    "sub": "9-aYUQ7mgL2SWQ_LNTeVN2rtw7xFP-3Y2EO9WV22cF0",
+    "did": "did:example:0xcd"
+}
+
 export interface TEST_KEY {
   key: JWK.Key;
   did: string;

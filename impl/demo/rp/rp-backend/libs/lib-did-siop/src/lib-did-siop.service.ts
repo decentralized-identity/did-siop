@@ -148,8 +148,8 @@ export class LibDidSiopService implements DID_SIOP {
         header: {
           alg,
           typ: 'JWT'
-        }
-      }
+        },
+      },
     )
 
     return jws;
@@ -164,7 +164,8 @@ export class LibDidSiopService implements DID_SIOP {
       nonce: input.nonce,
       did: input.did,
       sub_jwk: this._getJWK(input.alg, input.key, kid),
-      sub: this._getSIOPResponseSub(input.key)
+      sub: this._getSIOPResponseSub(input.key),
+      exp: 'bar'
     }
   }
 
@@ -174,6 +175,8 @@ export class LibDidSiopService implements DID_SIOP {
       key,
       {
         kid: true, // When true it pushes the key's "kid" to the JWT Header
+        now: new Date(Date.now() * 1000), // current time in epoch milliseconds
+        expiresIn: '5m', // expires in 5 minutes
         header: {
           alg,
           typ: 'JWT'
