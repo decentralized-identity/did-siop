@@ -37,6 +37,7 @@
     "ethers": "^4.0.45",
     "jest": "^25.1.0",
     "jose": "^1.23.0",
+    "key-encoder": "^2.0.3",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.0",
     "rxjs": "^6.5.4"
