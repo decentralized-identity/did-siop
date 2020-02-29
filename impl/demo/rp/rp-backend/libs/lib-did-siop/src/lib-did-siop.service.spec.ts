@@ -2,8 +2,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { LibDidSiopService } from './lib-did-siop.service';
 import { JWT, JWK } from 'jose'
 import { SIOP_KEY_ALGO } from './dtos/DID';
-import { getDIDFromKey, getKeyFromDID } from './util/Util';
-import { SIOPRequest, SIOPResponseMode, SIOPRequestCall, SIOPRequestPayload, SIOPResponseType, SIOPScope } from './dtos/siop';
+import { getDIDFromKey, getKeyIdFromKey } from './util/Util';
+import { SIOPResponseMode, SIOPRequestCall, SIOPRequestPayload, SIOPResponseType, SIOPScope } from './dtos/siop';
 import { ecKeyToDidDoc, DIDDocument } from './dtos/DIDDocument'
 
 
@@ -35,7 +35,15 @@ describe('LibDidSiopService', () => {
   let service: LibDidSiopService;
 
   beforeAll( () => {
-    key = JWK.generateSync("EC", "secp256k1", { use: 'sig' });
+    const initKey = JWK.generateSync("EC", "secp256k1", { use: 'sig' });
+    key = JWK.asKey({
+      crv: initKey.crv,
+      x: initKey.x,
+      y: initKey.y,
+      d: initKey.d,
+      kty: initKey.kty,
+      kid: getKeyIdFromKey(initKey)
+    });
     did = getDIDFromKey(key)
     console.log('DID created: ' + did)
     didDoc = ecKeyToDidDoc(key)
@@ -92,7 +100,6 @@ describe('LibDidSiopService', () => {
       }
 
       const siopURI:string = service.createRedirectRequest(siopRequestCall);
-      console.log(siopURI)
       expect(siopURI).toContain('openid://?response_type=' + SIOPResponseType.ID_TOKEN)
       expect(siopURI).toContain('client_id=' + siopRequestCall.client_id)
       expect(siopURI).toContain('scope=' + SIOPScope.OPENID_DIDAUTHN)
@@ -100,7 +107,19 @@ describe('LibDidSiopService', () => {
     })
 
     it('should return "true" on request validation', () => {
-      expect(service.validateSIOPRequest()).toBe(true);
+      const siopRequestCall:SIOPRequestCall = {
+        iss: did,
+        client_id: 'http://localhost:5000/response/validation',
+        key: key,
+        alg: [SIOP_KEY_ALGO.ES256K, SIOP_KEY_ALGO.EdDSA, SIOP_KEY_ALGO.RS256],
+        did_doc: didDoc,
+        response_mode: SIOPResponseMode.FORM_POST
+      }
+
+      const siopURI:string = service.createRedirectRequest(siopRequestCall);
+      const urlParams = new URLSearchParams(siopURI);
+
+      expect(service.validateSIOPRequest(urlParams.get('request'))).toBe(true);
     })
   });
 

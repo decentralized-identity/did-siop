@@ -1,15 +1,32 @@
 import { Injectable } from '@nestjs/common';
 import { SIOP_KEY_ALGO } from './dtos/DID';
 import { JWT, JWK } from 'jose';
-import { getRandomString } from './util/Util'
-import { SIOPRequest, SIOPResponseType, SIOPScope, SIOPRequestCall, SIOPIndirectRegistration, SIOPDirectRegistration, SIOPRequestPayload, SIOPRequestHeader } from './dtos/siop';
-import { DIDDocument, getDIDDocument, PublicKey, getHexPublicKey } from './dtos/DIDDocument'
+import { getRandomString, getPemPubKey } from './util/Util'
+import { 
+  SIOPRequest, SIOPResponseType, SIOPScope, 
+  SIOPRequestCall, SIOPIndirectRegistration, SIOPDirectRegistration, 
+  SIOPRequestPayload, SIOPRequestHeader } from './dtos/siop';
+import { DIDDocument, getDIDDocument, PublicKey } from './dtos/DIDDocument'
 import { DID_SIOP_ERRORS } from './error'
 
 export interface DID_SIOP {
 
+  /**
+   * 
+   * @param siopRequest 
+   */
   createRedirectRequest(siopRequest:SIOPRequestCall): string
+
+  /**
+   * 
+   * @param siopRequest 
+   */
   createSIOPRequest(siopRequest:SIOPRequestCall): string
+
+  /**
+   * 
+   * @param siopJwt 
+   */
   validateSIOPRequest(siopJwt: string): boolean
 
 }
@@ -17,12 +34,21 @@ export interface DID_SIOP {
 @Injectable()
 export class LibDidSiopService implements DID_SIOP {
 
+  /**
+   * 
+   * @param siopRequest 
+   */
   createRedirectRequest(siopRequest:SIOPRequestCall): string {
     return 'openid://?response_type=' + SIOPResponseType.ID_TOKEN +
     '&client_id=' + siopRequest.client_id +
     '&scope=' + SIOPScope.OPENID_DIDAUTHN +
     '&request=' + this.createSIOPRequest(siopRequest)
   }
+
+  /**
+   * 
+   * @param input 
+   */
   createSIOPRequest(input: SIOPRequestCall): string {
 
     const siopRequest:SIOPRequest = this._createPayloadRequest(input)
@@ -35,22 +61,29 @@ export class LibDidSiopService implements DID_SIOP {
       siopRequest.kid )
   }
 
+  /**
+   * 
+   * @param siopJwt 
+   */
   validateSIOPRequest(siopJwt: string): boolean {
-
-    let didDoc: DIDDocument;
-
     // decode token
     const { header, payload } = JWT.decode(siopJwt, { complete: true });
     const siopHeader = <SIOPRequestHeader>header;
     const siopPayload = <SIOPRequestPayload>payload;
+    // assign the default DID Document value, which can be null
+    let didDoc: DIDDocument = siopPayload.did_doc;
 
     // throw error if scope does not contain did_authn both in URI and inside the decoded JWT
-    if (!siopPayload.scope.includes(SIOPScope.OPENID_DIDAUTHN)) throw new Error(DID_SIOP_ERRORS.NO_DIDAUTHN_SCOPE_INCLUDED);
+    if (!siopPayload.scope.includes(SIOPScope.OPENID_DIDAUTHN)) {
+      throw new Error(DID_SIOP_ERRORS.NO_DIDAUTHN_SCOPE_INCLUDED);
+    }
 
-    // If no did_doc is present, resolve the DID Document from the RP's DID specified in the iss request parameter.
+    // If no did_doc is present, resolve the DID Document from the 
+    // RP's DID specified in the iss request parameter.
     if (!siopPayload.did_doc) didDoc = getDIDDocument(siopPayload.iss)
 
-    // If did_doc is present, ensure this is a viable channel to exchange the RP's DID Document according to the applicable DID method.
+    // If did_doc is present, ensure this is a viable channel to exchange 
+    // the RP's DID Document according to the applicable DID method.
     // !!! TODO
 
     // If jwks_uri is present, ensure that the DID in the jwks_uri matches the DID in the iss claim.
@@ -97,10 +130,10 @@ export class LibDidSiopService implements DID_SIOP {
       JSON.parse(payload.toString()),
       key,
       {
+        kid: true, // When true it pushes the key's "kid" to the JWT Header
         header: {
           alg,
-          typ: 'JWT',
-          kid,
+          typ: 'JWT'
         }
       }
     )
@@ -109,14 +142,10 @@ export class LibDidSiopService implements DID_SIOP {
   }
 
   private _verifySIOPRequest(pubKey: PublicKey, siopJwt: string): boolean {
-
-    const publicKey = getHexPublicKey(pubKey)
-    const decodedKey = Buffer.from(publicKey, 'base64').toString('utf8')
-    const jwk = JWK.asKey(decodedKey);
-
+    const pemKey:string = getPemPubKey(pubKey)
+    const jwk = JWK.asKey(pemKey);
     // throws error if verify is signature incorrect
     JWT.verify(siopJwt, jwk);
-
     return true;
   }
 

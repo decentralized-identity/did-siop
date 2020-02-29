@@ -1,7 +1,7 @@
 import { Authentication } from "did-resolver/src/resolver";
 import { SIOP_KEY_ALGO, SIOP_KEY_FORMAT } from "./DID";
 import { JWK } from "jose";
-import { getBase58PubKeyFromKey, getKeyFromDID } from "../util/Util";
+import { getBase58PubKeyFromKey, getDIDFromKey, getKeyIdFromDID, getHexPubKeyFromKey, pubkeyHexToPem } from "../util/Util";
 import { DEFAULT_PUBKEY_TYPE } from "../constants";
 
 export enum DidDocumentElementType {
@@ -75,13 +75,14 @@ export interface PublicKeyElement {
  * @returns {DidDocument}
  */
 export function ecKeyToDidDoc(key: JWK.Key): DIDDocument {
-  const base58PubKey = getBase58PubKeyFromKey(key)
-  const did = `did:key:${base58PubKey}`;
-  const keyId = `${did}#${base58PubKey}`;
+  const base58PubKey:string = getBase58PubKeyFromKey(key)
+  const hexPubKey:string = getHexPubKeyFromKey(key);
+  const did:string = getDIDFromKey(key);
+  const keyId:string = getKeyIdFromDID(did);
 
   const authentication:Authentication = {
     type: DEFAULT_PUBKEY_TYPE,
-    publicKey: base58PubKey
+    publicKey: hexPubKey
   }
 
   return {
@@ -91,6 +92,9 @@ export function ecKeyToDidDoc(key: JWK.Key): DIDDocument {
       id: keyId,
       type: DEFAULT_PUBKEY_TYPE,
       controller: did,
+      ethereumAddress: '0x' + hexPubKey,
+      publicKeyHex: hexPubKey,
+      publicKeyPem: pubkeyHexToPem(hexPubKey),
       publicKeyBase58: base58PubKey
     }],
     authentication: [authentication]
@@ -98,8 +102,8 @@ export function ecKeyToDidDoc(key: JWK.Key): DIDDocument {
 }
 
 export function getDIDDocument(did: string): DIDDocument {
-  const base58PubKey = did.replace('did:key', '')
-  const keyId = `${did}#${base58PubKey}`;
+  const base58PubKey:string = did.replace('did:key', '')
+  const keyId = `${did}#veri-key1`;
 
   const authentication:Authentication = {
     type: DEFAULT_PUBKEY_TYPE,
@@ -117,10 +121,4 @@ export function getDIDDocument(did: string): DIDDocument {
     }],
     authentication: [authentication]
   }
-}
-
-export function getHexPublicKey(pubKey: PublicKey): string {
-  // !!! TODO check that public key is from base58 and implement
-  // other methods to convert to hex a public key
-  return getKeyFromDID(pubKey.id)
 }

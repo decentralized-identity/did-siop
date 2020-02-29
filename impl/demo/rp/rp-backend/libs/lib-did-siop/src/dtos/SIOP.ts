@@ -62,7 +62,7 @@ export interface SIOPRequestPayload extends JWTClaims {
   nonce: string;
   registration: SIOPIndirectRegistration | SIOPDirectRegistration
   response_mode?: SIOPResponseMode
-  did_doc?: string;
+  did_doc?: DIDDocument;
 }
 
 export interface SIOPRequestCall{
