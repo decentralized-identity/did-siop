@@ -5,7 +5,7 @@ import { getRandomString, getPemPubKey } from './util/Util'
 import { 
   SIOPRequest, SIOPResponseType, SIOPScope, 
   SIOPRequestCall, SIOPIndirectRegistration, SIOPDirectRegistration, 
-  SIOPRequestPayload, SIOPRequestHeader } from './dtos/siop';
+  SIOPRequestPayload, SIOPJwtHeader, SIOPResponseCall, SIOPResponse } from './dtos/siop';
 import { DIDDocument, getDIDDocument, PublicKey } from './dtos/DIDDocument'
 import { DID_SIOP_ERRORS } from './error'
 
@@ -68,7 +68,7 @@ export class LibDidSiopService implements DID_SIOP {
   validateSIOPRequest(siopJwt: string): boolean {
     // decode token
     const { header, payload } = JWT.decode(siopJwt, { complete: true });
-    const siopHeader = <SIOPRequestHeader>header;
+    const siopHeader = <SIOPJwtHeader>header;
     const siopPayload = <SIOPRequestPayload>payload;
     // assign the default DID Document value, which can be null
     let didDoc: DIDDocument = siopPayload.did_doc;
@@ -101,8 +101,15 @@ export class LibDidSiopService implements DID_SIOP {
     return this._verifySIOPRequest(didDoc.publicKey[0], siopJwt);
   }
 
-  createSIOPResponse(): string {
-    return 'first siop response';
+  createSIOPResponse(input: SIOPResponseCall): string {
+    const siopResponse:SIOPResponse = this._createPayloadResponse(input)
+    const payload = Buffer.from(JSON.stringify(siopResponse))
+
+    return this._signSIOPResponse (
+      this._getAlgKeyType(input.alg, input.key), 
+      input.key, 
+      payload, 
+      siopResponse.kid )
   }
 
   validateSIOPResponse(): boolean {
@@ -126,6 +133,38 @@ export class LibDidSiopService implements DID_SIOP {
   }
   
   private _signSIOPRequest(alg: SIOP_KEY_ALGO, key: JWK.Key, payload: Buffer, kid: string): string {
+    const jws = JWT.sign(
+      JSON.parse(payload.toString()),
+      key,
+      {
+        kid: true, // When true it pushes the key's "kid" to the JWT Header
+        header: {
+          alg,
+          typ: 'JWT'
+        }
+      }
+    )
+
+    return jws;
+  }
+
+  private _createPayloadResponse(input: SIOPResponseCall): SIOPResponse {
+
+    return {
+      iss: input.iss,
+      kid: input.kid ? input.kid : this._getKidFromDidDoc(input.did_doc),
+      response_type: SIOPResponseType.ID_TOKEN,
+      client_id: input.client_id,
+      scope: SIOPScope.OPENID_DIDAUTHN,
+      state: getRandomString(),
+      nonce: getRandomString(),
+      registration: this._getRegistration(input),
+      response_mode: input.response_mode,
+      did_doc: input.did_doc
+    }
+  }
+
+  private _signSIOPResponse(alg: SIOP_KEY_ALGO, key: JWK.Key, payload: Buffer, kid: string): string {
     const jws = JWT.sign(
       JSON.parse(payload.toString()),
       key,

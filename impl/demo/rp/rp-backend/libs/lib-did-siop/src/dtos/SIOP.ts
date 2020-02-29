@@ -49,7 +49,7 @@ export interface SIOPRequest {
   did_doc?: DIDDocument;
 }
 
-export interface SIOPRequestHeader extends JWTHeader {
+export interface SIOPJwtHeader extends JWTHeader {
   kid: string;
 }
 
@@ -71,6 +71,41 @@ export interface SIOPRequestCall{
   key: JWK.Key;
   alg: string[];
   kid?: string;
+  response_mode?: SIOPResponseMode
+  did_doc?: DIDDocument;
+}
+
+export interface SIOPResponseCall{
+  iss: string;
+  client_id: string;
+  key: JWK.Key;
+  alg: string[];
+  kid?: string;
+  response_mode?: SIOPResponseMode
+  did_doc?: DIDDocument;
+}
+
+export interface SIOPResponse {
+  iss: string;
+  kid: string;
+  response_type: SIOPResponseType;
+  client_id: string;
+  scope: SIOPScope;
+  state: string;
+  nonce: string;
+  registration: SIOPIndirectRegistration | SIOPDirectRegistration;
+  response_mode?: SIOPResponseMode
+  did_doc?: DIDDocument;
+}
+
+export interface SIOPResponsePayload extends JWTClaims {
+  iss: string;
+  response_type: SIOPResponseType;
+  client_id: string;
+  scope: SIOPScope;
+  state: string;
+  nonce: string;
+  registration: SIOPIndirectRegistration | SIOPDirectRegistration
   response_mode?: SIOPResponseMode
   did_doc?: DIDDocument;
 }
