@@ -2,6 +2,7 @@ import { JWK, JWKECKey, JWKRSAKey, JWKOKPKey } from "jose";
 import { DIDDocument, ecKeyToDidDoc } from "@app/lib-did-siop/dtos/DIDDocument";
 import { DID_SIOP_ERRORS } from "@app/lib-did-siop/error";
 import { getKeyIdFromKey, getDIDFromKey } from "@app/lib-did-siop/util/Util";
+import { SIOP_KEY_TYPE, SIOP_KEY_CURVE } from "@app/lib-did-siop/dtos/siop";
 
 export const SIOP_HEADER = {
   "alg": "ES256K",
@@ -43,17 +44,6 @@ export interface TEST_KEY {
   key: JWK.Key;
   did: string;
   didDoc: DIDDocument;
-}
-
-export enum SIOP_KEY_TYPE {
-  EC = 'EC',
-  RSA = 'RSA',
-  OKP = 'OKP'
-}
-
-enum SIOP_KEY_CURVE {
-  SECP256k1 = 'secp256k1',
-  ED25519 = 'ed25519'
 }
 
 export function generateTestKey(kty: string): TEST_KEY {

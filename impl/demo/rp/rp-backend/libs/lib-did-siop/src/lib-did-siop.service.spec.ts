@@ -2,8 +2,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { LibDidSiopService } from './lib-did-siop.service';
 import { JWT } from 'jose'
 import { SIOP_KEY_ALGO } from './dtos/DID';
-import { SIOPResponseMode, SIOPRequestCall, SIOPRequestPayload, SIOPResponseType, SIOPScope, SIOPResponseCall, SIOP_RESPONSE_ISS } from './dtos/siop';
-import { TEST_KEY, SIOP_KEY_TYPE, generateTestKey, SIOP_HEADER, SIOP_REQUEST_PAYLOAD, SIOP_RESPONSE_PAYLOAD } from '../test/Aux';
+import { SIOPResponseMode, SIOPRequestCall, SIOPRequestPayload, SIOPResponseType, SIOPScope, SIOPResponseCall, SIOP_RESPONSE_ISS, SIOP_KEY_TYPE } from './dtos/siop';
+import { TEST_KEY, generateTestKey, SIOP_HEADER, SIOP_REQUEST_PAYLOAD, SIOP_RESPONSE_PAYLOAD } from '../test/Aux';
 import { getRandomString } from './util/Util';
 
 let testKeyRP: TEST_KEY;
@@ -99,6 +99,7 @@ describe('LibDidSiopService', () => {
         alg: [SIOP_KEY_ALGO.ES256K, SIOP_KEY_ALGO.EdDSA, SIOP_KEY_ALGO.RS256],
         did: testKeyUser.did,
         nonce: getRandomString(),
+        redirect_uri: 'http://localhost:5000/response/validation',
         did_doc: testKeyUser.didDoc
       }
       
@@ -122,7 +123,17 @@ describe('LibDidSiopService', () => {
     });
 
     it('should return "true" on response validation', () => {
-      expect(service.validateSIOPResponse()).toBe(true);
+      const siopResponseCall:SIOPResponseCall = {
+        key: testKeyUser.key,
+        alg: [SIOP_KEY_ALGO.ES256K, SIOP_KEY_ALGO.EdDSA, SIOP_KEY_ALGO.RS256],
+        did: testKeyUser.did,
+        nonce: getRandomString(),
+        redirect_uri: 'http://localhost:5000/response/validation',
+        did_doc: testKeyUser.didDoc
+      }
+      const jws = service.createSIOPResponse(siopResponseCall);
+
+      expect(service.validateSIOPResponse(jws, siopResponseCall.redirect_uri, siopResponseCall.nonce)).toBe(true);
     })
   });
 });

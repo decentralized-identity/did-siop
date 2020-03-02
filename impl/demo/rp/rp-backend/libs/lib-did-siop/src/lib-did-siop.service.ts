@@ -5,9 +5,10 @@ import { getRandomString, getPemPubKey } from './util/Util'
 import { 
   SIOPRequest, SIOPResponseType, SIOPScope, 
   SIOPRequestCall, SIOPIndirectRegistration, SIOPDirectRegistration, 
-  SIOPRequestPayload, SIOPJwtHeader, SIOPResponseCall, SIOPResponse, SIOP_RESPONSE_ISS } from './dtos/siop';
+  SIOPRequestPayload, SIOPJwtHeader, SIOPResponseCall, SIOPResponse, SIOP_RESPONSE_ISS, SIOPResponsePayload, SIOP_KEY_TYPE } from './dtos/siop';
 import { DIDDocument, getDIDDocument, PublicKey } from './dtos/DIDDocument'
 import { DID_SIOP_ERRORS } from './error'
+import base64url from "base64url";
 
 export interface DID_SIOP {
 
@@ -34,6 +35,14 @@ export interface DID_SIOP {
    * @param input 
    */
   createSIOPResponse(siopResponseCall: SIOPResponseCall): string
+
+  /**
+   * 
+   * @param siopJwt 
+   * @param redirectUri 
+   * @param nonce 
+   */
+  validateSIOPResponse(siopJwt: string, redirectUri: string, nonce: string): boolean
 
 }
 
@@ -104,7 +113,7 @@ export class LibDidSiopService implements DID_SIOP {
     }
 
     // Verify the SIOP Request according to the verification method above.
-    return this._verifySIOPRequest(didDoc.publicKey[0], siopJwt);
+    return this._verifySIOPToken(didDoc.publicKey[0], siopJwt);
   }
 
   createSIOPResponse(input: SIOPResponseCall): string {
@@ -119,7 +128,53 @@ export class LibDidSiopService implements DID_SIOP {
       siopResponse.kid )
   }
 
-  validateSIOPResponse(): boolean {
+  /**
+   * 
+   * @param siopJwt 
+   * @param redirectUri 
+   * @param nonce 
+   */
+  validateSIOPResponse(siopJwt: string, redirectUri: string, nonce: string): boolean {
+    // decode token
+    const { header, payload } = JWT.decode(siopJwt, { complete: true });
+    const siopHeader = <SIOPJwtHeader>header;
+    const siopPayload = <SIOPResponsePayload>payload;
+    // assign the default DID Document value, which can be null
+    let didDoc: DIDDocument = siopPayload.did_doc;
+
+    // The Client MUST validate that the value of the iss (issuer) Claim is https://self-isued.me.
+    if (siopPayload.iss !== SIOP_RESPONSE_ISS.SELF_ISSUE) throw new Error(DID_SIOP_ERRORS.ISS_NOT_SELF_ISSUED)
+    // The Client MUST validate that the aud (audience) Claim contains 
+    // the value of the redirect_uri that the Client sent in the Authentication Request as an audience.
+    if (siopPayload.aud !== redirectUri) throw new Error(DID_SIOP_ERRORS.AUD_MISMATCH)
+    // The Client MUST validate the signature of the ID Token according to JWS [JWS] using the algorithm 
+    // specified in the alg Header Parameter of the JOSE Header, using the key in the sub_jwk
+    if (!this._verifySIOPResponse(siopHeader.alg, siopPayload.sub_jwk, siopJwt)) {
+      throw new Error(DID_SIOP_ERRORS.SIGNATURE_VALIDATION_ERROR)
+    }
+    // The Client MUST validate that the sub Claim value is the base64url encoded 
+    // representation of the thumbprint of the key in the sub_jwk Claim
+    if (!this._verifySubClaim(siopPayload.sub, siopPayload.sub_jwk)) throw new Error(DID_SIOP_ERRORS.SUB_CLAIM_ERROR);
+    // The current time MUST be before the time represented by the exp Claim
+    if (this._isTokenExpired(siopPayload.exp)) throw new Error(DID_SIOP_ERRORS.TOKEN_EXPIRED)
+    //  a nonce Claim MUST be present and its value checked to verify that it is the same value 
+    // as the one that was sent in the Authentication Request
+    if (nonce !== siopPayload.nonce) throw new Error(DID_SIOP_ERRORS.NONCE_MISMATCH)
+    // If no did_doc is present, resolve the DID Document from the SIOP's DID specified in the did claim
+    if (!siopPayload.did_doc) didDoc = getDIDDocument(siopPayload.did)
+    // If did_doc is present, ensure this is a viable channel to exchange 
+    // the RP's DID Document according to the applicable DID method.
+    // !!! TODO
+    // Determine the verification method from the RP's DID Document that matches the kid of the SIOP Request.
+    if (didDoc.publicKey && didDoc.publicKey.length>0 && didDoc.publicKey[0].id !== siopHeader.kid) {
+      throw new Error(DID_SIOP_ERRORS.KID_MISMATCH)
+    }
+    // If the key pair that signed the id_token refers to the same key as indicated by the verification method, 
+    // then no additional verification has to be done as the SIOP validation will verify the signature of the JWS.
+    if (siopPayload.sub_jwk.kid !== didDoc.publicKey[0].id) {
+      if (!this._verifySIOPToken(didDoc.publicKey[0], siopJwt)) throw new Error(DID_SIOP_ERRORS.SIGNATURE_VALIDATION_ERROR)
+    }
+
     return true;
   }
 
@@ -165,7 +220,9 @@ export class LibDidSiopService implements DID_SIOP {
       did: input.did,
       sub_jwk: this._getJWK(input.alg, input.key, kid),
       sub: this._getSIOPResponseSub(input.key),
-      exp: 'bar'
+      exp: 'bar',
+      aud: input.redirect_uri,
+      did_doc: input.did_doc ? this._validateDID(input.did, input.did_doc) : undefined
     }
   }
 
@@ -187,7 +244,7 @@ export class LibDidSiopService implements DID_SIOP {
     return jws;
   }
 
-  private _verifySIOPRequest(pubKey: PublicKey, siopJwt: string): boolean {
+  private _verifySIOPToken(pubKey: PublicKey, siopJwt: string): boolean {
     const pemKey:string = getPemPubKey(pubKey)
     const jwk = JWK.asKey(pemKey);
     // throws error if verify is signature incorrect
@@ -195,7 +252,15 @@ export class LibDidSiopService implements DID_SIOP {
     return true;
   }
 
-  private _getAlgKeyType(supportedAlg: string[], key: JWK.Key): SIOP_KEY_ALGO {
+  private _verifySIOPResponse(alg: string, jwk: JSONWebKey, siopJwt: string): boolean {
+    // checks the algorithm is valid for the provided key !!! TODO
+    this._getAlgKeyType([alg], jwk);
+    // throws error if verify is signature incorrect
+    JWT.verify(siopJwt, jwk);
+    return true;
+  }
+
+  private _getAlgKeyType(supportedAlg: string[], key: JWK.Key | JSONWebKey): SIOP_KEY_ALGO {
     // finds if the key type is included in the algorithms supported
     switch (key.kty) {
       case 'RSA':
@@ -286,8 +351,48 @@ export class LibDidSiopService implements DID_SIOP {
     }
   }
 
+  private _getKeyFromJSONWebKey(jwk: JSONWebKey): JWK.RSAKey | JWK.ECKey | JWK.OKPKey {
+    switch (jwk.kty) {
+      case (SIOP_KEY_TYPE.RSA):
+        return JWK.asKey(<JWKRSAKey>jwk);
+      case (SIOP_KEY_TYPE.EC):
+        return JWK.asKey(<JWKECKey>jwk);
+      case (SIOP_KEY_TYPE.OKP):
+          return JWK.asKey(<JWKOKPKey>jwk);
+      default: throw new Error(DID_SIOP_ERRORS.NO_ALG_SUPPORTED)
+    }
+  }
+
   private _getSIOPResponseSub(key: JWK.Key): string {
     if (!key || !key.thumbprint) throw new Error(DID_SIOP_ERRORS.KEY_MALFORMED_THUMBPRINT)
-    return key.thumbprint
+    return base64url.encode(key.thumbprint)
+  }
+
+  /**
+   * When DID Document is present, MUST be the SIOP's DID Document corresponding to did in JSON encoding.
+   * @param did 
+   * @param didDoc 
+   * @return DIDDocument 
+   */
+  private _validateDID(did: string, didDoc: DIDDocument): DIDDocument {
+    if (!did || !didDoc || !didDoc.id) throw new Error(DID_SIOP_ERRORS.INVALID_PARAMS)
+    if (did !== didDoc.id) throw new Error(DID_SIOP_ERRORS.DID_MISMATCH)
+
+    return didDoc
+  }
+
+  private _verifySubClaim(sub: string, jwk: JSONWebKey): boolean {
+    if (!sub || !jwk) throw new Error(DID_SIOP_ERRORS.INVALID_PARAMS)
+
+    const key = this._getKeyFromJSONWebKey(jwk);
+
+    return (sub === this._getSIOPResponseSub(key))
+  }
+
+  private _isTokenExpired(exp: string):boolean {
+    // check if token is still active 
+    const now = Date.now();  
+    if (+(exp)*1000 > now) return false
+    return true
   }
 }

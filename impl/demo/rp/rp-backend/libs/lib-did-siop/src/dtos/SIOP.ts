@@ -3,6 +3,17 @@ import { JWTHeader, JWTClaims } from "./JWT";
 import { DIDDocument } from './DIDDocument'
 import { JWK, JSONWebKey } from "jose";
 
+export enum SIOP_KEY_TYPE {
+  EC = 'EC',
+  RSA = 'RSA',
+  OKP = 'OKP'
+}
+
+export enum SIOP_KEY_CURVE {
+  SECP256k1 = 'secp256k1',
+  ED25519 = 'ed25519'
+}
+
 export enum SIOPScope {
   OPENID_DIDAUTHN = 'openid did_authn'
 }
@@ -75,6 +86,7 @@ export interface SIOPResponseCall{
   alg: string[];
   did: string;
   nonce: string;
+  redirect_uri: string;
   kid?: string;
   did_doc?: DIDDocument;
 }
@@ -89,6 +101,8 @@ export interface SIOPResponsePayload extends JWTClaims {
   sub_jwk: JSONWebKey;
   sub: string;
   did: string;
+  aud: string;
   exp?: string;
   iat?: number;
+  did_doc?: DIDDocument;
 }
