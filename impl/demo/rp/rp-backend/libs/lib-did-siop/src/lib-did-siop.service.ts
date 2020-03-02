@@ -13,34 +13,34 @@ import base64url from "base64url";
 export interface DID_SIOP {
 
   /**
-   * 
-   * @param siopRequest 
+   * Creates an OIDC url with a SIOP JWT Request
+   * @param siopRequest Request input data to build a SIOP Request
    */
   createRedirectRequest(siopRequestCall:SIOPRequestCall): string
 
   /**
-   * 
-   * @param siopRequest 
+   * Creates a SIOP Request Object
+   * @param siopRequest Request input data to build a signed SIOP Request Token 
    */
   createSIOPRequest(siopRequestCall:SIOPRequestCall): string
 
   /**
-   * 
-   * @param siopJwt 
+   * Validates a OIDC-SIOP ID Request Token
+   * @param siopJwt signed SIOP Request Token
    */
   validateSIOPRequest(siopJwt: string): boolean
 
   /**
-   * 
-   * @param input 
+   * Creates a SIOP Response Object
+   * @param input Response input data to build a signed SIOP Response Token
    */
   createSIOPResponse(siopResponseCall: SIOPResponseCall): string
 
   /**
-   * 
-   * @param siopJwt 
-   * @param redirectUri 
-   * @param nonce 
+   * Validates a OIDC-SIOP ID Response Token
+   * @param siopJwt igned SIOP Response Token
+   * @param redirectUri value of the redirect_uri that the Client sent in the Authentication Request as an audienc
+   * @param nonce nonce value sent in the Authentication Request
    */
   validateSIOPResponse(siopJwt: string, redirectUri: string, nonce: string): boolean
 
