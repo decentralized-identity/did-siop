@@ -1,6 +1,6 @@
-import { Process, Processor } from '@nestjs/bull';
+import { Process, Processor, InjectQueue, OnQueueCompleted } from '@nestjs/bull';
 import { Logger } from '@nestjs/common';
-import { Job } from 'bull'
+import { Job, Queue } from 'bull'
 import { 
   LibDidSiopService, 
   SIOPRequestCall, 
@@ -8,22 +8,24 @@ import {
   SIOPResponseMode, 
   SIOPResponsePayload } from '@lib/did-siop';
 import { WalletService, WALLET } from '@lib/wallet';
-import { SiopUriRequest, SiopResponse } from './dtos/SIOP';
+import { SiopUriRequest, SiopResponse, SiopAckRequest } from './dtos/SIOP';
 import { JWT } from 'jose';
+import { doPostCall } from 'src/util/Util';
 
 @Processor('siop')
 export class SiopProcessor {
+  constructor(@InjectQueue('siopError') private readonly siopErrorQueue: Queue) {}
   private readonly logger = new Logger(SiopProcessor.name);
 
   @Process('user-request')
   handleSiopRequest(job: Job): SiopUriRequest {
     this.logger.debug('SIOP Request received.')
-    
+    this.logger.debug(`Processing job ${job.id} of type ${job.name} with data ${job.data}`)
     const wallet: WALLET = WalletService.Instance.wallet
     // create SIOP Request Call
     const siopRequestCall:SIOPRequestCall = {
       iss: wallet.did,
-      client_id: 'http://localhost:9003/siop/responses',
+      client_id: job.data.client_id,
       key: wallet.key,
       alg: [SIOP_KEY_ALGO.ES256K, SIOP_KEY_ALGO.EdDSA, SIOP_KEY_ALGO.RS256],
       did_doc: wallet.didDoc,
@@ -35,10 +37,20 @@ export class SiopProcessor {
     // TODO: store clien_id and nonce to local db
     this.logger.debug('SIOP Request completed.')
 
-    return { 
-      siopUri,
-      clientUriRedirect: 'http://localhost:9001/siop/request-urls'
-     }
+    return { siopUri }
+  }
+
+  @OnQueueCompleted()
+  async onCompleted(job: Job, result: any) {
+    this.logger.debug('SIOP Request event completed.')
+    this.logger.debug(`Processing job ${job.id} of type ${job.name} with data ${job.data}`)
+    console.log(result)
+    const response:SiopAckRequest = await doPostCall(result, job.data.clientUriRedirect)
+    // sends error to Front-end
+    if (!response || !response.validationRequest) {
+      this.logger.debug('Error on SIOP Request Validation.')
+      await this.siopErrorQueue.add('errorSiopRequestValidation');
+    }
   }
 
   @Process('validateSiopResponse')

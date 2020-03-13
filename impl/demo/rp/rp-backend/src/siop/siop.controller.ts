@@ -8,7 +8,10 @@ export class SiopController {
 
   @Post('user-sessions')
   async createUserSession() {
-    await this.siopQueue.add('user-request');
+    await this.siopQueue.add('user-request', { 
+      client_id: 'http://localhost:9003/siop/responses',
+      clientUriRedirect: 'http://localhost:9001/siop/request-urls'
+    });
   }
 
   @Post('responses')

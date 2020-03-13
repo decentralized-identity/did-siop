@@ -1,6 +1,5 @@
 export interface SiopUriRequest {
   siopUri: string;
-  clientUriRedirect: string;
 }
 
 export interface SiopAckRequest {
