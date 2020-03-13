@@ -41,7 +41,7 @@ describe('LibDidSiopService', () => {
         response_mode: SIOPResponseMode.FORM_POST
       }
 
-      const jws = service.createSIOPRequest(siopRequestCall);
+      const jws = LibDidSiopService.createSIOPRequest(siopRequestCall);
       const { header, payload } = JWT.decode(jws, { complete: true });
 
       const expectedHeader = SIOP_HEADER;
@@ -67,7 +67,7 @@ describe('LibDidSiopService', () => {
         response_mode: SIOPResponseMode.FORM_POST
       }
 
-      const siopURI:string = service.createRedirectRequest(siopRequestCall);
+      const siopURI:string = LibDidSiopService.createUriRequest(siopRequestCall);
       expect(siopURI).toContain('openid://?response_type=' + SIOPResponseType.ID_TOKEN)
       expect(siopURI).toContain('client_id=' + siopRequestCall.client_id)
       expect(siopURI).toContain('scope=' + SIOPScope.OPENID_DIDAUTHN)
@@ -84,10 +84,10 @@ describe('LibDidSiopService', () => {
         response_mode: SIOPResponseMode.FORM_POST
       }
 
-      const siopURI:string = service.createRedirectRequest(siopRequestCall);
+      const siopURI:string = LibDidSiopService.createUriRequest(siopRequestCall);
       const urlParams = new URLSearchParams(siopURI);
 
-      expect(service.validateSIOPRequest(urlParams.get('request'))).toBe(true);
+      expect(LibDidSiopService.validateSIOPRequest(urlParams.get('request'))).toBe(true);
     })
   });
 
@@ -103,7 +103,7 @@ describe('LibDidSiopService', () => {
         did_doc: testKeyUser.didDoc
       }
       
-      const jws = service.createSIOPResponse(siopResponseCall);
+      const jws = LibDidSiopService.createSIOPResponse(siopResponseCall);
       const { header, payload } = JWT.decode(jws, { complete: true });
       const expectedHeader = SIOP_HEADER;
       expectedHeader.kid = expect.any(String);
@@ -131,9 +131,14 @@ describe('LibDidSiopService', () => {
         redirect_uri: 'http://localhost:5000/response/validation',
         did_doc: testKeyUser.didDoc
       }
-      const jws = service.createSIOPResponse(siopResponseCall);
+      const jws = LibDidSiopService.createSIOPResponse(siopResponseCall);
 
-      expect(service.validateSIOPResponse(jws, siopResponseCall.redirect_uri, siopResponseCall.nonce)).toBe(true);
+      expect(
+        LibDidSiopService.validateSIOPResponse(
+          jws, 
+          siopResponseCall.redirect_uri, 
+          siopResponseCall.nonce)
+      ).toBe(true);
     })
   });
 });

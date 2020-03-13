@@ -1,27 +1,18 @@
 import { Controller, Post } from '@nestjs/common';
-import { SiopService } from './siop.service'
+import { InjectQueue } from '@nestjs/bull';
+import { Queue } from 'bull';
 
 @Controller('siop')
 export class SiopController {
-  constructor(private readonly siopService: SiopService) {}
+  constructor(@InjectQueue('siop') private readonly siopQueue: Queue) {}
 
-  @Post('request')
-  createSIOPRequest(): string {
-    return this.siopService.createSIOPRequest();
+  @Post('user-sessions')
+  async createSIOPRequest() {
+    await this.siopQueue.add('createSiopRequest');
   }
 
-  @Post('request/validation')
-  validateSIOPRequest(): boolean {
-    return this.siopService.validateSIOPRequest();
-  }
-
-  @Post('response')
-  createSIOPResponse(): string {
-    return this.siopService.createSIOPResponse();
-  }
-
-  @Post('response/validation')
-  validateSIOPResponse(): boolean {
-    return this.siopService.validateSIOPResponse();
+  @Post('responses')
+  async validateSIOPResponse() {
+    await this.siopQueue.add('validateSiopResponse');
   }
 }

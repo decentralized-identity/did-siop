@@ -10,50 +10,14 @@ import { DIDDocument, getDIDDocument, PublicKey } from './dtos/DIDDocument'
 import { DID_SIOP_ERRORS } from './error'
 import base64url from "base64url";
 
-export interface DID_SIOP {
-
-  /**
-   * Creates an OIDC url with a SIOP JWT Request
-   * @param siopRequest Request input data to build a SIOP Request
-   */
-  createRedirectRequest(siopRequestCall:SIOPRequestCall): string
-
-  /**
-   * Creates a SIOP Request Object
-   * @param siopRequest Request input data to build a signed SIOP Request Token 
-   */
-  createSIOPRequest(siopRequestCall:SIOPRequestCall): string
-
-  /**
-   * Validates a OIDC-SIOP ID Request Token
-   * @param siopJwt signed SIOP Request Token
-   */
-  validateSIOPRequest(siopJwt: string): boolean
-
-  /**
-   * Creates a SIOP Response Object
-   * @param input Response input data to build a signed SIOP Response Token
-   */
-  createSIOPResponse(siopResponseCall: SIOPResponseCall): string
-
-  /**
-   * Validates a OIDC-SIOP ID Response Token
-   * @param siopJwt igned SIOP Response Token
-   * @param redirectUri value of the redirect_uri that the Client sent in the Authentication Request as an audienc
-   * @param nonce nonce value sent in the Authentication Request
-   */
-  validateSIOPResponse(siopJwt: string, redirectUri: string, nonce: string): boolean
-
-}
-
 @Injectable()
-export class LibDidSiopService implements DID_SIOP {
+export class LibDidSiopService {
 
   /**
    * 
    * @param siopRequest 
    */
-  createRedirectRequest(siopRequest:SIOPRequestCall): string {
+  static createUriRequest(siopRequest:SIOPRequestCall): string {
     return 'openid://?response_type=' + SIOPResponseType.ID_TOKEN +
     '&client_id=' + siopRequest.client_id +
     '&scope=' + SIOPScope.OPENID_DIDAUTHN +
@@ -64,7 +28,7 @@ export class LibDidSiopService implements DID_SIOP {
    * 
    * @param input 
    */
-  createSIOPRequest(input: SIOPRequestCall): string {
+  static createSIOPRequest(input: SIOPRequestCall): string {
 
     const siopRequest:SIOPRequest = this._createPayloadRequest(input)
     const payload = Buffer.from(JSON.stringify(siopRequest))
@@ -80,7 +44,7 @@ export class LibDidSiopService implements DID_SIOP {
    * 
    * @param siopJwt 
    */
-  validateSIOPRequest(siopJwt: string): boolean {
+  static validateSIOPRequest(siopJwt: string): boolean {
     // decode token
     const { header, payload } = JWT.decode(siopJwt, { complete: true });
     const siopHeader = <SIOPJwtHeader>header;
@@ -116,7 +80,7 @@ export class LibDidSiopService implements DID_SIOP {
     return this._verifySIOPToken(didDoc.publicKey[0], siopJwt);
   }
 
-  createSIOPResponse(input: SIOPResponseCall): string {
+  static createSIOPResponse(input: SIOPResponseCall): string {
 
     const siopResponse:SIOPResponse = this._createPayloadResponse(input)
     const payload = Buffer.from(JSON.stringify(siopResponse))
@@ -134,7 +98,7 @@ export class LibDidSiopService implements DID_SIOP {
    * @param redirectUri 
    * @param nonce 
    */
-  validateSIOPResponse(siopJwt: string, redirectUri: string, nonce: string): boolean {
+  static validateSIOPResponse(siopJwt: string, redirectUri: string, nonce: string): boolean {
     // decode token
     const { header, payload } = JWT.decode(siopJwt, { complete: true });
     const siopHeader = <SIOPJwtHeader>header;
@@ -178,7 +142,7 @@ export class LibDidSiopService implements DID_SIOP {
     return true;
   }
 
-  private _createPayloadRequest(input: SIOPRequestCall): SIOPRequest {
+  private static _createPayloadRequest(input: SIOPRequestCall): SIOPRequest {
 
     return {
       iss: input.iss,
@@ -194,7 +158,7 @@ export class LibDidSiopService implements DID_SIOP {
     }
   }
   
-  private _signSIOPRequest(alg: SIOP_KEY_ALGO, key: JWK.Key, payload: Buffer, kid: string): string {
+  private static _signSIOPRequest(alg: SIOP_KEY_ALGO, key: JWK.Key, payload: Buffer, kid: string): string {
     const jws = JWT.sign(
       JSON.parse(payload.toString()),
       key,
@@ -210,7 +174,7 @@ export class LibDidSiopService implements DID_SIOP {
     return jws;
   }
 
-  private _createPayloadResponse(input: SIOPResponseCall): SIOPResponse {
+  private static _createPayloadResponse(input: SIOPResponseCall): SIOPResponse {
     const kid:string = input.kid ? input.kid : this._getKidFromDidDoc(input.did_doc)
 
     return {
@@ -226,7 +190,7 @@ export class LibDidSiopService implements DID_SIOP {
     }
   }
 
-  private _signSIOPResponse(alg: SIOP_KEY_ALGO, key: JWK.Key, payload: Buffer, kid: string): string {
+  private static _signSIOPResponse(alg: SIOP_KEY_ALGO, key: JWK.Key, payload: Buffer, kid: string): string {
     const jws = JWT.sign(
       JSON.parse(payload.toString()),
       key,
@@ -244,7 +208,7 @@ export class LibDidSiopService implements DID_SIOP {
     return jws;
   }
 
-  private _verifySIOPToken(pubKey: PublicKey, siopJwt: string): boolean {
+  private static _verifySIOPToken(pubKey: PublicKey, siopJwt: string): boolean {
     const pemKey:string = getPemPubKey(pubKey)
     const jwk = JWK.asKey(pemKey);
     // throws error if verify is signature incorrect
@@ -252,7 +216,7 @@ export class LibDidSiopService implements DID_SIOP {
     return true;
   }
 
-  private _verifySIOPResponse(alg: string, jwk: JSONWebKey, siopJwt: string): boolean {
+  private static _verifySIOPResponse(alg: string, jwk: JSONWebKey, siopJwt: string): boolean {
     // checks the algorithm is valid for the provided key !!! TODO
     this._getAlgKeyType([alg], jwk);
     // throws error if verify is signature incorrect
@@ -260,7 +224,7 @@ export class LibDidSiopService implements DID_SIOP {
     return true;
   }
 
-  private _getAlgKeyType(supportedAlg: string[], key: JWK.Key | JSONWebKey): SIOP_KEY_ALGO {
+  private static _getAlgKeyType(supportedAlg: string[], key: JWK.Key | JSONWebKey): SIOP_KEY_ALGO {
     // finds if the key type is included in the algorithms supported
     switch (key.kty) {
       case 'RSA':
@@ -287,12 +251,12 @@ export class LibDidSiopService implements DID_SIOP {
     }
   }
 
-  private _getKidFromDidDoc(didDoc: DIDDocument): string {
+  private static _getKidFromDidDoc(didDoc: DIDDocument): string {
     if (!didDoc?.publicKey[0]?.id) throw new Error(DID_SIOP_ERRORS.NO_DIDDOCUMENT_KID);
     return didDoc.publicKey[0].id;
   }
 
-  private _getRegistration(input: SIOPRequestCall): (SIOPIndirectRegistration | SIOPDirectRegistration) {
+  private static _getRegistration(input: SIOPRequestCall): (SIOPIndirectRegistration | SIOPDirectRegistration) {
     // The jwks request parameter SHOULD be used only if the public key cannot be directly obtained from the DID Document.
     if (!this._retrievablePubKeyFromDidDoc(input.iss, input.did_doc)) {
       if (!input.kid) throw new Error(DID_SIOP_ERRORS.NO_KID_PROVIDED)
@@ -308,7 +272,7 @@ export class LibDidSiopService implements DID_SIOP {
     }
   }
 
-  private _retrievablePubKeyFromDidDoc(issuer: string, didDoc: DIDDocument): boolean {
+  private static _retrievablePubKeyFromDidDoc(issuer: string, didDoc: DIDDocument): boolean {
     if (!didDoc) return false;
     if (!didDoc.publicKey) return false;
     // it should search for the exact public key matching the same owner
@@ -321,7 +285,7 @@ export class LibDidSiopService implements DID_SIOP {
     return true;
   }
 
-  private _getJWK(alg:string[], key: JWK.Key, kid: string): JSONWebKey {
+  private static _getJWK(alg:string[], key: JWK.Key, kid: string): JSONWebKey {
     const keyType:SIOP_KEY_ALGO = this._getAlgKeyType(alg, key);
 
     switch (keyType) {
@@ -351,7 +315,7 @@ export class LibDidSiopService implements DID_SIOP {
     }
   }
 
-  private _getKeyFromJSONWebKey(jwk: JSONWebKey): JWK.RSAKey | JWK.ECKey | JWK.OKPKey {
+  private static _getKeyFromJSONWebKey(jwk: JSONWebKey): JWK.RSAKey | JWK.ECKey | JWK.OKPKey {
     switch (jwk.kty) {
       case (SIOP_KEY_TYPE.RSA):
         return JWK.asKey(<JWKRSAKey>jwk);
@@ -363,7 +327,7 @@ export class LibDidSiopService implements DID_SIOP {
     }
   }
 
-  private _getSIOPResponseSub(key: JWK.Key): string {
+  private static _getSIOPResponseSub(key: JWK.Key): string {
     if (!key || !key.thumbprint) throw new Error(DID_SIOP_ERRORS.KEY_MALFORMED_THUMBPRINT)
     return base64url.encode(key.thumbprint)
   }
@@ -374,14 +338,14 @@ export class LibDidSiopService implements DID_SIOP {
    * @param didDoc 
    * @return DIDDocument 
    */
-  private _validateDID(did: string, didDoc: DIDDocument): DIDDocument {
+  private static _validateDID(did: string, didDoc: DIDDocument): DIDDocument {
     if (!did || !didDoc || !didDoc.id) throw new Error(DID_SIOP_ERRORS.INVALID_PARAMS)
     if (did !== didDoc.id) throw new Error(DID_SIOP_ERRORS.DID_MISMATCH)
 
     return didDoc
   }
 
-  private _verifySubClaim(sub: string, jwk: JSONWebKey): boolean {
+  private static _verifySubClaim(sub: string, jwk: JSONWebKey): boolean {
     if (!sub || !jwk) throw new Error(DID_SIOP_ERRORS.INVALID_PARAMS)
 
     const key = this._getKeyFromJSONWebKey(jwk);
@@ -389,7 +353,7 @@ export class LibDidSiopService implements DID_SIOP {
     return (sub === this._getSIOPResponseSub(key))
   }
 
-  private _isTokenExpired(exp: string):boolean {
+  private static _isTokenExpired(exp: string):boolean {
     // check if token is still active 
     const now = Date.now();  
     if (+(exp)*1000 > now) return false

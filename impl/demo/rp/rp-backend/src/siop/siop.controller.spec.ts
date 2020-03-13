@@ -23,16 +23,6 @@ describe('Siop Controller', () => {
       expect(controller.createSIOPRequest()).toBe('first siop request');
     });
 
-    it('should return "true" on request validation', () => {
-      expect(controller.validateSIOPRequest()).toBe(true);
-    })
-  });
-
-  describe('SIOP Response endpoint', () => {
-    it('should return "first siop response"', () => {
-      expect(controller.createSIOPResponse()).toBe('first siop response');
-    });
-
     it('should return "true" on response validation', () => {
       expect(controller.validateSIOPResponse()).toBe(true);
     })
