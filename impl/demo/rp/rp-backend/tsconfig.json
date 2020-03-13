@@ -12,11 +12,17 @@
     "baseUrl": "./",
     "incremental": true,
     "paths": {
-      "@app/lib-did-siop": [
+      "@lib/did-siop": [
         "libs/lib-did-siop/src"
       ],
-      "@app/lib-did-siop/*": [
+      "@lib/did-siop/*": [
         "libs/lib-did-siop/src/*"
+      ],
+      "@lib/wallet": [
+        "src/wallet"
+      ],
+      "@lib/wallet/*": [
+        "src/wallet/*"
       ]
     }
   },

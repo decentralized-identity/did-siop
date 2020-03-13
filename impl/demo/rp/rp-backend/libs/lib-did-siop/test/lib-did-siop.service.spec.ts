@@ -1,8 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { LibDidSiopService } from '../src/lib-did-siop.service';
+import { LibDidSiopService } from '@lib/did-siop';
 import { JWT } from 'jose'
 import { SIOP_KEY_ALGO } from '../src/dtos/DID';
-import { SIOPResponseMode, SIOPRequestCall, SIOPRequestPayload, SIOPResponseType, SIOPScope, SIOPResponseCall, SIOP_RESPONSE_ISS, SIOP_KEY_TYPE } from '../src/dtos/siop';
+import { SIOPResponseMode, SIOPRequestCall, SIOPRequestPayload, SIOPResponseType, SIOPScope, SIOPResponseCall, SIOP_RESPONSE_ISS, SIOP_KEY_TYPE } from '@lib/did-siop';
 import { TEST_KEY, generateTestKey, SIOP_HEADER, SIOP_REQUEST_PAYLOAD, SIOP_RESPONSE_PAYLOAD } from './Aux';
 import { getRandomString } from '../src/util/Util';
 

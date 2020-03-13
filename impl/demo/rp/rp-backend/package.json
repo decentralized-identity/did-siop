@@ -86,8 +86,10 @@
       "<rootDir>/libs/"
     ],
     "moduleNameMapper": {
-      "@app/lib-did-siop/(.*)": "<rootDir>/libs/lib-did-siop/src/$1",
-      "@app/lib-did-siop": "<rootDir>/libs/lib-did-siop/src"
+      "@lib/did-siop/(.*)": "<rootDir>/libs/lib-did-siop/src/$1",
+      "@lib/did-siop": "<rootDir>/libs/lib-did-siop/src",
+      "@lib/wallet/(.*)": "<rootDir>/src/wallet/$1",
+      "@lib/wallet": "<rootDir>/src/wallet"
     }
   }
 }

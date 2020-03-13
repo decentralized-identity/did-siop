@@ -1,8 +1,8 @@
 import { JWK, JWKECKey, JWKRSAKey, JWKOKPKey } from "jose";
-import { DIDDocument, ecKeyToDidDoc } from "@app/lib-did-siop/dtos/DIDDocument";
-import { DID_SIOP_ERRORS } from "@app/lib-did-siop/error";
-import { getKeyIdFromKey, getDIDFromKey } from "@app/lib-did-siop/util/Util";
-import { SIOP_KEY_TYPE, SIOP_KEY_CURVE } from "@app/lib-did-siop/dtos/siop";
+import { DIDDocument, ecKeyToDidDoc } from "@lib/did-siop";
+import { DID_SIOP_ERRORS } from "@lib/did-siop";
+import { getKeyIdFromKey, getDIDFromKey } from "@lib/did-siop";
+import { SIOP_KEY_TYPE, SIOP_KEY_CURVE } from "@lib/did-siop";
 
 export const SIOP_HEADER = {
   "alg": "ES256K",

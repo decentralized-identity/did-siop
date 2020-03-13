@@ -7,7 +7,7 @@ import {
   SIOP_KEY_CURVE, 
   DID_SIOP_ERRORS, 
   getDIDFromKey, 
-  ecKeyToDidDoc } from '@app/lib-did-siop';
+  ecKeyToDidDoc } from '@lib/did-siop';
 
 export interface WALLET {
   key: JWK.Key;

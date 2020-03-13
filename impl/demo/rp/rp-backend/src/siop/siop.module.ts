@@ -1,8 +1,9 @@
 import { BullModule } from '@nestjs/bull';
 import { Module } from '@nestjs/common';
-import { LibDidSiopModule } from '@app/lib-did-siop';
+import { LibDidSiopModule } from '@lib/did-siop';
 import { SiopController } from './siop.controller';
 import { SiopProcessor } from './siop.processor';
+import { SiopConsumer } from './siop.consumer';
 
 @Module({
   imports: [
@@ -14,6 +15,6 @@ import { SiopProcessor } from './siop.processor';
     })
   ],
   controllers: [SiopController],
-  providers: [SiopProcessor],
+  providers: [SiopProcessor, SiopConsumer],
 })
 export class SiopModule {}

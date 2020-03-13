@@ -1,8 +1,13 @@
 import { Process, Processor } from '@nestjs/bull';
 import { Logger } from '@nestjs/common';
 import { Job } from 'bull'
-import { LibDidSiopService, SIOPRequestCall, SIOP_KEY_ALGO, SIOPResponseMode, SIOPResponsePayload } from '@app/lib-did-siop';
-import { WalletService, WALLET } from 'src/wallet/wallet.service';
+import { 
+  LibDidSiopService, 
+  SIOPRequestCall, 
+  SIOP_KEY_ALGO, 
+  SIOPResponseMode, 
+  SIOPResponsePayload } from '@lib/did-siop';
+import { WalletService, WALLET } from '@lib/wallet';
 import { SiopUriRequest, SiopResponse } from './dtos/SIOP';
 import { JWT } from 'jose';
 
