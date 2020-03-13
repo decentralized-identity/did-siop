@@ -15,7 +15,7 @@ import { JWT } from 'jose';
 export class SiopProcessor {
   private readonly logger = new Logger(SiopProcessor.name);
 
-  @Process('createSiopRequest')
+  @Process('user-request')
   handleSiopRequest(job: Job): SiopUriRequest {
     this.logger.debug('SIOP Request received.')
     

@@ -7,12 +7,12 @@ export class SiopController {
   constructor(@InjectQueue('siop') private readonly siopQueue: Queue) {}
 
   @Post('user-sessions')
-  async createSIOPRequest() {
-    await this.siopQueue.add('createSiopRequest');
+  async createUserSession() {
+    await this.siopQueue.add('user-request');
   }
 
   @Post('responses')
   async validateSIOPResponse() {
-    await this.siopQueue.add('validateSiopResponse');
+    // await this.siopQueue.add('validateSiopResponse');
   }
 }
