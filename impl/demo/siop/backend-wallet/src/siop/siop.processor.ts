@@ -7,7 +7,7 @@ import {
   SIOPResponseCall,
   SIOPRequestPayload} from '@lib/did-siop';
 import { WalletService, WALLET } from '@lib/wallet';
-import { SiopUriRequest, SiopAckRequest, SiopResponseJwt, SiopResponseQueue } from './dtos/SIOP';
+import { SiopUriRequest, SiopResponseJwt, SiopResponseQueue } from './dtos/SIOP';
 import { JWT } from 'jose';
 import { doPostCall } from 'src/util/Util';
 

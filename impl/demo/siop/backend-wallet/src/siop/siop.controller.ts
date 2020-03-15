@@ -11,6 +11,7 @@ export class SiopController {
   @Post('request-urls')
   async validateSIOPRequest(@Body() siopUriRequest: SiopUriRequest)  {
     // get siop uri
+    console.log('Received body:' + JSON.stringify(siopUriRequest))
     const urlParams = new URLSearchParams(siopUriRequest.siopUri);
     // validated siop Request
     if (!LibDidSiopService.validateSIOPRequest(urlParams.get('request'))) {
