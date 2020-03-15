@@ -1,21 +1,22 @@
-import { Controller, Post } from '@nestjs/common';
+import { Controller, Post, Body, HttpException, HttpStatus, BadRequestException } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
+import { SiopUriRequest } from './dtos/SIOP';
+import { LibDidSiopService, DID_SIOP_ERRORS } from '@lib/did-siop';
 
 @Controller('siop')
 export class SiopController {
   constructor(@InjectQueue('siop') private readonly siopQueue: Queue) {}
 
-  @Post('user-sessions')
-  async createUserSession() {
-    await this.siopQueue.add('user-request', { 
-      client_id: 'http://localhost:9003/siop/responses',
-      clientUriRedirect: 'http://localhost:9001/siop/request-urls'
-    });
-  }
+  @Post('request-urls')
+  async validateSIOPRequest(@Body() siopUriRequest: SiopUriRequest)  {
+    // get siop uri
+    const urlParams = new URLSearchParams(siopUriRequest.siopUri);
+    // validated siop Request
+    if (!LibDidSiopService.validateSIOPRequest(urlParams.get('request'))) {
+      throw new BadRequestException(DID_SIOP_ERRORS.INVALID_SIOP_REQUEST)
+    }
 
-  @Post('responses')
-  async validateSIOPResponse() {
-    await this.siopQueue.add('validateSiopResponse');
+    await this.siopQueue.add('createSiopResponse', siopUriRequest);
   }
 }
