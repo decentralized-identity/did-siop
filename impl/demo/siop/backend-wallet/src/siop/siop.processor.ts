@@ -52,7 +52,7 @@ export class SiopProcessor {
   async onCompleted(_job: Job, result: SiopResponseQueue) {
     this.logger.debug('SIOP Response event completed.')
     this.logger.debug(`Processing result`)
-    if (result || result.callbackUrl || result.jwt) {
+    if (!result || !result.callbackUrl || !result.jwt) {
       throw new BadRequestException(DID_SIOP_ERRORS.INVALID_PARAMS)
     }
     const siopResponse:SiopResponseJwt = { jwt: result.jwt }

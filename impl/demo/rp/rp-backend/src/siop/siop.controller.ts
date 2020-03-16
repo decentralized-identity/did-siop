@@ -2,9 +2,8 @@ import { Controller, Post, Body, BadRequestException } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
 import { SiopUriRedirect, SiopResponseJwt } from './dtos/SIOP';
-import { DID_SIOP_ERRORS, SIOPResponsePayload, LibDidSiopService } from '@lib/did-siop';
+import { DID_SIOP_ERRORS, LibDidSiopService } from '@lib/did-siop';
 import { CLIENT_ID_URI } from 'src/Config';
-import { JWT } from 'jose';
 import { loadNonce, getIssDid } from 'src/util/Util';
 
 @Controller('siop')
@@ -13,7 +12,7 @@ export class SiopController {
 
   @Post('user-sessions')
   async createUserSession(@Body() uriRedirect:SiopUriRedirect) {
-    if (!uriRedirect || uriRedirect.clientUriRedirect) {
+    if (!uriRedirect || !uriRedirect.clientUriRedirect) {
       throw new BadRequestException(DID_SIOP_ERRORS.INVALID_PARAMS)
     }
     await this.siopQueue.add('userRequest', { 
@@ -24,7 +23,7 @@ export class SiopController {
 
   @Post('responses')
   async validateSIOPResponse(@Body() siopResponseJwt: SiopResponseJwt) {
-    if (!siopResponseJwt || siopResponseJwt.jwt) {
+    if (!siopResponseJwt || !siopResponseJwt.jwt) {
       throw new BadRequestException(DID_SIOP_ERRORS.INVALID_PARAMS)
     }
 

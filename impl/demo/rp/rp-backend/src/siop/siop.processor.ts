@@ -6,11 +6,9 @@ import {
   SIOPRequestCall, 
   SIOP_KEY_ALGO, 
   SIOPResponseMode, 
-  SIOPResponsePayload, 
   DID_SIOP_ERRORS} from '@lib/did-siop';
 import { WalletService, WALLET } from '@lib/wallet';
 import { SiopUriRequest, SiopResponse, SiopAckRequest } from './dtos/SIOP';
-import { JWT } from 'jose';
 import { doPostCall, getIssDid } from 'src/util/Util';
 
 @Processor('siop')
@@ -48,7 +46,7 @@ export class SiopProcessor {
   async onCompleted(job: Job, result: SiopUriRequest) {
     this.logger.debug('SIOP Request event completed.')
     this.logger.debug(`Processing result`)
-    if (!job || !job.data || !job.data.clientUriRedirect || result || result.siopUri) {
+    if (!job || !job.data || !job.data.clientUriRedirect || !result || !result.siopUri) {
       throw new BadRequestException(DID_SIOP_ERRORS.INVALID_PARAMS)
     }
     const response:SiopAckRequest = await doPostCall(result, job.data.clientUriRedirect)
