@@ -1,26 +1,30 @@
 import { Process, Processor, InjectQueue, OnQueueCompleted } from '@nestjs/bull';
-import { Logger } from '@nestjs/common';
+import { Logger, BadRequestException } from '@nestjs/common';
 import { Job, Queue } from 'bull'
 import { 
   LibDidSiopService, 
   SIOPRequestCall, 
   SIOP_KEY_ALGO, 
   SIOPResponseMode, 
-  SIOPResponsePayload } from '@lib/did-siop';
+  SIOPResponsePayload, 
+  DID_SIOP_ERRORS} from '@lib/did-siop';
 import { WalletService, WALLET } from '@lib/wallet';
 import { SiopUriRequest, SiopResponse, SiopAckRequest } from './dtos/SIOP';
 import { JWT } from 'jose';
-import { doPostCall } from 'src/util/Util';
+import { doPostCall, getIssDid } from 'src/util/Util';
 
 @Processor('siop')
 export class SiopProcessor {
   constructor(@InjectQueue('siopError') private readonly siopErrorQueue: Queue) {}
   private readonly logger = new Logger(SiopProcessor.name);
 
-  @Process('user-request')
+  @Process('userRequest')
   handleSiopRequest(job: Job): SiopUriRequest {
     this.logger.debug('SIOP Request received.')
     this.logger.debug(`Processing job ${job.id} of type ${job.name} with data ${job.data}`)
+    if (!job || !job.data || !job.data.client_id) {
+      throw new BadRequestException(DID_SIOP_ERRORS.INVALID_PARAMS)
+    }
     const wallet: WALLET = WalletService.Instance.wallet
     // create SIOP Request Call
     const siopRequestCall:SIOPRequestCall = {
@@ -41,10 +45,12 @@ export class SiopProcessor {
   }
 
   @OnQueueCompleted()
-  async onCompleted(job: Job, result: any) {
+  async onCompleted(job: Job, result: SiopUriRequest) {
     this.logger.debug('SIOP Request event completed.')
-    this.logger.debug(`Processing job ${job.id} of type ${job.name} with data ${job.data}`)
-    console.log(result)
+    this.logger.debug(`Processing result`)
+    if (!job || !job.data || !job.data.clientUriRedirect || result || result.siopUri) {
+      throw new BadRequestException(DID_SIOP_ERRORS.INVALID_PARAMS)
+    }
     const response:SiopAckRequest = await doPostCall(result, job.data.clientUriRedirect)
     // sends error to Front-end
     if (!response || !response.validationRequest) {
@@ -53,24 +59,15 @@ export class SiopProcessor {
     }
   }
 
-  @Process('validateSiopResponse')
+  @Process('emitSiopResponse')
   handleSiopResponse(job: Job): SiopResponse {
+    if (!job || !job.data || !job.data.jwt || !job.data.validationResult) {
+      throw new BadRequestException(DID_SIOP_ERRORS.INVALID_PARAMS)
+    }
     
-    const siopResponseJwt:string = job.data;
-    // TODO: get clien_id and nonce from local db
-    const { payload } = JWT.decode(siopResponseJwt, { complete: true });
-    const siopPayload = <SIOPResponsePayload>payload;
-    const redirectUri = siopPayload.aud;
-    const nonce = siopPayload.nonce;
-
-    const validationResult:boolean = LibDidSiopService.validateSIOPResponse(
-      siopResponseJwt, 
-      redirectUri, 
-      nonce);
-
     return {
-      validationResponse: validationResult,
-      did: siopPayload.iss
+      validationResponse: job.data.validationResult,
+      did: getIssDid(job.data.jwt)
     }
   }
 }

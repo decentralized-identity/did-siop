@@ -1,11 +1,12 @@
 import { Process, Processor, InjectQueue, OnQueueCompleted } from '@nestjs/bull';
-import { Logger } from '@nestjs/common';
+import { Logger, BadRequestException } from '@nestjs/common';
 import { Job, Queue } from 'bull'
 import { 
   LibDidSiopService, 
   SIOP_KEY_ALGO, 
   SIOPResponseCall,
-  SIOPRequestPayload} from '@lib/did-siop';
+  SIOPRequestPayload,
+  DID_SIOP_ERRORS} from '@lib/did-siop';
 import { WalletService, WALLET } from '@lib/wallet';
 import { SiopUriRequest, SiopResponseJwt, SiopResponseQueue } from './dtos/SIOP';
 import { JWT } from 'jose';
@@ -20,6 +21,9 @@ export class SiopProcessor {
   handleCreateSiopResponse(job: Job): SiopResponseQueue {
     this.logger.debug('SIOP Response received.')
     this.logger.debug(`Processing job ${job.id} of type ${job.name} with data ${job.data}`)
+    if (!job || !job.data || !job.data.siopUri) {
+      throw new BadRequestException(DID_SIOP_ERRORS.INVALID_PARAMS)
+    }
     // decode SIOP Request Token to extract nonce and client_id uri
     const siopUriRequest = job.data as SiopUriRequest
     const urlParams = new URLSearchParams(siopUriRequest.siopUri);
@@ -34,21 +38,23 @@ export class SiopProcessor {
       alg: [SIOP_KEY_ALGO.ES256K, SIOP_KEY_ALGO.EdDSA, SIOP_KEY_ALGO.RS256],
       did: wallet.did,
       nonce: siopPayload.nonce,
-      redirect_uri: siopPayload.aud,
+      redirect_uri: siopPayload.client_id,
       did_doc: wallet.didDoc
     }
     // call SIOP library to create a SIOP Response Object
     const jwt = LibDidSiopService.createSIOPResponse(siopResponseCall);
     this.logger.debug('SIOP Response completed.')
 
-    return { jwt, callbackUrl:  siopPayload.aud }
+    return { jwt, callbackUrl:  siopPayload.client_id }
   }
 
   @OnQueueCompleted()
-  async onCompleted(job: Job, result: SiopResponseQueue) {
+  async onCompleted(_job: Job, result: SiopResponseQueue) {
     this.logger.debug('SIOP Response event completed.')
-    this.logger.debug(`Processing job ${job.id} of type ${job.name} with data ${job.data}`)
-    console.log(result)
+    this.logger.debug(`Processing result`)
+    if (result || result.callbackUrl || result.jwt) {
+      throw new BadRequestException(DID_SIOP_ERRORS.INVALID_PARAMS)
+    }
     const siopResponse:SiopResponseJwt = { jwt: result.jwt }
     const response = await doPostCall(siopResponse, result.callbackUrl)
     this.logger.debug('SIOP Response sent.')

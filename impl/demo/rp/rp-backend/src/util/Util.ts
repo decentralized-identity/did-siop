@@ -1,4 +1,6 @@
 import axios from 'axios';
+import { JWT } from 'jose';
+import { SIOPResponsePayload } from '@lib/did-siop';
 
 async function doPostCall(data: any, url: string): Promise<any> {
   try {
@@ -14,6 +16,22 @@ async function doPostCall(data: any, url: string): Promise<any> {
   }
 }
 
+function decodePayload( jwt: string ): SIOPResponsePayload {
+  const { payload } = JWT.decode(jwt, { complete: true });
+  return payload as SIOPResponsePayload;
+}
+
+// TODO: load this value from a data store 
+function loadNonce(jwt: string): string {
+  return decodePayload(jwt).nonce
+}
+
+function getIssDid( jwt: string ): string {
+  return decodePayload(jwt).iss
+}
+
 export {
-  doPostCall
+  doPostCall,
+  loadNonce,
+  getIssDid
 };
