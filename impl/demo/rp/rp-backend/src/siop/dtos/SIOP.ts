@@ -19,6 +19,10 @@ export interface SiopAckRequest {
 }
 
 export interface SiopResponse {
-  validationResponse: boolean;
+  validationResult: boolean;
   did: string;
+}
+
+export interface SiopAckResponse {
+  validationResult: boolean;
 }

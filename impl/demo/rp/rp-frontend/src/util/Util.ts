@@ -2,6 +2,8 @@ import axios from 'axios';
 
 async function doPostCall(data: any, url: string): Promise<any> {
   try {
+    console.log ('Calling url: ' + url)
+    console.log ('Calling url with data: ' + JSON.stringify(data))
     const response = await axios.post(url, data);
     console.log('AXIOS RESPONSE: ');
     console.log(response.data);

@@ -9,7 +9,7 @@ import {
   DID_SIOP_ERRORS} from '@lib/did-siop';
 import { WalletService, WALLET } from '@lib/wallet';
 import { SiopUriRequest, SiopResponse, SiopAckRequest } from './dtos/SIOP';
-import { doPostCall, getIssDid } from 'src/util/Util';
+import { doPostCall, getUserDid } from 'src/util/Util';
 
 @Processor('siop')
 export class SiopProcessor {
@@ -46,10 +46,14 @@ export class SiopProcessor {
   async onCompleted(job: Job, result: SiopUriRequest) {
     this.logger.debug('SIOP Request event completed.')
     this.logger.debug(`Processing result`)
+    this.logger.debug('Result: ' + JSON.stringify(result))
+    this.logger.debug('Data: ' + JSON.stringify(job.data))
     if (!job || !job.data || !job.data.clientUriRedirect || !result || !result.siopUri) {
       throw new BadRequestException(DID_SIOP_ERRORS.INVALID_PARAMS)
     }
     const response:SiopAckRequest = await doPostCall(result, job.data.clientUriRedirect)
+    this.logger.debug('Response: ' + response)
+    console.log('Response: ' + JSON.stringify(response))
     // sends error to Front-end
     if (!response || !response.validationRequest) {
       this.logger.debug('Error on SIOP Request Validation.')
@@ -62,10 +66,11 @@ export class SiopProcessor {
     if (!job || !job.data || !job.data.jwt || !job.data.validationResult) {
       throw new BadRequestException(DID_SIOP_ERRORS.INVALID_PARAMS)
     }
-    
-    return {
-      validationResponse: job.data.validationResult,
-      did: getIssDid(job.data.jwt)
+    const siopResponse:SiopResponse = { 
+      validationResult: job.data.validationResult,
+      did: getUserDid(job.data.jwt)
     }
+    this.logger.debug('SIOP Response: ' + JSON.stringify(siopResponse))
+    return siopResponse
   }
 }

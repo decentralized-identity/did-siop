@@ -65,7 +65,7 @@ function getPemPubKey(pubKey: PublicKey): string {
 }
 
 function getPemFromBase58PubKey(base58PubKey: string): string {
-  const buff = new Buffer(Base58.decode(base58PubKey));
+  const buff = Buffer.from(Base58.decode(base58PubKey));
   const pubKeyHex:string = buff.toString('utf8')
   return pubkeyHexToPem(pubKeyHex);
 }

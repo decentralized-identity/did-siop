@@ -44,6 +44,7 @@ export class SiopProcessor {
     // call SIOP library to create a SIOP Response Object
     const jwt = LibDidSiopService.createSIOPResponse(siopResponseCall);
     this.logger.debug('SIOP Response completed.')
+    this.logger.debug('SIOP Response JWT: ' + JSON.stringify(jwt))
 
     return { jwt, callbackUrl:  siopPayload.client_id }
   }
@@ -58,6 +59,6 @@ export class SiopProcessor {
     const siopResponse:SiopResponseJwt = { jwt: result.jwt }
     const response = await doPostCall(siopResponse, result.callbackUrl)
     this.logger.debug('SIOP Response sent.')
-    this.logger.debug(response)
+    this.logger.debug(JSON.stringify(response))
   }
 }

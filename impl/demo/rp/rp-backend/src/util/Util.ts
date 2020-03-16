@@ -4,6 +4,7 @@ import { SIOPResponsePayload } from '@lib/did-siop';
 
 async function doPostCall(data: any, url: string): Promise<any> {
   try {
+    console.log ('Calling url: ' + url)
     const response = await axios.post(url, data);
     console.log('AXIOS RESPONSE: ');
     console.log(response.data);
@@ -26,12 +27,12 @@ function loadNonce(jwt: string): string {
   return decodePayload(jwt).nonce
 }
 
-function getIssDid( jwt: string ): string {
-  return decodePayload(jwt).iss
+function getUserDid( jwt: string ): string {
+  return decodePayload(jwt).did
 }
 
 export {
   doPostCall,
   loadNonce,
-  getIssDid
+  getUserDid
 };
