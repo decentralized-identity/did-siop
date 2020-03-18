@@ -29,6 +29,7 @@
     "@nestjs/core": "^7.0.3",
     "@nestjs/platform-socket.io": "^7.0.3",
     "@nestjs/platform-ws": "^7.0.3",
+    "@nestjs/testing": "^7.0.3",
     "@nestjs/websockets": "^7.0.3",
     "@types/uuid": "^3.4.7",
     "axios": "^0.19.2",
