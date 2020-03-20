@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -10,29 +10,49 @@
 <body>
   <div id="v-app">
     <h1>{{ title }}</h1>
-    <form>
-      <input v-model="text" type="text" />
-      <button type="submit" @click.prevent="sendMessage()">Send</button>
-      <p>
-        <ul>
-          <li v-for="msg of messages">{{ msg }}</li>
-        </ul>
-      </p>
-    </form>
+    <button v-on:click="sendMessage">SIOP SignIn</button>
+    <p>
+      <ul>
+        <li v-for="msg of messages">{{ msg }}</li>
+      </ul>
+    </p>
   </div>
   <script>
+    
     var app = new Vue({
       el: '#v-app',
       data: {
-        title: 'Websockets Tester',
+        title: 'SIOP Flow tester using Socket.io',
         text: '',
-        messages: ['Some messages', 'Other messages'],
+        messages: [],
         socket: null,
       },
       methods: {
         sendMessage() {
           console.log(`send: ${this.text}`);
           this.socket.emit('signIn', this.text);
+          const data = { 
+            clientUriRedirect: 'http://localhost:9001/siop/request-urls'
+          };
+          const url = 'http://localhost:9003/siop/user-sessions';
+          fetch(url, {
+            method: 'POST',
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+          })
+          .then(function(res){ return res.json(); })
+          .then(response => (this.messages.push = response.data))
+          .catch(function (error) {
+            console.log('Request failed', error);
+          });
+          /*
+          axios
+            .post(url, data)
+            .then(response => (this.messages.push = response.data))
+          */
           this.text = '';
         },
         receiveMessage(msg) {

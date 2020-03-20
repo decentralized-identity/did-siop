@@ -1,10 +1,11 @@
 import { Controller, Post, Body, BadRequestException, Logger } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
-import { SiopUriRedirect, SiopResponseJwt, SiopAckResponse } from './dtos/SIOP';
+import { SiopUriRedirect, SiopResponseJwt, SiopAckResponse, SiopResponse } from './dtos/SIOP';
 import { DID_SIOP_ERRORS, LibDidSiopService } from '@lib/did-siop';
-import { CLIENT_ID_URI } from 'src/Config';
-import { loadNonce } from 'src/util/Util';
+import { CLIENT_ID_URI, BASE_URL } from 'src/Config';
+import { loadNonce, getUserDid } from 'src/util/Util';
+import io from 'socket.io-client';
 
 @Controller('siop')
 export class SiopController {
@@ -40,6 +41,16 @@ export class SiopController {
       throw new BadRequestException(DID_SIOP_ERRORS.INVALID_SIOP_RESPONSE)
     }
 
+    const siopResponse:SiopResponse = { 
+      validationResult,
+      did: getUserDid(siopResponseJwt.jwt)
+    }
+
+    // connect to server websocket
+    const socket = io(BASE_URL);
+    // send a message to server so it can communicate with front end io client
+    // and send the validation response
+    socket.emit('sendSignInResponse', siopResponse);
     // await this.siopQueue.add('emitSiopResponse', 
     // { jwt: siopResponseJwt.jwt, validationResult } );
     

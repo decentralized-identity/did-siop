@@ -6,5 +6,6 @@ const RETURN_CALL = '/responses'
 const CLIENT_ID_URI = BASE_URL + SIOP_PATH + RETURN_CALL
 
 export { 
+  BASE_URL,
   CLIENT_ID_URI
 }

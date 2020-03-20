@@ -11,6 +11,7 @@ import {
 } from '@nestjs/websockets';
 import { Socket, Server } from 'socket.io';
 import { Logger } from '@nestjs/common';
+import { SiopResponse } from 'src/siop/dtos/SIOP';
 
 @WebSocketGateway()
 export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit {
@@ -46,9 +47,9 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect, 
   }
 
   @SubscribeMessage('sendSignInResponse')
-  handleSignInResponseEvent(@MessageBody() message: string): void {
-    this.logger.log(`SIOP Response Validation:     ${message}`)
-    this.wss.emit('signInResponse', message);
+  handleSignInResponseEvent(@MessageBody() message: SiopResponse): void {
+    this.logger.log(`SIOP Response Validation:     ${JSON.stringify(message)}`)
+    this.wss.emit('signInResponse', JSON.stringify(message));
   }
 /*
   @SubscribeMessage('events')
