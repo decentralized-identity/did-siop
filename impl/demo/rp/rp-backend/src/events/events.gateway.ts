@@ -42,7 +42,8 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect, 
   
   @SubscribeMessage('sendSIOPRequestJwtToFrontend')
   handlePrintQREvent(@MessageBody() qrResponse: QRResponse): void {
-    this.logger.log(`SIOP Request terminal QR:\n${qrResponse.terminalQr}`)
+    // this.logger.log(`SIOP Request terminal QR:\n${qrResponse.terminalQr}`)
+    this.logger.log(`SIOP Request SIOP URI:\n${qrResponse.siopUri}`)
     this.wss.emit('printQR', qrResponse);
   }
 

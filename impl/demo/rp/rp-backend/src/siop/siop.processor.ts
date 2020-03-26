@@ -34,10 +34,17 @@ export class SiopProcessor {
       key: wallet.key,
       alg: [SIOP_KEY_ALGO.ES256K, SIOP_KEY_ALGO.EdDSA, SIOP_KEY_ALGO.RS256],
       did_doc: wallet.didDoc,
-      response_mode: SIOPResponseMode.FORM_POST
+      response_mode: SIOPResponseMode.FORM_POST,
+      request_uri: 'http://localhost:9003/siop/jwts/99999' // TODO: use session id as the last parameter
     }
+    // call SIOP library to create a SIOP Request Object
+    const siopRequestJwt = LibDidSiopService.createSIOPRequest(siopRequestCall);
+    this.logger.debug(`SIOP Request JWT: ${siopRequestJwt}`)
+    // TODO: store siopRequestJwt with the user session id
+
     // call SIOP library to create a SIOP Request Object and its correspondent URI
     const siopUri:string = LibDidSiopService.createUriRequest(siopRequestCall);
+    this.logger.debug(`SIOP Request URI: ${siopUri}`)
 
     // TODO: store clien_id and nonce to local db
     this.logger.debug('SIOP Request completed.')
@@ -56,9 +63,15 @@ export class SiopProcessor {
     }
 
     // sending a terminal QR to the frontend server
-    const terminalQr = await QRCode.toString('this is a test' ,{type:'terminal'})
-    this.logger.debug(terminalQr)
-    const imageQr = await QRCode.toDataURL('this is a test')
+    const terminalQr = await QRCode.toString(
+      result.siopUri ,
+      { 
+        type:'terminal',
+        errorCorrectionLevel: 'low',
+        version: 7 // minimum version for that amount of data
+      })
+    // this.logger.debug(terminalQr)
+    const imageQr = await QRCode.toDataURL(result.siopUri)
     const qrResponse:QRResponse = {
       imageQr, 
       siopUri: result.siopUri, 
