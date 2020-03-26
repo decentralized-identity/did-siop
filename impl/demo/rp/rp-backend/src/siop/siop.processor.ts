@@ -61,7 +61,7 @@ export class SiopProcessor {
     const imageQr = await QRCode.toDataURL('this is a test')
     const qrResponse:QRResponse = {
       imageQr, 
-      siopUri: 'this is a test', 
+      siopUri: result.siopUri, 
       terminalQr
     }
     // connect to server websocket

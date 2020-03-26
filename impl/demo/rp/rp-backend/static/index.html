@@ -7,7 +7,6 @@
   <title>Websockets client</title>
   <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
   <script src="/socket.io/socket.io.js"></script>
-  <script src="/scripts/qrcode.min.js"></script>
 </head>
 
 <body>
@@ -19,7 +18,6 @@
         <li v-for="msg of messages">{{ msg }}</li>
       </ul>
     </p>
-    <canvas id="qrCanvas"></canvas>
   </div>
   <img id="qrImage"></img>
   <script>
@@ -61,13 +59,9 @@
         },
         displayQr(qrResponse) {
           console.log(`terminal QR:\n${qrResponse.terminalQr}`);
-          QRCode.toCanvas(document.getElementById('qrCanvas'), qrResponse.siopUri, function (error) {
-            if (error) console.error(error)
-            console.log('QR success!');
-          })
-          this.messages.push(qrResponse.urlQr);
+          console.log(`SIOP URI:    ${qrResponse.siopUri}`);
           var img = document.getElementById('qrImage')
-          img.src = qrResponse.urlQr
+          img.src = qrResponse.imageQr
         }
       },
       created() {
