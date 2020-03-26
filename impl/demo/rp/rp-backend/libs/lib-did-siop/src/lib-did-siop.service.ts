@@ -18,10 +18,18 @@ export class LibDidSiopService {
    * @param siopRequest 
    */
   static createUriRequest(siopRequest:SIOPRequestCall): string {
-    return 'openid://?response_type=' + SIOPResponseType.ID_TOKEN +
+    const responseUri = 
+    'openid://?response_type=' + SIOPResponseType.ID_TOKEN +
     '&client_id=' + siopRequest.client_id +
-    '&scope=' + SIOPScope.OPENID_DIDAUTHN +
-    '&request=' + this.createSIOPRequest(siopRequest)
+    '&scope=' + SIOPScope.OPENID_DIDAUTHN;
+    
+    // The Request Object can be passed by value in the request request parameter,
+    // or by reference using the request_uri parameter.
+    if (siopRequest.request_uri) {
+      return responseUri + '&request_uri=' + siopRequest.request_uri
+    }
+    // returns a URI with SIOP Request JWT embedded
+    return responseUri + '&request=' + this.createSIOPRequest(siopRequest)
   }
 
   /**
