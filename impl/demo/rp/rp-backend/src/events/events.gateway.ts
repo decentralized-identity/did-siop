@@ -10,17 +10,22 @@ import {
   ConnectedSocket,
 } from '@nestjs/websockets';
 import { Socket, Server } from 'socket.io';
-import { Logger } from '@nestjs/common';
-import { SiopResponse, QRResponse } from 'src/siop/dtos/SIOP';
+import { Logger, BadRequestException } from '@nestjs/common';
+import { SiopResponse, QRResponse, SiopUriRedirect } from 'src/siop/dtos/SIOP';
+import { DID_SIOP_ERRORS } from '@lib/did-siop';
+import { Observable, of } from 'rxjs';
+import { InjectQueue } from '@nestjs/bull';
+import { Queue } from 'bull';
+import { CLIENT_ID_URI } from 'src/Config';
 
 @WebSocketGateway()
 export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit {
   
   @WebSocketServer() wss: Server;
-
+  constructor(@InjectQueue('siop') private readonly siopQueue: Queue) {}
   private logger: Logger = new Logger('EventsGateway');
 
-  afterInit(server: any) {
+  afterInit() {
     this.logger.log('Initialized!')
   }
 
@@ -34,16 +39,25 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect, 
   
   @SubscribeMessage('signIn')
   handleSignInEvent(
-    @MessageBody() message: string,
-    @ConnectedSocket() client: Socket ): WsResponse<unknown> {
-    this.logger.log(`SignIn Received:     ${message}`)
-    return {event: 'signIn', data: `Processing SignIn request for:  ${client.id}`}
+    @MessageBody() uriRedirect:SiopUriRedirect,
+    @ConnectedSocket() client: Socket ): Observable<WsResponse<unknown>> {
+      if (!uriRedirect || !uriRedirect.clientUriRedirect) {
+        throw new BadRequestException(DID_SIOP_ERRORS.INVALID_PARAMS)
+      }
+      this.logger.debug(`SignIn Received from ${client.id} and using URI redirect: ${uriRedirect.clientUriRedirect}`)
+      // queueing the request
+      this.siopQueue.add('userRequest', { 
+        clientId: CLIENT_ID_URI,
+        sessionId: client.id,
+        clientUriRedirect: uriRedirect.clientUriRedirect
+      });
+
+      return of({event: 'signIn', data: `SignIn request received and queued for:  ${client.id}`})
   }
   
   @SubscribeMessage('sendSIOPRequestJwtToFrontend')
   handlePrintQREvent(@MessageBody() qrResponse: QRResponse): void {
-    // this.logger.log(`SIOP Request terminal QR:\n${qrResponse.terminalQr}`)
-    this.logger.log(`SIOP Request SIOP URI:\n${qrResponse.siopUri}`)
+    this.logger.log(`SIOP Request SIOP URI:    ${qrResponse.siopUri}`)
     this.wss.emit('printQR', qrResponse);
   }
 

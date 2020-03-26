@@ -34,7 +34,7 @@ describe('LibDidSiopService', () => {
 
       const siopRequestCall:SIOPRequestCall = {
         iss: testKeyRP.did,
-        client_id: 'http://localhost:5000/response/validation',
+        client_id: 'http://localhost:9003/siop/responses',
         key: testKeyRP.key,
         alg: [SIOP_KEY_ALGO.ES256K, SIOP_KEY_ALGO.EdDSA, SIOP_KEY_ALGO.RS256],
         did_doc: testKeyRP.didDoc,
@@ -57,10 +57,10 @@ describe('LibDidSiopService', () => {
       expect(payload).toMatchObject(expectedPayload);
     });
 
-    it('should create a SIOP Request URL', () => {
+    it('should create a SIOP Request URL with a JWT embedded', () => {
       const siopRequestCall:SIOPRequestCall = {
         iss: testKeyRP.did,
-        client_id: 'http://localhost:5000/response/validation',
+        client_id: 'http://localhost:9003/siop/responses',
         key: testKeyRP.key,
         alg: [SIOP_KEY_ALGO.ES256K, SIOP_KEY_ALGO.EdDSA, SIOP_KEY_ALGO.RS256],
         did_doc: testKeyRP.didDoc,
@@ -74,10 +74,28 @@ describe('LibDidSiopService', () => {
       expect(siopURI).toContain('&request=')
     })
 
+    it('should create a SIOP Request URL with a Request URI referencing a JWT', () => {
+      const siopRequestCall:SIOPRequestCall = {
+        iss: testKeyRP.did,
+        client_id: 'http://localhost:9003/siop/responses',
+        key: testKeyRP.key,
+        alg: [SIOP_KEY_ALGO.ES256K, SIOP_KEY_ALGO.EdDSA, SIOP_KEY_ALGO.RS256],
+        did_doc: testKeyRP.didDoc,
+        response_mode: SIOPResponseMode.FORM_POST,
+        request_uri: 'http://localhost:9003/siop/jwts/99999'
+      }
+
+      const siopURI:string = LibDidSiopService.createUriRequest(siopRequestCall);
+      expect(siopURI).toContain('openid://?response_type=' + SIOPResponseType.ID_TOKEN)
+      expect(siopURI).toContain('client_id=' + siopRequestCall.client_id)
+      expect(siopURI).toContain('scope=' + SIOPScope.OPENID_DIDAUTHN)
+      expect(siopURI).toContain('&request_uri=' + siopRequestCall.request_uri)
+    })
+
     it('should return "true" on request validation', () => {
       const siopRequestCall:SIOPRequestCall = {
         iss: testKeyRP.did,
-        client_id: 'http://localhost:5000/response/validation',
+        client_id: 'http://localhost:9003/siop/responses',
         key: testKeyRP.key,
         alg: [SIOP_KEY_ALGO.ES256K, SIOP_KEY_ALGO.EdDSA, SIOP_KEY_ALGO.RS256],
         did_doc: testKeyRP.didDoc,
@@ -99,7 +117,7 @@ describe('LibDidSiopService', () => {
         alg: [SIOP_KEY_ALGO.ES256K, SIOP_KEY_ALGO.EdDSA, SIOP_KEY_ALGO.RS256],
         did: testKeyUser.did,
         nonce: getRandomString(),
-        redirect_uri: 'http://localhost:5000/response/validation',
+        redirect_uri: 'http://localhost:9003/siop/responses',
         did_doc: testKeyUser.didDoc
       }
       
@@ -128,7 +146,7 @@ describe('LibDidSiopService', () => {
         alg: [SIOP_KEY_ALGO.ES256K, SIOP_KEY_ALGO.EdDSA, SIOP_KEY_ALGO.RS256],
         did: testKeyUser.did,
         nonce: getRandomString(),
-        redirect_uri: 'http://localhost:5000/response/validation',
+        redirect_uri: 'http://localhost:9003/siop/responses',
         did_doc: testKeyUser.didDoc
       }
       const jws = LibDidSiopService.createSIOPResponse(siopResponseCall);

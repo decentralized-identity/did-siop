@@ -6,6 +6,10 @@ export interface SiopResponseJwt {
   jwt: string;
 }
 
+export interface SiopRequestJwt {
+  jwt: string;
+}
+
 export interface SiopResponseQueue extends SiopResponseJwt {
   callbackUrl: string;
 }

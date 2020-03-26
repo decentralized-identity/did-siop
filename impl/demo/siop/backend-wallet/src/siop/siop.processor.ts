@@ -20,15 +20,12 @@ export class SiopProcessor {
   @Process('createSiopResponse')
   handleCreateSiopResponse(job: Job): SiopResponseQueue {
     this.logger.debug('SIOP Response received.')
-    this.logger.debug(`Processing job ${job.id} of type ${job.name} with data ${job.data}`)
-    if (!job || !job.data || !job.data.siopUri) {
+    if (!job || !job.data || !job.data) {
       throw new BadRequestException(DID_SIOP_ERRORS.INVALID_PARAMS)
     }
-    // decode SIOP Request Token to extract nonce and client_id uri
-    const siopUriRequest = job.data as SiopUriRequest
-    const urlParams = new URLSearchParams(siopUriRequest.siopUri);
-    const siopRequestJwt = urlParams.get('request')
-    const { payload } = JWT.decode(siopRequestJwt, { complete: true });
+    this.logger.debug(`Processing job ${job.id} of type ${job.name} with data ${job.data}`)
+    // job.data contains the SIOP Request Object
+    const { payload } = JWT.decode(job.data, { complete: true });
     const siopPayload = <SIOPRequestPayload>payload;
     // Instantiate a wallet
     const wallet: WALLET = WalletService.Instance.wallet

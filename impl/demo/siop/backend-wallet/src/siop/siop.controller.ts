@@ -1,8 +1,9 @@
-import { Controller, Post, Body, HttpException, HttpStatus, BadRequestException, Logger } from '@nestjs/common';
+import { Controller, Post, Body, BadRequestException, Logger } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
-import { SiopUriRequest, SiopAckRequest } from './dtos/SIOP';
+import { SiopUriRequest, SiopAckRequest, SiopRequestJwt } from './dtos/SIOP';
 import { LibDidSiopService, DID_SIOP_ERRORS } from '@lib/did-siop';
+import { doGetCall } from 'src/util/Util';
 
 @Controller('siop')
 export class SiopController {
@@ -17,17 +18,30 @@ export class SiopController {
     }
     // get siop uri
     this.logger.debug('SIOP Request received: ' + JSON.stringify(siopUriRequest))
-    const urlParams = new URLSearchParams(siopUriRequest.siopUri);
+    const siopRequestJwt = await this._getRequestJwt(siopUriRequest.siopUri)
     // validated siop Request
-    const validationRequest:boolean = LibDidSiopService.validateSIOPRequest(urlParams.get('request'))
+    const validationRequest:boolean = LibDidSiopService.validateSIOPRequest(siopRequestJwt)
     if (!validationRequest) {
       this.logger.error(DID_SIOP_ERRORS.INVALID_SIOP_REQUEST)
       return { validationRequest  }
     }
     this.logger.debug('SIOP Request validation: ' + validationRequest)
     // queue request to create a SIOP Response
-    await this.siopQueue.add('createSiopResponse', siopUriRequest);
+    await this.siopQueue.add('createSiopResponse', siopRequestJwt);
     
     return { validationRequest  }
+  }
+
+  private async _getRequestJwt(siopUri: string): Promise<string> {
+    const urlParams = new URLSearchParams(siopUri);
+    // return directly the SIOP Request JWT when passed by value in the URI
+    if (urlParams.has('request')) {
+      return urlParams.get('request')
+    }
+    // retrieve the SIOP Request JWT usint the request_uri parameter
+    if (!urlParams.has('request_uri')) throw new BadRequestException(DID_SIOP_ERRORS.INVALID_PARAMS)
+    const siopRequestJwt:SiopRequestJwt = await doGetCall(urlParams.get('request_uri'))
+    if (!siopRequestJwt || !siopRequestJwt.jwt) throw new BadRequestException(DID_SIOP_ERRORS.SIOP_REQUEST_RETRIEVE_ERROR)
+    return siopRequestJwt.jwt
   }
 }

@@ -9,44 +9,49 @@ import {
   DID_SIOP_ERRORS} from '@lib/did-siop';
 import { WalletService, WALLET } from '@lib/wallet';
 import { SiopUriRequest, SiopResponse, SiopAckRequest, QRResponse } from './dtos/SIOP';
-import { doPostCall, getUserDid } from 'src/util/Util';
+import { doPostCall, getUserDid, getJwtNonce } from 'src/util/Util';
 import { BASE_URL } from 'src/Config';
 import QRCode from 'qrcode';
 import io from 'socket.io-client';
+import Redis from 'ioredis';
 
 @Processor('siop')
 export class SiopProcessor {
   constructor(@InjectQueue('siopError') private readonly siopErrorQueue: Queue) {}
   private readonly logger = new Logger(SiopProcessor.name);
+  private readonly jwtRedis = new Redis({ keyPrefix: "jwt:" });
+  private readonly nonceRedis = new Redis({ keyPrefix: "nonce:" });
+  private readonly socket = io(BASE_URL);
 
   @Process('userRequest')
   handleSiopRequest(job: Job): SiopUriRequest {
     this.logger.debug('SIOP Request received.')
     this.logger.debug(`Processing job ${job.id} of type ${job.name} with data ${job.data}`)
-    if (!job || !job.data || !job.data.client_id) {
+    if (!job || !job.data || !job.data.clientId || !job.data.sessionId) {
       throw new BadRequestException(DID_SIOP_ERRORS.INVALID_PARAMS)
     }
+    // creates a new Enterprise Wallet with a new set of keys and DID
     const wallet: WALLET = WalletService.Instance.wallet
     // create SIOP Request Call
     const siopRequestCall:SIOPRequestCall = {
       iss: wallet.did,
-      client_id: job.data.client_id,
+      client_id: job.data.clientId,
       key: wallet.key,
       alg: [SIOP_KEY_ALGO.ES256K, SIOP_KEY_ALGO.EdDSA, SIOP_KEY_ALGO.RS256],
       did_doc: wallet.didDoc,
       response_mode: SIOPResponseMode.FORM_POST,
-      request_uri: 'http://localhost:9003/siop/jwts/99999' // TODO: use session id as the last parameter
+      request_uri: `http://localhost:9003/siop/jwts/${job.data.sessionId}`
     }
     // call SIOP library to create a SIOP Request Object
     const siopRequestJwt = LibDidSiopService.createSIOPRequest(siopRequestCall);
     this.logger.debug(`SIOP Request JWT: ${siopRequestJwt}`)
-    // TODO: store siopRequestJwt with the user session id
-
+    // store siopRequestJwt with the user session id
+    this.jwtRedis.set(job.data.sessionId, siopRequestJwt)
     // call SIOP library to create a SIOP Request Object and its correspondent URI
     const siopUri:string = LibDidSiopService.createUriRequest(siopRequestCall);
     this.logger.debug(`SIOP Request URI: ${siopUri}`)
-
-    // TODO: store clien_id and nonce to local db
+    // store sessionId and nonce 
+    this.nonceRedis.set(job.data.sessionId, getJwtNonce(siopRequestJwt))
     this.logger.debug('SIOP Request completed.')
 
     return { siopUri }
@@ -62,30 +67,28 @@ export class SiopProcessor {
       throw new BadRequestException(DID_SIOP_ERRORS.INVALID_PARAMS)
     }
 
-    // sending a terminal QR to the frontend server
+    // generate a terminal QR 
     const terminalQr = await QRCode.toString(
       result.siopUri ,
       { 
         type:'terminal',
         errorCorrectionLevel: 'low',
-        version: 7 // minimum version for that amount of data
+        version: 8 // minimum version for that amount of data
       })
-    // this.logger.debug(terminalQr)
+    // generate QR code image 
     const imageQr = await QRCode.toDataURL(result.siopUri)
     const qrResponse:QRResponse = {
       imageQr, 
       siopUri: result.siopUri, 
       terminalQr
     }
-    // connect to server websocket
-    const socket = io(BASE_URL);
-    socket.emit('sendSIOPRequestJwtToFrontend', qrResponse);
+    // sends an event to the server, to send the QR to the client
+    this.socket.emit('sendSIOPRequestJwtToFrontend', qrResponse);
 
     // when clientUriRedirect is present, we post the SIOP URI to the user server
     if (job.data.clientUriRedirect) {
       const response:SiopAckRequest = await doPostCall(result, job.data.clientUriRedirect)
-      this.logger.debug('Response: ' + response)
-      console.log('Response: ' + JSON.stringify(response))
+      this.logger.debug('Response: ' + JSON.stringify(response))
       // sends error to Front-end
       if (!response || !response.validationRequest) {
         this.logger.debug('Error on SIOP Request Validation.')

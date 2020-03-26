@@ -6,6 +6,10 @@ export interface SiopUriRedirect {
   clientUriRedirect: string;
 }
 
+export interface SiopRequestJwt {
+  jwt: string;
+}
+
 export interface SiopResponseJwt {
   jwt: string;
 }

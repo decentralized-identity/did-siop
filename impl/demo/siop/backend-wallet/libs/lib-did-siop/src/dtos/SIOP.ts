@@ -75,6 +75,7 @@ export interface SIOPRequestCall{
   kid?: string;
   response_mode?: SIOPResponseMode
   did_doc?: DIDDocument;
+  request_uri?: string;
 }
 
 export enum SIOP_RESPONSE_ISS {

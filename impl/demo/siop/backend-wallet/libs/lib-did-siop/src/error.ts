@@ -17,5 +17,6 @@ export enum DID_SIOP_ERRORS {
   SUB_CLAIM_ERROR = 'sub Claim value MUST be the base64url encoded representation of the thumbprint of the key in the sub_jwk',
   TOKEN_EXPIRED = 'Token expired',
   NONCE_MISMATCH = 'Nonce mismatch from the one sent in the Request',
-  INVALID_SIOP_REQUEST = 'SIOP request is not valid'
+  INVALID_SIOP_REQUEST = 'SIOP request is not valid',
+  SIOP_REQUEST_RETRIEVE_ERROR = 'SIOP Request Object cannot be retrieved.'
 }

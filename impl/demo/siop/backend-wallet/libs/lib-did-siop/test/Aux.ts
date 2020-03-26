@@ -13,7 +13,7 @@ export const SIOP_HEADER = {
 export const SIOP_REQUEST_PAYLOAD = {
   "iss": "did:example:0xab",
   "response_type": "id_token",
-  "client_id": "http://localhost:5000/response/validation",
+  "client_id": "http://localhost:9003/siop/responses",
   "scope": "openid did_authn",
   "state": "af0ifjsldkj",
   "nonce": "n-0S6_WzA2Mj",

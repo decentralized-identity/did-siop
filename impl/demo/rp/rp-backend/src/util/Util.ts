@@ -22,8 +22,7 @@ function decodePayload( jwt: string ): SIOPResponsePayload {
   return payload as SIOPResponsePayload;
 }
 
-// TODO: load this value from a data store 
-function loadNonce(jwt: string): string {
+function getJwtNonce(jwt: string): string {
   return decodePayload(jwt).nonce
 }
 
@@ -33,6 +32,6 @@ function getUserDid( jwt: string ): string {
 
 export {
   doPostCall,
-  loadNonce,
-  getUserDid
+  getUserDid,
+  getJwtNonce
 };

@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Websockets client</title>
+  <title>SIOP RP Demo</title>
   <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
   <script src="/socket.io/socket.io.js"></script>
 </head>
@@ -25,33 +25,18 @@
     var app = new Vue({
       el: '#v-app',
       data: {
-        title: 'SIOP Flow tester using Socket.io',
+        title: 'SIOP Flow Demo v0.1',
         text: '',
         messages: [],
         socket: null,
       },
       methods: {
         sendMessage() {
-          console.log(`send: ${this.text}`);
-          this.socket.emit('signIn', this.text);
           const data = {
             clientUriRedirect: 'http://localhost:9001/siop/request-urls'
           };
-          const url = 'http://localhost:9003/siop/user-sessions';
-          fetch(url, {
-            method: 'POST',
-            headers: {
-              'Accept': 'application/json',
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data)
-          })
-            .then(function (res) { return res.json(); })
-            .then(response => (this.messages.push = response.data))
-            .catch(function (error) {
-              console.log('Request failed', error);
-            });
-          this.text = '';
+          console.log(`send: ${data}`);
+          this.socket.emit('signIn', data);
         },
         receiveMessage(msg) {
           console.log(`recv: ${msg}`);
