@@ -1,12 +1,15 @@
 <!doctype html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Websockets client</title>
   <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
   <script src="/socket.io/socket.io.js"></script>
+  <script src="/scripts/qrcode.min.js"></script>
 </head>
+
 <body>
   <div id="v-app">
     <h1>{{ title }}</h1>
@@ -16,9 +19,11 @@
         <li v-for="msg of messages">{{ msg }}</li>
       </ul>
     </p>
+    <canvas id="qrCanvas"></canvas>
   </div>
+  <img id="qrImage"></img>
   <script>
-    
+
     var app = new Vue({
       el: '#v-app',
       data: {
@@ -31,7 +36,7 @@
         sendMessage() {
           console.log(`send: ${this.text}`);
           this.socket.emit('signIn', this.text);
-          const data = { 
+          const data = {
             clientUriRedirect: 'http://localhost:9001/siop/request-urls'
           };
           const url = 'http://localhost:9003/siop/user-sessions';
@@ -43,21 +48,26 @@
             },
             body: JSON.stringify(data)
           })
-          .then(function(res){ return res.json(); })
-          .then(response => (this.messages.push = response.data))
-          .catch(function (error) {
-            console.log('Request failed', error);
-          });
-          /*
-          axios
-            .post(url, data)
+            .then(function (res) { return res.json(); })
             .then(response => (this.messages.push = response.data))
-          */
+            .catch(function (error) {
+              console.log('Request failed', error);
+            });
           this.text = '';
         },
         receiveMessage(msg) {
           console.log(`recv: ${msg}`);
           this.messages.push(msg);
+        },
+        displayQr(qrResponse) {
+          console.log(`terminal QR:\n${qrResponse.terminalQr}`);
+          QRCode.toCanvas(document.getElementById('qrCanvas'), qrResponse.siopUri, function (error) {
+            if (error) console.error(error)
+            console.log('QR success!');
+          })
+          this.messages.push(qrResponse.urlQr);
+          var img = document.getElementById('qrImage')
+          img.src = qrResponse.urlQr
         }
       },
       created() {
@@ -65,8 +75,8 @@
         this.socket.on('signIn', (msg) => {
           this.receiveMessage(msg);
         });
-        this.socket.on('printQR', (msg) => {
-          this.receiveMessage(msg);
+        this.socket.on('printQR', (qrResponse) => {
+          this.displayQr(qrResponse);
         });
         this.socket.on('signInResponse', (msg) => {
           this.receiveMessage(msg);
@@ -75,4 +85,5 @@
     })
   </script>
 </body>
+
 </html>

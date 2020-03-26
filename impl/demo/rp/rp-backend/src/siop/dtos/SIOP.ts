@@ -26,3 +26,9 @@ export interface SiopResponse {
 export interface SiopAckResponse {
   validationResult: boolean;
 }
+
+export interface QRResponse {
+  imageQr: string;
+  siopUri: string;
+  terminalQr?: string;
+}
