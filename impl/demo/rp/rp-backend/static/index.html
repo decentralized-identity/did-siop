@@ -12,12 +12,15 @@
 <body>
   <div id="v-app">
     <h1>{{ title }}</h1>
-    <button v-on:click="sendMessage">SIOP SignIn</button>
+    <button v-on:click="sendSIOPClientUriBackend">SignIn with a SIOP Client Backend server</button>
     <p>
       <ul>
         <li v-for="msg of messages">{{ msg }}</li>
       </ul>
     </p>
+    <h1>{{ welcome }}</h1>
+    <p> {{ validationResult }}</p>
+    <p> {{ did }}</p>
   </div>
   <img id="qrImage"></img>
   <script>
@@ -29,9 +32,25 @@
         text: '',
         messages: [],
         socket: null,
+        welcome: '',
+        validationResult: '',
+        did: ''
       },
       methods: {
-        sendMessage() {
+        resetImg() {
+          var img = document.getElementById('qrImage');
+          img.src = '';
+        },
+        resetVars() {
+          this.text = '';
+          this.messages = [];
+          this.welcome = '';
+          this.validationResult = '';
+          this.did = '';
+          this.resetImg();
+        },
+        sendSIOPClientUriBackend() {
+          this.resetVars();
           const data = {
             clientUriRedirect: 'http://localhost:9001/siop/request-urls'
           };
@@ -40,7 +59,15 @@
         },
         receiveMessage(msg) {
           console.log(`recv: ${msg}`);
-          this.messages.push(msg);
+          // this.messages.push(msg);
+        },
+        signInResponse(msg) {
+          console.log(`recv: ${msg}`);
+          const response = JSON.parse(msg)
+          this.resetImg();
+          this.welcome = 'Welcome to ACME!';
+          this.validationResult = `Your Sign-In validation result is: ${response.validationResult}`;
+          this.did = `Your DID is: ${response.did}`;
         },
         displayQr(qrResponse) {
           console.log(`terminal QR:\n${qrResponse.terminalQr}`);
@@ -58,7 +85,7 @@
           this.displayQr(qrResponse);
         });
         this.socket.on('signInResponse', (msg) => {
-          this.receiveMessage(msg);
+          this.signInResponse(msg);
         });
       }
     })
