@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Web Wallet</title>
+  <script src="https://unpkg.com/vue/dist/vue.js"></script>
+</head>
+
+<body>
+  <div id="v-app">
+    <h1>{{ title }}</h1>
+    <h2>{{ subTitle }}</h2>
+    <p>
+      <button @click="openUri()">Go to ACME Site</button>
+    </p>
+  </div>
+  <script>
+    const app = new Vue({
+      el: '#v-app',
+      data: {
+        title: 'SIOP Flow Demo v0.1',
+        subTitle: 'Web Wallet',
+        result: '',
+        myUrl: 'http://localhost:9003/?client_uri_redirect=http://localhost:9001/siop/request-urls'
+      },
+      methods: {
+        openUri() {
+          window.open(this.myUrl, "_self");
+        }
+      }
+    });
+  </script>
+</body>
+
+</html>
