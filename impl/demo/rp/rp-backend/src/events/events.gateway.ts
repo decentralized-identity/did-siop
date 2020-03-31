@@ -41,15 +41,15 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect, 
   handleSignInEvent(
     @MessageBody() uriRedirect:SiopUriRedirect,
     @ConnectedSocket() client: Socket ): Observable<WsResponse<unknown>> {
-      if (!uriRedirect || !uriRedirect.clientUriRedirect) {
-        throw new BadRequestException(DID_SIOP_ERRORS.INVALID_PARAMS)
+      this.logger.debug(`SignIn Received from ${client.id}`);
+      if (uriRedirect && uriRedirect.clientUriRedirect) {
+        this.logger.debug(`Using URI redirect: ${uriRedirect.clientUriRedirect}`)
       }
-      this.logger.debug(`SignIn Received from ${client.id} and using URI redirect: ${uriRedirect.clientUriRedirect}`)
       // queueing the request
       this.siopQueue.add('userRequest', { 
         clientId: CLIENT_ID_URI,
         sessionId: client.id,
-        clientUriRedirect: uriRedirect.clientUriRedirect
+        clientUriRedirect: uriRedirect && uriRedirect.clientUriRedirect ? uriRedirect.clientUriRedirect : undefined
       });
 
       return of({event: 'signIn', data: `SignIn request received and queued for:  ${client.id}`})
