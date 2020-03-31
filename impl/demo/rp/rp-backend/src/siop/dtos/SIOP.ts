@@ -3,7 +3,7 @@ export interface SiopUriRequest {
 }
 
 export interface SiopUriRedirect {
-  clientUriRedirect: string;
+  clientUriRedirect?: string;
 }
 
 export interface SiopRequestJwt {
