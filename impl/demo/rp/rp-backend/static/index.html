@@ -55,7 +55,7 @@
         sendSIOPClientUriBackend() {
           this.resetVars();
           const data = {
-            clientUriRedirect: this.clientUriRedirect ? this.clientUriRedirect : 'http://localhost:9001/siop/request-urls'
+            clientUriRedirect: this.clientUriRedirect
           };
           console.log(`send: ${data}`);
           this.socket.emit('signIn', data);
