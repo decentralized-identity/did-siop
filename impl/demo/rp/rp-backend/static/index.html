@@ -12,6 +12,7 @@
 <body>
   <div id="v-app">
     <h1>{{ title }}</h1>
+    <h2>{{ subTitle }}</h2>
     <button v-on:click="sendSIOPClientUriBackend">SignIn with a SIOP Client Backend server</button>
     <p>
       <ul>
@@ -29,12 +30,14 @@
       el: '#v-app',
       data: {
         title: 'SIOP Flow Demo v0.1',
+        subTitle: 'RP ACME site',
         text: '',
         messages: [],
         socket: null,
         welcome: '',
         validationResult: '',
-        did: ''
+        did: '',
+        clientUriRedirect: ''
       },
       methods: {
         resetImg() {
@@ -52,7 +55,7 @@
         sendSIOPClientUriBackend() {
           this.resetVars();
           const data = {
-            clientUriRedirect: 'http://localhost:9001/siop/request-urls'
+            clientUriRedirect: this.clientUriRedirect ? this.clientUriRedirect : 'http://localhost:9001/siop/request-urls'
           };
           console.log(`send: ${data}`);
           this.socket.emit('signIn', data);
@@ -87,6 +90,11 @@
         this.socket.on('signInResponse', (msg) => {
           this.signInResponse(msg);
         });
+        // get client uri redirect from URL parameters if present
+        const uri = window.location.search.substring(1);
+        const params = new URLSearchParams(uri);
+        this.clientUriRedirect = params.get("client_uri_redirect");
+        console.log(`Client URI redirect: ${this.clientUriRedirect}`);
       }
     })
   </script>
