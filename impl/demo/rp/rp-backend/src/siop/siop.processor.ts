@@ -67,23 +67,27 @@ export class SiopProcessor {
       throw new BadRequestException(DID_SIOP_ERRORS.INVALID_PARAMS)
     }
 
-    // generate a terminal QR 
-    const terminalQr = await QRCode.toString(
-      result.siopUri ,
-      { 
-        type:'terminal',
-        errorCorrectionLevel: 'low',
-        version: 8 // minimum version for that amount of data
-      })
-    // generate QR code image 
-    const imageQr = await QRCode.toDataURL(result.siopUri)
-    const qrResponse:QRResponse = {
-      imageQr, 
-      siopUri: result.siopUri, 
-      terminalQr
+    // when clientUriRedirect NOT present, print QR to be read from an APP
+    // !!! TODO: implement a way to send the siop:// and be catched by client (web plugin or APP deep link)
+    if (!job.data.clientUriRedirect) {
+      // generate a terminal QR 
+      const terminalQr = await QRCode.toString(
+        result.siopUri ,
+        { 
+          type:'terminal',
+          errorCorrectionLevel: 'low',
+          version: 8 // minimum version for that amount of data
+        })
+      // generate QR code image 
+      const imageQr = await QRCode.toDataURL(result.siopUri)
+      const qrResponse:QRResponse = {
+        imageQr, 
+        siopUri: result.siopUri, 
+        terminalQr
+      }
+      // sends an event to the server, to send the QR to the client
+      this.socket.emit('sendSIOPRequestJwtToFrontend', qrResponse);
     }
-    // sends an event to the server, to send the QR to the client
-    this.socket.emit('sendSIOPRequestJwtToFrontend', qrResponse);
 
     // when clientUriRedirect is present, we post the SIOP URI to the user server
     if (job.data.clientUriRedirect) {
