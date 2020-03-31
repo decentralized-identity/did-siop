@@ -23,7 +23,7 @@ export class SiopProcessor {
     if (!job || !job.data || !job.data) {
       throw new BadRequestException(DID_SIOP_ERRORS.INVALID_PARAMS)
     }
-    this.logger.debug(`Processing job ${job.id} of type ${job.name} with data ${job.data}`)
+    this.logger.debug(`Processing job ${job.id} of type ${job.name}`)
     // job.data contains the SIOP Request Object
     const { payload } = JWT.decode(job.data, { complete: true });
     const siopPayload = <SIOPRequestPayload>payload;
@@ -41,7 +41,7 @@ export class SiopProcessor {
     // call SIOP library to create a SIOP Response Object
     const jwt = LibDidSiopService.createSIOPResponse(siopResponseCall);
     this.logger.debug('SIOP Response completed.')
-    this.logger.debug('SIOP Response JWT: ' + JSON.stringify(jwt))
+    // this.logger.debug('SIOP Response JWT: ' + JSON.stringify(jwt))
 
     return { jwt, callbackUrl:  siopPayload.client_id }
   }
