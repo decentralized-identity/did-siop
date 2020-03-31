@@ -26,7 +26,7 @@ export class SiopProcessor {
   @Process('userRequest')
   handleSiopRequest(job: Job): SiopUriRequest {
     this.logger.debug('SIOP Request received.')
-    this.logger.debug(`Processing job ${job.id} of type ${job.name} with data ${job.data}`)
+    this.logger.debug(`Processing job ${job.id} of type ${job.name}`)
     if (!job || !job.data || !job.data.clientId || !job.data.sessionId) {
       throw new BadRequestException(DID_SIOP_ERRORS.INVALID_PARAMS)
     }
@@ -44,7 +44,7 @@ export class SiopProcessor {
     }
     // call SIOP library to create a SIOP Request Object
     const siopRequestJwt = LibDidSiopService.createSIOPRequest(siopRequestCall);
-    this.logger.debug(`SIOP Request JWT: ${siopRequestJwt}`)
+    // this.logger.debug(`SIOP Request JWT: ${siopRequestJwt}`)
     // store siopRequestJwt with the user session id
     this.jwtRedis.set(job.data.sessionId, siopRequestJwt)
     // call SIOP library to create a SIOP Request Object and its correspondent URI
@@ -62,7 +62,7 @@ export class SiopProcessor {
     this.logger.debug('SIOP Request event completed.')
     this.logger.debug(`Processing result`)
     this.logger.debug('Result: ' + JSON.stringify(result))
-    this.logger.debug('Data: ' + JSON.stringify(job.data))
+    // this.logger.debug('Data: ' + JSON.stringify(job.data))
     if (!job || !job.data || !result || !result.siopUri) {
       throw new BadRequestException(DID_SIOP_ERRORS.INVALID_PARAMS)
     }

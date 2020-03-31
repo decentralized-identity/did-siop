@@ -16,20 +16,6 @@ export class SiopController {
   private readonly jwtRedis = new Redis({ keyPrefix: "jwt:" });
   private readonly socket = io(BASE_URL);
 
-  /*
-  @Post('user-sessions')
-  async createUserSession(@Body() uriRedirect:SiopUriRedirect): Promise<void> {
-    this.logger.debug('POST SIOP user-sessions')
-    if (!uriRedirect || !uriRedirect.clientUriRedirect) {
-      throw new BadRequestException(DID_SIOP_ERRORS.INVALID_PARAMS)
-    }
-    await this.siopQueue.add('userRequest', { 
-      client_id: CLIENT_ID_URI,
-      clientUriRedirect: uriRedirect.clientUriRedirect
-    });
-  }
-  */
-
   @Post('responses')
   async validateSIOPResponse(@Body() siopResponseJwt: SiopResponseJwt): Promise<SiopAckResponse> {
     this.logger.log('[RP Backend] Received POST SIOP Response from SIOP client')
@@ -63,7 +49,7 @@ export class SiopController {
   async getSIOPRequestJwt(@Param('clientId') clientId: string): Promise<SiopRequestJwt> {
     // retrieve jwt value stored in the DB with a key cliendId
     const jwt = await this.jwtRedis.get(clientId)
-    this.logger.debug(`Received request from ${clientId} to get the JWT: \n ${jwt}`);
+    this.logger.debug(`Received request from ${clientId} to get the JWT`);
     return { jwt }
   }
 
