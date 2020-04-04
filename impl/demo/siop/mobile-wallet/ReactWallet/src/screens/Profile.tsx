@@ -1,8 +1,8 @@
 import React from "react";
 import { View, Text, Button } from "react-native";
-import { Props } from "Types";
+import { ProfileProps } from "Types";
 
-function Profile({ route, navigation }: Props) {
+function Profile({ route, navigation }: ProfileProps) {
   const { name } = route.params;
   return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>

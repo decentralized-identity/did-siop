@@ -12,14 +12,23 @@ type RootStackParamList = {
 
 type ProfileScreenRouteProp = RouteProp<RootStackParamList, 'Profile'>;
 
+type HomeScreenNavigationProp = StackNavigationProp<
+  RootStackParamList,
+  'Profile'
+>;
+
 type ProfileScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
   'Profile'
 >;
 
-type Props = {
+type HomeProps = {
+  navigation: HomeScreenNavigationProp;
+};
+
+type ProfileProps = {
   route: ProfileScreenRouteProp;
   navigation: ProfileScreenNavigationProp;
 };
 
-export type { ProfileName, Props, RootStackParamList };
+export type { ProfileName, HomeProps, ProfileProps, RootStackParamList };

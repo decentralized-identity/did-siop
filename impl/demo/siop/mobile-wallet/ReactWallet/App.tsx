@@ -19,8 +19,7 @@ export default function App() {
         />
         <RootStack.Screen 
           name="Profile" 
-          component={Profile} 
-          initialParams={{ name: 'Peter Default' }}
+          component={Profile}
         />
       </RootStack.Navigator>
     </NavigationContainer>

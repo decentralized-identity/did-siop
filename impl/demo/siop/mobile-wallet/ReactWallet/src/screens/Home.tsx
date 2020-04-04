@@ -1,7 +1,8 @@
 import { View, Text, Button } from "react-native";
 import React from "react";
+import { HomeProps } from "Types";
 
-function Home({navigation}: any) {
+function Home({navigation}: HomeProps) {
   return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
       <Text>Home Screen</Text>
