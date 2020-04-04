@@ -91,18 +91,4 @@ export class SiopProcessor {
       }
     }
   }
-
-  @Process('emitSiopResponse')
-  handleSiopResponse(job: Job): SiopResponse {
-    if (!job || !job.data || !job.data.jwt || !job.data.validationResult) {
-      throw new BadRequestException(DID_SIOP_ERRORS.INVALID_PARAMS)
-    }
-    const siopResponse:SiopResponse = { 
-      validationResult: job.data.validationResult,
-      did: getUserDid(job.data.jwt),
-      jwt: job.data.jwt
-    }
-    this.logger.debug('SIOP Response: ' + JSON.stringify(siopResponse))
-    return siopResponse
-  }
 }
