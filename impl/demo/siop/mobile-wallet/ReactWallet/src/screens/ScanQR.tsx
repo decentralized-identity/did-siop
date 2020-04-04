@@ -12,7 +12,7 @@ class ScanQR extends React.Component<ScanQRProps> {
   sendSiopUriToBackend = async (siopUri: string): Promise<SiopAckRequest> => {
     if (!siopUri) throw Error('URI not defined')
 
-    const response:SiopAckRequest = await util.doPostCall(siopUri, config.WALLET_BACKEND_URI)
+    const response:SiopAckRequest = await util.doPostCall({ siopUri }, config.WALLET_BACKEND_URI)
     console.log(`Response: ${JSON.stringify(response)}`)
     return response;  
   }
