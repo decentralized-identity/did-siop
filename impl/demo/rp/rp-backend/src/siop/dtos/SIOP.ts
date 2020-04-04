@@ -25,6 +25,7 @@ export interface SiopAckRequest {
 export interface SiopResponse {
   validationResult: boolean;
   did: string;
+  jwt: string;
 }
 
 export interface SiopAckResponse {

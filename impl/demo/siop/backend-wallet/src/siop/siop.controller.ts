@@ -19,6 +19,7 @@ export class SiopController {
     // get siop uri
     this.logger.debug('SIOP Request received: ' + JSON.stringify(siopUriRequest))
     const siopRequestJwt = await this._getRequestJwt(siopUriRequest.siopUri)
+    this.logger.log('SIOP Request JWT received: ' + siopRequestJwt)
     // validated siop Request
     const validationRequest:boolean = LibDidSiopService.validateSIOPRequest(siopRequestJwt)
     if (!validationRequest) {

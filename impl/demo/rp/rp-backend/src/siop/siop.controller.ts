@@ -22,6 +22,7 @@ export class SiopController {
     if (!siopResponseJwt || !siopResponseJwt.jwt) {
       throw new BadRequestException(DID_SIOP_ERRORS.INVALID_PARAMS)
     }
+    this.logger.log(`[RP Backend] Received SIOP Response JWT: ${siopResponseJwt.jwt}`)
     // validate siop response
     const validationResult:boolean = LibDidSiopService.validateSIOPResponse(
       siopResponseJwt.jwt, 
@@ -36,7 +37,8 @@ export class SiopController {
     // prepare siop response struct to return
     const siopResponse:SiopResponse = { 
       validationResult,
-      did: getUserDid(siopResponseJwt.jwt)
+      did: getUserDid(siopResponseJwt.jwt),
+      jwt: siopResponseJwt.jwt
     }
     // send a message to server so it can communicate with front end io client
     // and send the validation response

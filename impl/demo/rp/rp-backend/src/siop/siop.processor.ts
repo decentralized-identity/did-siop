@@ -44,7 +44,7 @@ export class SiopProcessor {
     }
     // call SIOP library to create a SIOP Request Object
     const siopRequestJwt = LibDidSiopService.createSIOPRequest(siopRequestCall);
-    // this.logger.debug(`SIOP Request JWT: ${siopRequestJwt}`)
+    this.logger.debug(`SIOP Request JWT: ${siopRequestJwt}`)
     // store siopRequestJwt with the user session id
     this.jwtRedis.set(job.data.sessionId, siopRequestJwt)
     // call SIOP library to create a SIOP Request Object and its correspondent URI
@@ -70,20 +70,11 @@ export class SiopProcessor {
     // when clientUriRedirect NOT present, print QR to be read from an APP
     // !!! TODO: implement a way to send the siop:// and be catched by client (web plugin or APP deep link)
     if (!job.data.clientUriRedirect) {
-      // generate a terminal QR 
-      const terminalQr = await QRCode.toString(
-        result.siopUri ,
-        { 
-          type:'terminal',
-          errorCorrectionLevel: 'low',
-          version: 8 // minimum version for that amount of data
-        })
       // generate QR code image 
       const imageQr = await QRCode.toDataURL(result.siopUri)
       const qrResponse:QRResponse = {
         imageQr, 
-        siopUri: result.siopUri, 
-        terminalQr
+        siopUri: result.siopUri
       }
       // sends an event to the server, to send the QR to the client
       this.socket.emit('sendSIOPRequestJwtToFrontend', qrResponse);
@@ -108,7 +99,8 @@ export class SiopProcessor {
     }
     const siopResponse:SiopResponse = { 
       validationResult: job.data.validationResult,
-      did: getUserDid(job.data.jwt)
+      did: getUserDid(job.data.jwt),
+      jwt: job.data.jwt
     }
     this.logger.debug('SIOP Response: ' + JSON.stringify(siopResponse))
     return siopResponse

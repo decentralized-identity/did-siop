@@ -73,7 +73,6 @@
           this.did = `Your DID is: ${response.did}`;
         },
         displayQr(qrResponse) {
-          console.log(`terminal QR:\n${qrResponse.terminalQr}`);
           console.log(`SIOP URI:    ${qrResponse.siopUri}`);
           var img = document.getElementById('qrImage')
           img.src = qrResponse.imageQr
