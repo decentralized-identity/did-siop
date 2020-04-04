@@ -1,4 +1,4 @@
-const BASE_URL = 'http://localhost:9001'
+const BASE_URL = 'http://15309900.ngrok.io'
 const SIOP_PATH = '/siop'
 const REQUEST_URL = '/request-urls'
 
