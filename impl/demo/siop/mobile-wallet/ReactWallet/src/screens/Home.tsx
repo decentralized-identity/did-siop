@@ -1,16 +1,40 @@
-import { View, Text, Button } from "react-native";
+import { Container, Header, Content, Footer, FooterTab, Button, Icon, Text, View } from 'native-base';
 import React from "react";
 import { HomeProps } from "Types";
 
 function Home({navigation}: HomeProps) {
   return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-      <Text>Home Screen</Text>
-      <Button
-        title="Go to Jane's profile"
-        onPress={() => navigation.navigate('Profile', {name: 'Jane'})}
-      />
-    </View>
+    <Container>
+      <Header />
+      <Content>
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+          <Button transparent onPress={() => navigation.navigate('Profile', {name: 'Jane'})} >
+            <Icon name ='people' />
+            <Text>Go to Jane's profile</Text>  
+          </Button>
+        </View>
+      </Content>
+      <Footer>
+        <FooterTab>
+          <Button vertical onPress={() => navigation.navigate('Home')} >
+            <Icon name="home" />
+            <Text>Home</Text>
+          </Button>
+          <Button vertical>
+            <Icon name="camera" />
+            <Text>Scan QR</Text>
+          </Button>
+          <Button vertical onPress={() =>
+              navigation.push('Profile', {
+                name: 'Jane' + Math.floor(Math.random() * 100),
+              })
+            } >
+            <Icon name="person" />
+            <Text>Profile</Text>
+          </Button>
+        </FooterTab>
+      </Footer>
+    </Container>
   );
 }
 
