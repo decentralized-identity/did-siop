@@ -1,20 +1,26 @@
 import React from 'react';
-import { Container, Header, Content, Footer, FooterTab, Button, Icon, Text, View } from 'native-base';
-import { ScanQRProps } from "Types";
-import {
-  Linking
-} from 'react-native';
- 
+import { Container, Content, Footer, FooterTab, Button, Icon, Text } from 'native-base';
+import { ScanQRProps } from 'Types';
+import * as config from 'Config'
+import * as util from 'util/Util'
 import QRCodeScanner from 'react-native-qrcode-scanner';
+import { SiopAckRequest } from 'siop/dtos/Siop';
 
 class ScanQR extends React.Component<ScanQRProps> {
   readonly navigation = (this.props as ScanQRProps).navigation
 
+  sendSiopUriToBackend = async (siopUri: string): Promise<SiopAckRequest> => {
+    if (!siopUri) throw Error('URI not defined')
+
+    const response:SiopAckRequest = await util.doPostCall(siopUri, config.WALLET_BACKEND_URI)
+    console.log(`Response: ${JSON.stringify(response)}`)
+    return response;  
+  }
   onSuccess = (e: { data: string; }) => {
-    console.log(e.data);
-    Linking.openURL(e.data).catch(err =>
-      console.error('An error occured', err)
-    );
+    console.log(`QR Code data read: ${e.data}`);
+    this.sendSiopUriToBackend(e.data)
+    .then((response:SiopAckRequest) => {console.log(JSON.stringify(response))})
+    .catch((error: Error) => console.log('An error occured', error))
   };
 
   render() {
