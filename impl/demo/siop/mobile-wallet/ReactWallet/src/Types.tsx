@@ -8,6 +8,7 @@ interface ProfileName {
 type RootStackParamList = {
   Home: undefined;
   Profile: ProfileName;
+  ScanQR: undefined;
 };
 
 type ProfileScreenRouteProp = RouteProp<RootStackParamList, 'Profile'>;
@@ -22,6 +23,11 @@ type ProfileScreenNavigationProp = StackNavigationProp<
   'Profile'
 >;
 
+type ScanQRScreenNavigationProp = StackNavigationProp<
+  RootStackParamList,
+  'ScanQR'
+>;
+
 type HomeProps = {
   navigation: HomeScreenNavigationProp;
 };
@@ -31,4 +37,13 @@ type ProfileProps = {
   navigation: ProfileScreenNavigationProp;
 };
 
-export type { ProfileName, HomeProps, ProfileProps, RootStackParamList };
+type ScanQRProps = {
+  navigation: ScanQRScreenNavigationProp;
+};
+
+export type {  
+  HomeProps,
+  ScanQRProps,
+  ProfileName,
+  ProfileProps,
+  RootStackParamList };

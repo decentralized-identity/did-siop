@@ -1,17 +1,14 @@
-import { Container, Header, Content, Footer, FooterTab, Button, Icon, Text, View } from 'native-base';
 import React from "react";
-import { HomeProps } from "Types";
+import { Container, Header, Content, Footer, FooterTab, Button, Icon, Text, View } from 'native-base';
+import { ScanQRProps } from "Types";
 
-function Home({navigation}: HomeProps) {
+function ScanQR({ navigation }: ScanQRProps) {
   return (
     <Container>
       <Header />
       <Content>
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-          <Button transparent onPress={() => navigation.navigate('Profile', {name: 'Jane'})} >
-            <Icon name ='people' />
-            <Text>Go to Jane's profile</Text>  
-          </Button>
+          <Text>Scan a QR</Text>
         </View>
       </Content>
       <Footer>
@@ -38,4 +35,4 @@ function Home({navigation}: HomeProps) {
   );
 }
 
-export { Home };
+export { ScanQR };

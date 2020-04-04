@@ -33,7 +33,7 @@ function Profile({ route, navigation }: ProfileProps) {
             <Icon name="home" />
             <Text>Home</Text>
           </Button>
-          <Button vertical>
+          <Button vertical onPress={() => navigation.navigate('ScanQR')} >
             <Icon name="camera" />
             <Text>Scan QR</Text>
           </Button>
