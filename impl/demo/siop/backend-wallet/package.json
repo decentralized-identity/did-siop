@@ -1,0 +1,76 @@
+{
+  "name": "backend-wallet",
+  "version": "0.0.1",
+  "description": "Wallet backend demo implementation of the DID-SIOP Protocol",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/decentralized-identity/did-siop"
+  },
+  "author": "Validated Id <info@validatedid.com>",
+  "license": "Apache-2.0",
+  "scripts": {
+    "prebuild": "rimraf dist",
+    "build": "nest build",
+    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
+    "start": "nest start",
+    "start:dev": "nest start --watch",
+    "start:debug": "nest start --debug --watch",
+    "start:prod": "node dist/main",
+    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:cov": "jest --coverage",
+    "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
+    "test:e2e": "jest --config ./test/jest-e2e.json"
+  },
+  "dependencies": {
+    "@nestjs/bull": "^0.1.0",
+    "@nestjs/common": "^7.0.3",
+    "@nestjs/core": "^7.0.3",
+    "@nestjs/platform-express": "^7.0.3",
+    "axios": "^0.19.2",
+    "base-58": "0.0.1",
+    "base64url": "^3.0.1",
+    "bull": "^3.13.0",
+    "did-resolver": "^1.1.0",
+    "jose": "^1.25.0",
+    "key-encoder": "^2.0.3",
+    "mkdirp": "^1.0.3",
+    "reflect-metadata": "^0.1.13",
+    "rimraf": "^3.0.0",
+    "rxjs": "^6.5.4",
+    "ts-loader": "^6.2.1",
+    "utf-8-validate": "^5.0.2",
+    "uuid": "^7.0.2"
+  },
+  "devDependencies": {
+    "@types/bull": "^3.12.1",
+    "@types/uuid": "^7.0.0",
+    "prettier": "^1.18.2",
+    "typescript": "^3.8.3"
+  },
+  "jest": {
+    "moduleFileExtensions": [
+      "js",
+      "json",
+      "ts"
+    ],
+    "rootDir": ".",
+    "testRegex": ".spec.ts$",
+    "transform": {
+      "^.+\\.(t|j)s$": "ts-jest"
+    },
+    "coverageDirectory": "../coverage",
+    "testEnvironment": "node",
+    "roots": [
+      "<rootDir>/src/",
+      "<rootDir>/libs/"
+    ],
+    "moduleNameMapper": {
+      "@lib/did-siop/(.*)": "<rootDir>/libs/lib-did-siop/src/$1",
+      "@lib/did-siop": "<rootDir>/libs/lib-did-siop/src",
+      "@lib/wallet/(.*)": "<rootDir>/src/wallet/$1",
+      "@lib/wallet": "<rootDir>/src/wallet"
+    }
+  }
+}

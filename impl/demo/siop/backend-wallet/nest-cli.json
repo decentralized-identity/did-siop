@@ -1,0 +1,18 @@
+{
+  "collection": "@nestjs/schematics",
+  "sourceRoot": "src",
+  "projects": {
+    "lib-did-siop": {
+      "type": "library",
+      "root": "libs/lib-did-siop",
+      "entryFile": "index",
+      "sourceRoot": "libs/lib-did-siop/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/lib-did-siop/tsconfig.lib.json"
+      }
+    }
+  },
+  "compilerOptions": {
+    "webpack": true
+  }
+}

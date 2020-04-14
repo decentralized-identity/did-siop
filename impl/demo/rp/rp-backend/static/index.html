@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ACME RP Site</title>
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+</head>
+
+<body>
+  <div id="v-app">
+    <h1>{{ title }}</h1>
+    <h2>{{ subTitle }}</h2>
+    <button v-on:click="sendSIOPClientUriBackend">SignIn with a SIOP Client Backend server</button>
+    <p>
+      <ul>
+        <li v-for="msg of messages">{{ msg }}</li>
+      </ul>
+    </p>
+    <h1>{{ welcome }}</h1>
+    <p> {{ validationResult }}</p>
+    <p> {{ did }}</p>
+  </div>
+  <img id="qrImage"></img>
+  <script>
+
+    var app = new Vue({
+      el: '#v-app',
+      data: {
+        title: 'SIOP Flow Demo v0.1',
+        subTitle: 'RP ACME site',
+        text: '',
+        messages: [],
+        socket: null,
+        welcome: '',
+        validationResult: '',
+        did: '',
+        clientUriRedirect: ''
+      },
+      methods: {
+        resetImg() {
+          var img = document.getElementById('qrImage');
+          img.src = '';
+        },
+        resetVars() {
+          this.text = '';
+          this.messages = [];
+          this.welcome = '';
+          this.validationResult = '';
+          this.did = '';
+          this.resetImg();
+        },
+        sendSIOPClientUriBackend() {
+          this.resetVars();
+          const data = {
+            clientUriRedirect: this.clientUriRedirect
+          };
+          console.log(`send: ${data}`);
+          this.socket.emit('signIn', data);
+        },
+        receiveMessage(msg) {
+          console.log(`recv: ${msg}`);
+          // this.messages.push(msg);
+        },
+        signInResponse(msg) {
+          console.log(`recv: ${msg}`);
+          const response = JSON.parse(msg)
+          this.resetImg();
+          this.welcome = 'Welcome to ACME!';
+          this.validationResult = `Your Sign-In validation result is: ${response.validationResult}`;
+          this.did = `Your DID is: ${response.did}`;
+        },
+        displayQr(qrResponse) {
+          console.log(`SIOP URI:    ${qrResponse.siopUri}`);
+          var img = document.getElementById('qrImage')
+          img.src = qrResponse.imageQr
+        }
+      },
+      created() {
+        this.socket = io('http://localhost:9003')
+        this.socket.on('signIn', (msg) => {
+          this.receiveMessage(msg);
+        });
+        this.socket.on('printQR', (qrResponse) => {
+          this.displayQr(qrResponse);
+        });
+        this.socket.on('signInResponse', (msg) => {
+          this.signInResponse(msg);
+        });
+        // get client uri redirect from URL parameters if present
+        const uri = window.location.search.substring(1);
+        const params = new URLSearchParams(uri);
+        this.clientUriRedirect = params.get("client_uri_redirect");
+        console.log(`Client URI redirect: ${this.clientUriRedirect}`);
+      }
+    })
+  </script>
+</body>
+
+</html>

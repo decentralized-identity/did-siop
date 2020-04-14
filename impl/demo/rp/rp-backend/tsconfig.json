@@ -1,0 +1,33 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "declaration": true,
+    "removeComments": true,
+    "esModuleInterop": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "target": "es2017",
+    "sourceMap": true,
+    "outDir": "./dist",
+    "baseUrl": "./",
+    "incremental": true,
+    "paths": {
+      "@lib/did-siop": [
+        "libs/lib-did-siop/src"
+      ],
+      "@lib/did-siop/*": [
+        "libs/lib-did-siop/src/*"
+      ],
+      "@lib/wallet": [
+        "src/wallet"
+      ],
+      "@lib/wallet/*": [
+        "src/wallet/*"
+      ]
+    }
+  },
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
+}
