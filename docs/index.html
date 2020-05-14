@@ -400,13 +400,163 @@
             This specification introduces additional rules for request parameters and claims in the Request Object:
         </p>
 
-        <ul>
-            <li>
-                REQUIRED. <code>iss</code> MUST contain the <a href="#did">DID</a> of the <a href="#rp">RP</a> that can
-                be resolved to a <a href="#did-document">DID Document</a>. The <a href="#did-document">DID Document</a>
-                MUST contain a verification method in the authentication section, e.g., public key, that allows the
-                <a href="#siop">SIOP</a> to verify the Request Object.
-            </li>
+        <figure id="protocol-single-device-flow">
+            <img style="margin: auto; display: block; width: 100%;"
+                 src="assets/did_authn_siop_profile_single_device_flow.png" alt="Regular flow using mobile phone.">
+            <figcaption style="text-align: center;">
+                : Regular Flow with a mobile browser as the User-Agent and an
+                <a href="#identity-wallet">Identity Wallet</a> app as the <a href="#siop">SIOP</a>.
+            </figcaption>
+        </figure>
+
+        <section>
+            <h3 id="sd-generate-siop-request">Request (Regular-device Flow)</h3>
+            <p>
+                The request contains <code>scope</code>, <code>response_type</code> and <code>client_id</code> as query
+                string parameters for backward compatibility with the OAuth2 specification [[!RFC6749]].
+                <code>response_type</code> MUST be <code>id_token</code> and <code>client_id</code> MUST specify the
+                callback URL of the <a href="#rp">RP</a> (as per [[!OIDC.Core]]). All other <a href="#oidc">OIDC</a>
+                request parameters MUST be provided in an Request Object as per [[!OIDC.Core]] which is encoded as a JWT.
+                This enables the <a href="#rp">RP</a> to authenticate against the <a href="#siop">SIOP</a> using the
+                <a href="#rp">RP's</a> <a href="#did">DID</a>. The Request Object can be passed by value in the
+                <code>request</code> request parameter, or by reference using the <code>request_uri</code> parameter.
+            </p>
+
+            <p>
+                The Request Object follows the <a href="#oidc">OIDC</a> specification, e.g., adding <code>nonce</code>,
+                <code>state</code>, <code>response_type</code>, and <code>client_id</code> parameters.
+            </p>
+
+            <p>
+                This specification introduces additional rules for request parameters and claims in the Request Object:
+            </p>
+
+            <ul>
+                <li>
+                    REQUIRED. <code>iss</code> MUST contain the <a href="#did">DID</a> of the <a href="#rp">RP</a> that can
+                    be resolved to a <a href="#did-document">DID Document</a>. The <a href="#did-document">DID Document</a>
+                    MUST contain a verification method in the authentication section, e.g., public key, that allows the
+                    <a href="#siop">SIOP</a> to verify the Request Object.
+                </li>
+                <p class="note">
+                    By default, the <code>iss</code> claim refers to the <code>client_id</code> but <a href="#siop">SIOP</a>
+                    assumes that <code>client_id</code> is the callback URL of the <a href="#rp">RP</a>. That is the reason
+                    why the <a href="#did">DID</a> is not encoded in the <code>client_id</code>. It is compliant with the
+                    <a href="#oidc">OIDC</a> specification to use different values for <code>iss</code> and
+                    <code>client_id</code>.
+                </p>
+
+                <li>
+                    REQUIRED. <code>kid</code> MUST be a DID URL referring to a verification method in the authentication
+                    section in the <a href="#rp">RP's</a> <a href="#did-document">DID Document</a>, e.g.,
+                    <code>did:example:0xab#key1</code>. The <a href="#siop">SIOP</a> MUST be able to use that verification
+                    method to verify the Request Object directly or indirectly. Additionally, the referred JWKS in the
+                    <code>registration</code> parameter MUST contain an entry with the same <code>kid</code>.
+                </li>
+                <li>
+                    REQUIRED. <code>scope</code> MUST include <code>did_authn</code> to indicate the <a href="#did-siop">
+                    SIOP DID </a> profile is used.
+                </li>
+                <li>
+                    REQUIRED. <code>registration</code> MUST be included in the Request Object
+                </li>
+                <li>
+                    REQUIRED. <code>client_id</code> MUST be repeated in the Request Object
+                </li>
+                <li>
+                    OPTIONAL. <code>did_doc</code> MUST contain the <a href="#did-document">DID Document</a> that
+                    corresponds to the <a href="#did">DID</a> in the <code>iss</code> claim.
+                </li>
+                <li>
+                    OPTIONAL. <code>response_mode</code> specifies how the response is returned to the callback URL by the
+                    <a href="#siop">SIOP</a>. <a href="#siop">SIOP</a> implementing this specification MAY set the
+                    <code>response_mode</code> to <code>form_post</code>. <code>fragment</code> is the default
+                    Response Mode. <a href="#rp">RPs</a> MUST take into consideration the platform of the
+                    User-Agent when specifying this request parameter.
+                </li>
+                <p class="note">
+                    See OAuth 2.0 Form Post Response Mode [[?OAuth2.FormPost]] and OAuth 2.0 Multiple Response Type Encoding
+                    Practices [[?OAuth2.ResponseTypes]] for more information about <code>response_mode</code>.
+                </p>
+                <li>
+                    OPTIONAL. <code>response_context</code> specifies whether the response should be returned to the
+                    callback URL in the context of an existing system browser session, or whether the response can be
+                    returned in a new/empty context (requested with a response_context of <code>wallet</code>).
+                    which indicates                 </li>
+                <p class="note">
+                    A response_mode of <code>wallet</code> indicates to the SIOP that the user flow should end in the SIOP,
+                    without any in-band redirection back to the RP. This behavior is useful in cross-device workflows where
+                    it's appropriate for the mobile portion of the flow to terminate in the wallet.
+                </p>
+            </ul>
+
+            <p>
+                The following is a non-normative example of the JWT header of a Request Object:
+            </p>
+            <pre class="example nohighlight">
+                {
+                   "alg": "ES256K",
+                   "typ": "JWT",
+                   "kid": "did:example:0xab#veri-key1"
+                }
+            </pre>
+
+            <p>
+                The following is a non-normative example of the JWT payload of a Request Object without requesting
+                <code>&lt;SIOP DID Response&gt;</code> encryption:
+            </p>
+            <pre class="example nohighlight">
+                {
+                    "iss": "did:example:0xab",
+                    "response_type": "id_token",
+                    "client_id": "https://my.rp.com/cb",
+                    "scope": "openid did_authn",
+                    "state": "af0ifjsldkj",
+                    "nonce": "n-0S6_WzA2Mj",
+                    "response_mode" : "form_post",
+                    "registration" : {
+                        "jwks_uri" : "https://uniresolver.io/1.0/identifiers/did:example:0xab;transform-keys=jwks",
+                        "id_token_signed_response_alg" : [ "ES256K", "EdDSA", "RS256" ]
+                    }
+                }
+            </pre>
+
+            <p>
+                The following is a non-normative example HTTP 302 redirect response by the <a href="#rp">RP</a>, which
+                triggers the User-Agent to make an <a href="siop-did">SIOP DID</a> Authentication Request using Request
+                Object by value to the <a href="#siop">SIOP</a> (with line wraps within values for display purposes
+                only):
+            </p>
+            <pre class="example nohighlight">
+                HTTP/1.1 302 Found
+                Location: openid://?
+                    &client_id=https%3A%2F%2Frp.example.com%2Fcb
+                    &scope=openid%20did_authn
+                    &request=&lt;JWT&gt;
+            </pre>
+
+            <p>
+                The following is a non-normative example HTTP 302 redirect response by the <a href="#rp">RP</a>, which
+                triggers the User-Agent to make an <a href="siop-did">SIOP DID</a> Authentication Request using Request
+                Object by reference to the <a href="#siop">SIOP</a> (with line wraps within values for display purposes
+                only):
+            </p>
+            <pre class="example nohighlight">
+                HTTP/1.1 302 Found
+                Location: openid://?
+                    response_type=id_token
+                    &client_id=https%3A%2F%2Frp.example.com%2Fcb
+                    &scope=openid%20did_authn
+                    &request_uri=https%3A%2F%2Frp.example.com%2F90ce0b8a-a910-4dd0
+            </pre>
+        </section>
+
+        <section>
+            <h3 id="sd-siop-request-validation">Request Validation (Regular-device Flow)</h3>
+            <p>
+                The <a href="#siop">SIOP</a> MUST validate the <code>&lt;SIOP DID Request&gt;</code> by following the
+                Self-Issued ID Token Validation rules as per [[!OIDC.Core]].
+            </p>
             <p class="note">
                 By default, the <code>iss</code> claim refers to the <code>client_id</code> but <a href="#siop">SIOP</a>
                 assumes that <code>client_id</code> is the callback URL of the <a href="#rp">RP</a>. That is the reason
