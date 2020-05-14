@@ -797,6 +797,23 @@
         circumstances, e.g., this will not be possible as such in the case of purely decentralized apps (dApp).
     </p>
 
+    <h2>Threat: Session Fixation in Cross-Device Flow</h2>
+    <p>
+
+        When the protocol begins on one device and end on another, there is a risk that the cross-device transfer can
+        be hijacked. For example, consider a flow that begins with the display of a QR code by the <a href="#rp">RP</a>
+        transfers to a mobile wallet when the user scans the QR code. In this scenario, an attacker can trick the user
+        into scanning a QR code associated with a legitimate RP's sign-in request, thereby causing the user to
+        authenticate within the context of the attacker's session.
+
+    <h2>Countermeasures</h2>
+    <p>
+        Validate that the browser session in which the DID SIOP Response is submitted belongs to the same user as the
+        browser session in which the DID SIOP Request was displayed. Even if these sessions are on different devices,
+        the RP can take steps to ensure these belong to the same user (e.g., by checking whether an existing session
+        exists or by asking the user to sign in through a non-SIOP means).
+    </p>
+
     <h2>Additional Security Considerations</h2>
     <p>
         The OWASP Foundation maintains a set of security recommendations and best practices for web applications, and it
