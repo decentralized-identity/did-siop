@@ -482,7 +482,9 @@
                     OPTIONAL. <code>response_context</code> specifies whether the response should be returned to the
                     callback URL in the context of an existing system browser session, or whether the response can be
                     returned in a new/empty context (requested with a response_context of <code>wallet</code>).
-                    which indicates                 </li>
+                    The default response_context is <code>rp</code>, indicating that the response should be submitted
+                    in the conext of the RP's existing system browser session.
+                </li>
                 <p class="note">
                     A response_mode of <code>wallet</code> indicates to the SIOP that the user flow should end in the SIOP,
                     without any in-band redirection back to the RP. This behavior is useful in cross-device workflows where
