@@ -464,10 +464,6 @@
                     REQUIRED. <code>client_id</code> MUST be repeated in the Request Object
                 </li>
                 <li>
-                    OPTIONAL. <code>did_doc</code> MUST contain the <a href="#did-document">DID Document</a> that
-                    corresponds to the <a href="#did">DID</a> in the <code>iss</code> claim.
-                </li>
-                <li>
                     OPTIONAL. <code>response_mode</code> specifies how the response is returned to the callback URL by the
                     <a href="#siop">SIOP</a>. <a href="#siop">SIOP</a> implementing this specification MAY set the
                     <code>response_mode</code> to <code>form_post</code>. <code>fragment</code> is the default
@@ -580,10 +576,6 @@
             </li>
             <li>
                 REQUIRED. <code>registration</code> MUST be included in the Request Object
-            </li>
-            <li>
-                OPTIONAL. <code>did_doc</code> MUST contain the <a href="#did-document">DID Document</a> that
-                corresponds to the <a href="#did">DID</a> in the <code>iss</code> claim.
             </li>
             <li>
                 OPTIONAL. <code>response_mode</code> specifies how the response is returned to the callback URL by the
@@ -707,12 +699,8 @@
 
         <ul>
             <li>
-                If no <code>did_doc</code> is present, resolve the <a href="#did-document">DID Document</a> from the
+                Resolve the <a href="#did-document">DID Document</a> from the
                 <a href="#rp">RP's</a> <a href="#did">DID</a> specified in the <code>iss</code> request parameter.
-            </li>
-            <li>
-                If <code>did_doc</code> is present, ensure this is a viable channel to exchange the
-                <a href="#rp">RP's</a> <a href="#did-document">DID Document</a> according to the applicable DID method.
             </li>
             <li>
                 If <code>jwks_uri</code> is present, ensure that the <a href="#did">DID</a> in the
@@ -758,10 +746,6 @@
             </li>
             <li>
                 REQUIRED. <code>did</code> MUST be the <a href="#siop">SIOP's</a> <a href="#did">DID</a>.
-            </li>
-            <li>
-                OPTIONAL. <code>did_doc</code> MUST be the <a href="#siop">SIOP's</a>
-                <a href="#did-document">DID Document</a> corresponding to <code>did</code> in JSON encoding.
             </li>
         </ul>
 
@@ -828,13 +812,8 @@
 
         <ul>
             <li>
-                If no <code>did_doc</code> is present, resolve the <a href="#did-document">DID Document</a> from the
+                Resolve the <a href="#did-document">DID Document</a> from the
                 <a href="#siop">SIOP's</a> <a href="#did">DID</a> specified in the <code>did</code> claim.
-            </li>
-            <li>
-                If <code>did_doc</code> is present, ensure this is a viable channel to exchange the
-                <a href="#siop">SIOP's</a> <a href="#did-document">DID Document</a> according to the applicable DID
-                method.
             </li>
             <li>
                 Determine the verification method from the <a href="#siop">SIOP's</a> <a href="#did-document">DID
@@ -977,7 +956,7 @@
 <section class="informative">
     <h1>IANA Considerations</h1>
     <p>
-        This specification registers the <code>did</code> and <code>did_doc</code> claims in the IANA JSON Web Token
+        This specification registers the <code>did</code> claim in the IANA JSON Web Token
         Claims registry defined in JWT.
     </p>
 </section>
