@@ -496,8 +496,8 @@
                     adding a top-level <code>vc</code> property as a sibling to (and following the schema of) <code>id_token</code>
                     and <code>userinfo</code>. Requesting claims within the <code>vc</code> set indicates that the requesting party
                     would like to receive (if <code>essential</code> is <code>false</code>), or requires (if <code>true</code>)
-                    a specific set of verifiable credential types within the <code>vc</code> claim of the SIOP Response. Specific
-                    VC types are are identified using the type's full URI.
+                    a specific set of verifiable credential types within the <code>.vp.verifiableCredential</code> array of the
+                    SIOP Response. Specific VC types are are identified using the VC type's full URI. 
                 </li>
                 <p class="note">
                     When providing claims in this manner, the SIOP Response acts as a W3C Verifiable Presentation; requested claims
