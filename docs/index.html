@@ -356,10 +356,12 @@
             by the <a href="#rp">RP</a> using Request Object by reference.
         </p>
 
-        <h3>RP Meta-data</h3>
+        <h3>RP Metadata</h3>
         <p>
             In contrast to other <a href="#oidc">OIDC</a> flows, e.g., Authorization Code Flow, <a href="#rp">RPs</a>
-            can provide client meta-data in the <code>registration</code> request parameter.
+            can provide client metadata in the <code>registration</code> request parameter. Clients MAY include
+            any registration metadata parameters defined in <a href="https://openid.net/specs/openid-connect-registration-1_0.html#ClientMetadata"
+            >OpenID Connect Registration 1.0</a>, and servers MAY use these parameters as they see fit.
         </p>
 
         <p>
@@ -850,7 +852,7 @@
     <section>
         <h2>SIOP Discovery</h2>
         <p>
-            The <a href="#siop">SIOP</a> specification assumes the following OP discovery meta-data:
+            The <a href="#siop">SIOP</a> specification assumes the following OP discovery metadata:
         </p>
         <pre class="nohighlight">
             "id_token_signing_alg_values_supported": ["RS256"],
@@ -858,7 +860,7 @@
         </pre>
 
         <p>
-            The <a href="#did-authn">DID AuthN</a> profile assumes the following OP discovery meta-data:
+            The <a href="#did-authn">DID AuthN</a> profile assumes the following OP discovery metadata:
         </p>
         <pre class="nohighlight">
             "id_token_signing_alg_values_supported": ["RS256", "ES256K", "EdDSA"],
