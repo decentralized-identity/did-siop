@@ -630,7 +630,7 @@
                 "response_mode" : "form_post",
                 "registration" : {
                     "jwks_uri" : "https://uniresolver.io/1.0/identifiers/did:example:0xab;transform-keys=jwks",
-                    "id_token_signed_response_alg" : [ "ES256K", "EdDSA", "RS256" ]
+                    "id_token_signed_response_alg" : "ES256K"
                 }
             }
         </pre>
@@ -874,10 +874,9 @@
         <p class="note">
             "Self-Issued OpenID Provider Discovery" IS NOT normative and does not contain any MUST, SHOULD, or MAY
             statements. Therefore, using a different signing algorithmn than <code>RS256</code> shouldn't break the
-            <a href="#siop">SIOP</a> specification. An <a href="#did-authn">DID AuthN</a> enabled <a href="#rp">RP</a>
-            would provide <code>id_token_signed_response_alg</code> to indicate which signature algorithms other than
-            <code>RS256</code> are supported, and can assume that <a href="#siop">SIOP</a> implementing the
-            <a href="#did-authn">DID AuthN</a> profile support any of the additional algorithms.
+            <a href="#siop">SIOP</a> specification. A <a href="#did-authn">DID AuthN</a> enabled <a href="#rp">RP</a>
+            would provide <code>id_token_signed_response_alg</code> to indicate its preferred signature algorithm
+            among the three <code>id_token_signing_alg_values_supported<code> options listed above.
         </p>
     </section>
 </section>
