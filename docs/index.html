@@ -639,7 +639,7 @@
 
         <h3 id="encryption">Encryption</h3>
         <p>
-            JWE encryption MUST use Diffie-Hellman key agreement, i.e., algorithm `ECDH-ES` using the `X25519` curve
+            JWE encryption SHOULD use Diffie-Hellman key agreement, i.e., algorithm `ECDH-ES` using the `X25519` curve
             which uses direct key agreement with an ephemeral key. This means that a symmetric key is derived using
             Diffie-Hellman from the <a href="#rp">RP's</a> public key and a randomly generated ephemeral private key.
             The corresponding ephemeral public key is included in the header of the JWE in the `epk` and the derived
