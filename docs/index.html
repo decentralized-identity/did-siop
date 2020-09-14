@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset='utf-8'>
-    <title>Self-Issued OpenID Connect Provider DID Profile</title>
+    <title>Self-Issued OpenID Connect Provider DID Profile v0.1</title>
     <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png">
     <style>
       #subtitle ~ h2,
@@ -83,7 +83,7 @@
           companyURL: "https://www.transmute.industries/"
         }],
         github: "https://github.com/decentralized-identity/did-siop",
-        edDraftURI: "TBD",
+        edDraftURI: "https://identity.foundation/did-siop/",
         shortName: "did-siop",
         localBiblio: siop.localBiblio
       };
@@ -257,9 +257,7 @@
                 <a href="#op">OP</a> while still being <a href="#oidc">OIDC</a>-compliant.
             </li>
         </ul>
-
     </section>
-
 </section>
 
 <section class="normative">
@@ -325,7 +323,7 @@
             The request contains <code>scope</code>, <code>response_type</code> and <code>client_id</code> as query
             string parameters for backward compatibility with the OAuth2 specification [[!RFC6749]].
             <code>response_type</code> MUST be <code>id_token</code> and <code>client_id</code> MUST specify the
-            callback URL of the <a href="#rp">RP</a> (as per [[!OIDC.Core]]). All other <a href="#oidc">OIDC</a>
+            redirect URI of the <a href="#rp">RP</a> (as per [[!OIDC.Core]]). All other <a href="#oidc">OIDC</a>
             request parameters MUST be provided in an Request Object as per [[!OIDC.Core]] which is encoded as a JWT.
             This enables the <a href="#rp">RP</a> to authenticate against the <a href="#siop">SIOP</a> using the
             <a href="#rp">RP's</a> <a href="#did">DID</a>. The Request Object can be passed by value in the
@@ -399,180 +397,35 @@
         </p>
 
         <p>
+            The request contains <code>scope</code>, <code>response_type</code> and <code>client_id</code> as query
+            string parameters for backward compatibility with the OAuth2 specification [[!RFC6749]].
+            <code>response_type</code> MUST be <code>id_token</code> and <code>client_id</code> MUST specify the
+            redirect URI of the <a href="#rp">RP</a> (as per [[!OIDC.Core]]). All other <a href="#oidc">OIDC</a>
+            request parameters MUST be provided in an Request Object as per [[!OIDC.Core]] which is encoded as a JWT.
+            This enables the <a href="#rp">RP</a> to authenticate against the <a href="#siop">SIOP</a> using the
+            <a href="#rp">RP's</a> <a href="#did">DID</a>. The Request Object can be passed by value in the
+            <code>request</code> request parameter, or by reference using the <code>request_uri</code> parameter.
+        </p>
+
+        <p>
+            The Request Object follows the <a href="#oidc">OIDC</a> specification, e.g., adding <code>nonce</code>,
+            <code>state</code>, <code>response_type</code>, and <code>client_id</code> parameters.
+        </p>
+
+        <p>
             This specification introduces additional rules for request parameters and claims in the Request Object:
         </p>
 
-        <figure id="protocol-single-device-flow">
-            <img style="margin: auto; display: block; width: 100%;"
-                 src="assets/did_authn_siop_profile_single_device_flow.png" alt="Regular flow using mobile phone.">
-            <figcaption style="text-align: center;">
-                : Regular Flow with a mobile browser as the User-Agent and an
-                <a href="#identity-wallet">Identity Wallet</a> app as the <a href="#siop">SIOP</a>.
-            </figcaption>
-        </figure>
-
-        <section>
-            <h3 id="sd-generate-siop-request">Request (Regular-device Flow)</h3>
-            <p>
-                The request contains <code>scope</code>, <code>response_type</code> and <code>client_id</code> as query
-                string parameters for backward compatibility with the OAuth2 specification [[!RFC6749]].
-                <code>response_type</code> MUST be <code>id_token</code> and <code>client_id</code> MUST specify the
-                callback URL of the <a href="#rp">RP</a> (as per [[!OIDC.Core]]). All other <a href="#oidc">OIDC</a>
-                request parameters MUST be provided in an Request Object as per [[!OIDC.Core]] which is encoded as a JWT.
-                This enables the <a href="#rp">RP</a> to authenticate against the <a href="#siop">SIOP</a> using the
-                <a href="#rp">RP's</a> <a href="#did">DID</a>. The Request Object can be passed by value in the
-                <code>request</code> request parameter, or by reference using the <code>request_uri</code> parameter.
-            </p>
-
-            <p>
-                The Request Object follows the <a href="#oidc">OIDC</a> specification, e.g., adding <code>nonce</code>,
-                <code>state</code>, <code>response_type</code>, and <code>client_id</code> parameters.
-            </p>
-
-            <p>
-                This specification introduces additional rules for request parameters and claims in the Request Object:
-            </p>
-
-            <ul>
-                <li>
-                    REQUIRED. <code>iss</code> MUST contain the <a href="#did">DID</a> of the <a href="#rp">RP</a> that can
-                    be resolved to a <a href="#did-document">DID Document</a>. The <a href="#did-document">DID Document</a>
-                    MUST contain a verification method in the authentication section, e.g., public key, that allows the
-                    <a href="#siop">SIOP</a> to verify the Request Object.
-                </li>
-                <p class="note">
-                    By default, the <code>iss</code> claim refers to the <code>client_id</code> but <a href="#siop">SIOP</a>
-                    assumes that <code>client_id</code> is the callback URL of the <a href="#rp">RP</a>. That is the reason
-                    why the <a href="#did">DID</a> is not encoded in the <code>client_id</code>. It is compliant with the
-                    <a href="#oidc">OIDC</a> specification to use different values for <code>iss</code> and
-                    <code>client_id</code>.
-                </p>
-
-                <li>
-                    REQUIRED. <code>kid</code> MUST be a DID URL referring to a verification method in the authentication
-                    section in the <a href="#rp">RP's</a> <a href="#did-document">DID Document</a>, e.g.,
-                    <code>did:example:0xab#key1</code>. The <a href="#siop">SIOP</a> MUST be able to use that verification
-                    method to verify the Request Object directly or indirectly. Additionally, the referred JWKS in the
-                    <code>registration</code> parameter MUST contain an entry with the same <code>kid</code>.
-                </li>
-                <li>
-                    REQUIRED. <code>scope</code> MUST include <code>did_authn</code> to indicate the <a href="#did-siop">
-                    SIOP DID </a> profile is used.
-                </li>
-                <li>
-                    REQUIRED. <code>registration</code> MUST be included in the Request Object
-                </li>
-                <li>
-                    REQUIRED. <code>client_id</code> MUST be repeated in the Request Object
-                </li>
-                <li>
-                    OPTIONAL. <code>response_mode</code> specifies how the response is returned to the callback URL by the
-                    <a href="#siop">SIOP</a>. <a href="#siop">SIOP</a> implementing this specification MAY set the
-                    <code>response_mode</code> to <code>form_post</code>. <code>fragment</code> is the default
-                    Response Mode. <a href="#rp">RPs</a> MUST take into consideration the platform of the
-                    User-Agent when specifying this request parameter.
-                </li>
-                <p class="note">
-                    See OAuth 2.0 Form Post Response Mode [[?OAuth2.FormPost]] and OAuth 2.0 Multiple Response Type Encoding
-                    Practices [[?OAuth2.ResponseTypes]] for more information about <code>response_mode</code>.
-                </p>
-                <li>
-                    OPTIONAL. <code>response_context</code> specifies whether the response should be returned to the
-                    callback URL in the context of an existing system browser session, or whether the response can be
-                    returned in a new/empty context (requested with a response_context of <code>wallet</code>).
-                    The default response_context is <code>rp</code>, indicating that the response should be submitted
-                    in the conext of the RP's existing system browser session.
-                </li>
-                <p class="note">
-                    A response_mode of <code>wallet</code> indicates to the SIOP that the user flow should end in the SIOP,
-                    without any in-band redirection back to the RP. This behavior is useful in cross-device workflows where
-                    it's appropriate for the mobile portion of the flow to terminate in the wallet.
-                </p>
-                <li>
-                    OPTIONAL. <code>claims</code> follows the
-                    <a href="https://openid.net/specs/openid-connect-core-1_0.html#ClaimsParameter">OIDC Core schema</a>,
-                    adding a top-level <code>vc</code> property as a sibling to (and following the schema of) <code>id_token</code>
-                    and <code>userinfo</code>. Requesting claims within the <code>vc</code> set indicates that the requesting party
-                    would like to receive (if <code>essential</code> is <code>false</code>), or requires (if <code>true</code>)
-                    a specific set of verifiable credential types within the <code>.vp.verifiableCredential</code> array of the
-                    SIOP Response. Specific [VC types](https://www.w3.org/TR/vc-data-model/#types) are identified using the VC type's full URI. 
-                </li>
-                <p class="note">
-                    When providing claims in this manner, the SIOP Response acts as a W3C Verifiable Presentation; requested claims
-                    are provided in the Response by populating the array of Verifiable Credentials within the Presentation.
-                </p>
-            </ul>
-
-            <p>
-                The following is a non-normative example of the JWT header of a Request Object:
-            </p>
-            <pre class="example nohighlight">
-                {
-                   "alg": "ES256K",
-                   "typ": "JWT",
-                   "kid": "did:example:0xab#veri-key1"
-                }
-            </pre>
-
-            <p>
-                The following is a non-normative example of the JWT payload of a Request Object without requesting
-                <code>&lt;SIOP DID Response&gt;</code> encryption:
-            </p>
-            <pre class="example nohighlight">
-                {
-                    "iss": "did:example:0xab",
-                    "response_type": "id_token",
-                    "client_id": "https://my.rp.com/cb",
-                    "scope": "openid did_authn",
-                    "state": "af0ifjsldkj",
-                    "nonce": "n-0S6_WzA2Mj",
-                    "response_mode" : "form_post",
-                    "registration" : {
-                        "jwks_uri" : "https://uniresolver.io/1.0/identifiers/did:example:0xab;transform-keys=jwks",
-                        "id_token_signed_response_alg" : "ES256K"
-                    }
-                }
-            </pre>
-
-            <p>
-                The following is a non-normative example HTTP 302 redirect response by the <a href="#rp">RP</a>, which
-                triggers the User-Agent to make an <a href="siop-did">SIOP DID</a> Authentication Request using Request
-                Object by value to the <a href="#siop">SIOP</a> (with line wraps within values for display purposes
-                only):
-            </p>
-            <pre class="example nohighlight">
-                HTTP/1.1 302 Found
-                Location: openid://?
-                    &client_id=https%3A%2F%2Frp.example.com%2Fcb
-                    &scope=openid%20did_authn
-                    &request=&lt;JWT&gt;
-            </pre>
-
-            <p>
-                The following is a non-normative example HTTP 302 redirect response by the <a href="#rp">RP</a>, which
-                triggers the User-Agent to make an <a href="siop-did">SIOP DID</a> Authentication Request using Request
-                Object by reference to the <a href="#siop">SIOP</a> (with line wraps within values for display purposes
-                only):
-            </p>
-            <pre class="example nohighlight">
-                HTTP/1.1 302 Found
-                Location: openid://?
-                    response_type=id_token
-                    &client_id=https%3A%2F%2Frp.example.com%2Fcb
-                    &scope=openid%20did_authn
-                    &request_uri=https%3A%2F%2Frp.example.com%2F90ce0b8a-a910-4dd0
-            </pre>
-        </section>
-
-        <section>
-            <h3 id="sd-siop-request-validation">Request Validation (Regular-device Flow)</h3>
-            <p>
-                The <a href="#siop">SIOP</a> MUST validate the <code>&lt;SIOP DID Request&gt;</code> by following the
-                Self-Issued ID Token Validation rules as per [[!OIDC.Core]].
-            </p>
+        <ul>
+            <li>
+                REQUIRED. <code>iss</code> MUST contain the <a href="#did">DID</a> of the <a href="#rp">RP</a> that can
+                be resolved to a <a href="#did-document">DID Document</a>. The <a href="#did-document">DID Document</a>
+                MUST contain a verification method in the authentication section, e.g., public key, that allows the
+                <a href="#siop">SIOP</a> to verify the Request Object.
+            </li>
             <p class="note">
                 By default, the <code>iss</code> claim refers to the <code>client_id</code> but <a href="#siop">SIOP</a>
-                assumes that <code>client_id</code> is the callback URL of the <a href="#rp">RP</a>. That is the reason
+                assumes that <code>client_id</code> is the redirect URI of the <a href="#rp">RP</a>. That is the reason
                 why the <a href="#did">DID</a> is not encoded in the <code>client_id</code>. It is compliant with the
                 <a href="#oidc">OIDC</a> specification to use different values for <code>iss</code> and
                 <code>client_id</code>.
@@ -593,7 +446,10 @@
                 REQUIRED. <code>registration</code> MUST be included in the Request Object
             </li>
             <li>
-                OPTIONAL. <code>response_mode</code> specifies how the response is returned to the callback URL by the
+                REQUIRED. <code>client_id</code> MUST be repeated in the Request Object
+            </li>
+            <li>
+                OPTIONAL. <code>response_mode</code> specifies how the response is returned to the redirect URI by the
                 <a href="#siop">SIOP</a>. <a href="#siop">SIOP</a> implementing this specification MAY set the
                 <code>response_mode</code> to <code>form_post</code>. <code>fragment</code> is the default
                 Response Mode. <a href="#rp">RPs</a> MUST take into consideration the platform of the
@@ -603,7 +459,31 @@
                 See OAuth 2.0 Form Post Response Mode [[?OAuth2.FormPost]] and OAuth 2.0 Multiple Response Type Encoding
                 Practices [[?OAuth2.ResponseTypes]] for more information about <code>response_mode</code>.
             </p>
-
+            <li>
+                OPTIONAL. <code>response_context</code> specifies whether the response should be returned to the
+                redirect URI in the context of an existing system browser session, or whether the response can be
+                returned in a new/empty context (requested with a <code>response_context</code> of <code>wallet</code>).
+                The default <code>response_context</code> is <code>rp</code>, indicating that the response should be submitted
+                in the conext of the RP's existing system browser session.
+            </li>
+            <p class="note">
+                A <code>response_context</code> of <code>wallet</code> indicates to the SIOP that the user flow should end in the SIOP,
+                without any in-band redirection back to the RP. This behavior is useful in cross-device workflows where
+                it's appropriate for the mobile portion of the flow to terminate in the wallet.
+            </p>
+            <li>
+                OPTIONAL. <code>claims</code> follows the
+                <a href="https://openid.net/specs/openid-connect-core-1_0.html#ClaimsParameter">OIDC Core schema</a>,
+                adding a top-level <code>vc</code> property as a sibling to (and following the schema of) <code>id_token</code>
+                and <code>userinfo</code>. Requesting claims within the <code>vc</code> set indicates that the requesting party
+                would like to receive (if <code>essential</code> is <code>false</code>), or requires (if <code>true</code>)
+                a specific set of verifiable credential types within the <code>.vp.verifiableCredential</code> array of the
+                SIOP Response. Specific [VC types](https://www.w3.org/TR/vc-data-model/#types) are identified using the VC type's full URI. 
+            </li>
+            <p class="note">
+                When providing claims in this manner, the SIOP Response acts as a W3C Verifiable Presentation; requested claims
+                are provided in the Response by populating the array of Verifiable Credentials within the Presentation.
+            </p>
         </ul>
 
         <p>
@@ -611,15 +491,15 @@
         </p>
         <pre class="example nohighlight">
             {
-               "alg": "ES256K",
-               "typ": "JWT",
-               "kid": "did:example:0xab#veri-key1"
+                "alg": "ES256K",
+                "typ": "JWT",
+                "kid": "did:example:0xab#veri-key1"
             }
         </pre>
 
         <p>
             The following is a non-normative example of the JWT payload of a Request Object without requesting
-            <code>&lt;SIOP Response&gt;</code> encryption:
+            <code>&lt;SIOP DID Response&gt;</code> encryption:
         </p>
         <pre class="example nohighlight">
             {
@@ -635,6 +515,35 @@
                     "id_token_signed_response_alg" : "ES256K"
                 }
             }
+        </pre>
+
+        <p>
+            The following is a non-normative example HTTP 302 redirect response by the <a href="#rp">RP</a>, which
+            triggers the User-Agent to make an <a href="siop-did">SIOP DID</a> Authentication Request using Request
+            Object by value to the <a href="#siop">SIOP</a> (with line wraps within values for display purposes
+            only):
+        </p>
+        <pre class="example nohighlight">
+            HTTP/1.1 302 Found
+            Location: openid://?
+                &client_id=https%3A%2F%2Frp.example.com%2Fcb
+                &scope=openid%20did_authn
+                &request=&lt;JWT&gt;
+        </pre>
+
+        <p>
+            The following is a non-normative example HTTP 302 redirect response by the <a href="#rp">RP</a>, which
+            triggers the User-Agent to make an <a href="siop-did">SIOP DID</a> Authentication Request using Request
+            Object by reference to the <a href="#siop">SIOP</a> (with line wraps within values for display purposes
+            only):
+        </p>
+        <pre class="example nohighlight">
+            HTTP/1.1 302 Found
+            Location: openid://?
+                response_type=id_token
+                &client_id=https%3A%2F%2Frp.example.com%2Fcb
+                &scope=openid%20did_authn
+                &request_uri=https%3A%2F%2Frp.example.com%2F90ce0b8a-a910-4dd0
         </pre>
 
         <h3 id="encryption">Encryption</h3>
@@ -653,15 +562,15 @@
 
         <pre class="example nohighlight">
             {
-               "alg": "ECDH-ES",
-               "epk":
-               {
-                 "kty": "OKP",
-                 "crv":"X25519",
-                 "x":"hSDwCYkwp1R0i33ctD73Wg2_Og0mOBr066SpjqqbTmo"
-               }
-               "enc": "XC20P",
-               "kid": "did:example:0xab#key-1"
+                "alg": "ECDH-ES",
+                "epk":
+                {
+                    "kty": "OKP",
+                    "crv":"X25519",
+                    "x":"hSDwCYkwp1R0i33ctD73Wg2_Og0mOBr066SpjqqbTmo"
+                }
+                "enc": "XC20P",
+                "kid": "did:example:0xab#key-1"
             }
         </pre>
 
@@ -693,8 +602,7 @@
             Note the two '.' characters above which indicates that the encrypted key is empty since we are
             using direct key agreement.
         </p>
-
-    </section>
+    </section>    
 
     <section>
         <h2>SIOP Request Validation</h2>
@@ -708,8 +616,8 @@
         </p>
 
         <p>
-            If scope contains the <code>did_authn</code> scope, the receiving <a href="#siop">SIOP</a> MUST further
-            validate the <code>SIOP Request</code> as follows in no particular order:
+            If scope contains the <code>did_authn</code> scope, the receiving <a href="#siop">SIOP</a>
+            MUST further validate the <code>&lt;SIOP Request&gt;</code> as follows in no particular order:
         </p>
 
         <ul>
@@ -742,7 +650,6 @@
 
     <section>
         <h2>Generate SIOP Response</h2>
-
         <p>
             The <a href="#siop">SIOP</a> MUST generate and send the <code>&lt;SIOP Response&gt;</code> to the
             <a href="#rp">RP</a> as described in the Self-Issued OpenID Provider Response section in [[!OIDC.Core]].
@@ -785,26 +692,25 @@
         The following is a non-normative example of the unencrypted JWT payload of an <code>id_token</code>:
         <pre class="example nohighlight">
             {
-               "iss": "https://self-issued.me",
-               "nonce": "n-0S6_WzA2Mj",
-               "exp": 1311281970,
-               "iat": 1311280970,
-               "sub_jwk" : {
-                  "crv":"secp256k1",
-                  "kid":"did:example:0xcd#verikey-1",
-                  "kty":"EC",
-                  "x":"7KEKZa5xJPh7WVqHJyUpb2MgEe3nA8Rk7eUlXsmBl-M",
-                  "y":"3zIgl_ml4RhapyEm5J7lvU-4f5jiBvZr4KgxUjEhl9o"
-               },
-               "sub": "9-aYUQ7mgL2SWQ_LNTeVN2rtw7xFP-3Y2EO9WV22cF0",
-               "did": "did:example:0xcd"
+                "iss": "https://self-issued.me",
+                "nonce": "n-0S6_WzA2Mj",
+                "exp": 1311281970,
+                "iat": 1311280970,
+                "sub_jwk" : {
+                    "crv":"secp256k1",
+                    "kid":"did:example:0xcd#verikey-1",
+                    "kty":"EC",
+                    "x":"7KEKZa5xJPh7WVqHJyUpb2MgEe3nA8Rk7eUlXsmBl-M",
+                    "y":"3zIgl_ml4RhapyEm5J7lvU-4f5jiBvZr4KgxUjEhl9o"
+                },
+                "sub": "9-aYUQ7mgL2SWQ_LNTeVN2rtw7xFP-3Y2EO9WV22cF0",
+                "did": "did:example:0xcd"
             }
         </pre>
     </section>
 
     <section>
         <h2>SIOP Response Validation</h2>
-
         <p>
             The <a href="#rp">RP</a> MUST validate the <code>&lt;SIOP Response&gt;</code> as described in the
             Self-Issued ID Token Validation section in [[!OIDC.Core]]. This includes:
@@ -848,7 +754,7 @@
             validation will verify the signature of the JWS.
         </p>
     </section>
-
+    
     <section>
         <h2>SIOP Discovery</h2>
         <p>
@@ -865,21 +771,22 @@
         <pre class="nohighlight">
             "id_token_signing_alg_values_supported": ["RS256", "ES256K", "EdDSA"],
             "request_object_signing_alg_values_supported":
-               ["none", "RS256", "ES256K", "EdDSA"]
+                ["none", "RS256", "ES256K", "EdDSA"]
         </pre>
 
         <p>
             This change will allow <a href="#did-authn">DID AuthN</a> enabled <a href="#rp">RPs</a> to use additional
             signature algorithms commonly used amongst members of the SSI community.
         </p>
-
+    
         <p class="note">
             "Self-Issued OpenID Provider Discovery" IS NOT normative and does not contain any MUST, SHOULD, or MAY
             statements. Therefore, using a different signing algorithmn than <code>RS256</code> shouldn't break the
             <a href="#siop">SIOP</a> specification. A <a href="#did-authn">DID AuthN</a> enabled <a href="#rp">RP</a>
             would provide <code>id_token_signed_response_alg</code> to indicate its preferred signature algorithm
-            among the three <code>id_token_signing_alg_values_supported<code> options listed above.
+            among the three <code>id_token_signing_alg_values_supported</code> options listed above.
         </p>
+        
     </section>
 </section>
 
