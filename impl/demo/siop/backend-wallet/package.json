@@ -28,7 +28,7 @@
     "@nestjs/common": "^7.0.3",
     "@nestjs/core": "^7.0.3",
     "@nestjs/platform-express": "^7.0.3",
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "base-58": "0.0.1",
     "base64url": "^3.0.1",
     "bull": "^3.13.0",
