@@ -5,7 +5,7 @@ import { getRandomString, getPemPubKey } from './util/Util'
 import { 
   SIOPRequest, SIOPResponseType, SIOPScope, 
   SIOPRequestCall, SIOPIndirectRegistration, SIOPDirectRegistration, 
-  SIOPRequestPayload, SIOPJwtHeader, SIOPResponseCall, SIOPResponse, SIOP_RESPONSE_ISS, SIOPResponsePayload, SIOP_KEY_TYPE } from './dtos/siop';
+  SIOPRequestPayload, SIOPJwtHeader, SIOPResponseCall, SIOPResponse, SIOP_RESPONSE_ISS, SIOPResponsePayload, SIOP_KEY_TYPE } from './dtos/SIOP';
 import { DIDDocument, getDIDDocument, PublicKey } from './dtos/DIDDocument'
 import { DID_SIOP_ERRORS } from './error'
 import base64url from "base64url";
