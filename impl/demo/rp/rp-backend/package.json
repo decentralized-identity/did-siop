@@ -35,7 +35,7 @@
     "@types/socket.io-client": "^1.4.32",
     "@types/uuid": "^3.4.7",
     "@types/ws": "^7.2.2",
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "base-58": "0.0.1",
     "base58": "^2.0.1",
     "base64url": "^3.0.1",
