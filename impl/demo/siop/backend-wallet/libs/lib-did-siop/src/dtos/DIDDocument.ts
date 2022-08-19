@@ -102,7 +102,7 @@ export function ecKeyToDidDoc(key: JWK.Key): DIDDocument {
 }
 
 export function getDIDDocument(did: string): DIDDocument {
-  const base58PubKey:string = did.replace('did:key', '')
+  const base58PubKey:string = did.replace('did:key:', '')
   const keyId = `${did}#veri-key1`;
 
   const authentication:Authentication = {
