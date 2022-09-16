@@ -46,7 +46,7 @@
     "did-resolver": "^1.1.0",
     "ethers": "^4.0.45",
     "jest": "^25.1.0",
-    "jose": "^1.23.0",
+    "jose": "^1.28.2",
     "key-encoder": "^2.0.3",
     "qrcode": "^1.4.4",
     "reflect-metadata": "^0.1.13",
