@@ -33,7 +33,7 @@
     "base64url": "^3.0.1",
     "bull": "^3.13.0",
     "did-resolver": "^1.1.0",
-    "jose": "^1.25.0",
+    "jose": "^1.28.2",
     "key-encoder": "^2.0.3",
     "mkdirp": "^1.0.3",
     "reflect-metadata": "^0.1.13",
