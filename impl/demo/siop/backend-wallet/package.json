@@ -39,7 +39,7 @@
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.0",
     "rxjs": "^6.5.4",
-    "ts-loader": "^6.2.1",
+    "ts-loader": "^9.4.2",
     "utf-8-validate": "^5.0.2",
     "uuid": "^7.0.2"
   },
